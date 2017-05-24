@@ -50,3 +50,5 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+*.ncb
+Pocket PC 2003 (ARMV4)/Release/BuildLog.htm
