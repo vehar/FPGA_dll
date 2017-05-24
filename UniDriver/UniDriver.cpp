@@ -116,7 +116,6 @@ DWORD UniDriver::ReadIRQ(RWRegData_t* readData) {
 
 	if(hDrv) {
 
-		//DeviceIoControl(hDrv, IOCTL_INTREAD, (LPVOID)readData, sizeof(RWRegData_t), (LPVOID)&readData->value, 4, &readed, NULL);
 		DeviceIoControl(hDrv, IOCTL_INTREAD, (LPVOID)readData, sizeof(RWRegData_t), NULL, NULL, &readed, NULL);
 	
 	}
