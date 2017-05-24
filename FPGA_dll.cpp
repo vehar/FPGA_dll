@@ -724,12 +724,9 @@ void FPGAinit(int n)
 			wcscpy(MainExePath, DstFolderPath);
 			wcscat(MainExePath, L"\\");
 			wcscat(MainExePath, MainExeName);
-
 		 STARTUPINFO cif;
 		 ZeroMemory(&cif,sizeof(STARTUPINFO));
-
 		 DEBUGMSG(TRUE,( TEXT("Starting FPGA init app\r\n")));
-
 		 PROCESS_INFORMATION pi;
 		 CreateProcess(MainExePath,NULL,NULL,NULL,FALSE,NULL,NULL,NULL,&cif,&pi);
 //*/
