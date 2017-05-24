@@ -204,9 +204,6 @@ void SettingsHndl (int n)
 
 		for(int i = 0; i< LCD_WIDTH-1; i++)
 		{
-			//135
-			//FPGA_Write(DacData1 ,s_Amplification);
-			//FPGA_Write(DacData2 ,110);
 			FPGA.setDACGain(s_Amplification);
 		}
 
