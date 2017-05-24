@@ -149,9 +149,6 @@ DWORD WINAPI ThreadSoft_BScan(LPVOID lpParameter)
 		Sleep(20);
 	if(BScan_not_freesed)
 	{
-		//FPGA_Write(AScanDrawMode ,64+128+256); 
-		//FPGA_Write(AScanEnAddr ,64+128); 
-		//FPGA_Write(AScanWrCS ,64+128);
 		FPGA.setAScanWrCS(64+128);
 
 		//ѕросто горизонтальный курсор индицирующий пр€мо на ј-скане момент превышени€
