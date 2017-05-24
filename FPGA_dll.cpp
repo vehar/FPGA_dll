@@ -17,7 +17,7 @@
 
 void AScanFileWrite(LPCVOID lpParam); //test Ascan wr file
 void AScanFileInit (void);//test Ascan wr file
-void FPGADeinit(void); //Deinit
+void FPGADeinit(void); //
 
 int DebugOutActive = 0; //if(DebugOutActive) if(DebugOutActive) printf
 
