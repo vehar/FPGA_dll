@@ -84,54 +84,6 @@ FPGACommunication FPGA;
 DWORD WINAPI ThreadSoft_AScan(LPVOID lpParameter);
 DWORD WINAPI ThreadSoft_BScan(LPVOID lpParameter);
 
-int soft_smooth_f = 1;
-
-void setSoftSmooth (int n)
-{
-	DBG_SHOW_FUNC;
-	soft_smooth_f = n;
-}
-
-void erase_all_Ascans (void)
-{
-	if(DebugOutActive) printf("%s(%i)\n", __FUNCTION__ , 0);
-	DBG_SHOW_FUNC;
-
-	int cs = 0;
-
-	FPGA.setAScanDrawMode(0xFF);
-	FPGA.setAScanEnAddr(0xFF);
-
-	for(cs; cs<8; cs++)
-	{
-		FPGA.setAScanWrCS(1<<cs);
-		for(int i = 0; i<LCD_WIDTH; i++)
-		{
-			FPGA.setAScanBuff(0, 0);
-		}
-	}
-}
-
-void test_all_Ascans (void)
-{
-	if(DebugOutActive) printf("%s(%i)\n", __FUNCTION__ , 0);
-	DBG_SHOW_FUNC;
-
-	int cs = 0;
-	erase_all_Ascans();
-
-	FPGA.setAScanDrawMode(0xFF);
-	FPGA.setAScanEnAddr(0xFF);
-
-	for(cs; cs<8; cs++)
-	{
-		FPGA.setAScanWrCS(1<<cs);
-		for(int i = 0; i<LCD_WIDTH-50; i++)
-		{
-			FPGA.setAScanBuff(20*cs+50, 20*cs+50);
-		}
-	}
-}
 
 int AScan_not_freesed = 1;
 int BScan_not_freesed = 1;
@@ -438,7 +390,7 @@ void ToFpgaDllSend(int with_fpga, int funk, int val)
 		//signal
 		case F_DETECTOR_SET:	FPGA.setSignalDetector(val); break; //3 = Detector = pos+neg  
 		case F_INTEGRATOR_SET:	FPGA.setSignalIntegration(val); break;// оличество точек, по которым интегрируетс€ сигнал = 2^ IntegratorKoef //0=off
-		case F_SOFT_SMOOTH:		setSoftSmooth(val); break;//вкл-выкл програмное сглаживание сигнала
+		case F_SOFT_SMOOTH:		while(0); /*obsolete*/ break;//вкл-выкл програмное сглаживание сигнала
 
 
 		case F_TGC_ON:		FPGA.setTgcState(1);			 break;//
