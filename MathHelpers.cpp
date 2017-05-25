@@ -3,7 +3,7 @@
 #include "MathHelpers.h"
 
 
-void smooth(int *input, int *output, int n, int window)
+void SoftSmooth(int *input, int *output, int n, int window)
 {
    int i,j,z,k1,k2,hw;
    double tmp;

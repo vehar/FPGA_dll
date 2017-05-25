@@ -48,13 +48,6 @@ activeScheme->params.gainDb = 10;
 #define GEN_CNT 7 //TODO:
 void FPGA_Regs_deinit(void)//дополнить деинитом буфферов
 {
-//All generators deinit
- for (int i = 0; i <= GEN_CNT; i++)
- {
-	FPGA.setGenSel(i);//Select gen buff
-	FPGA.setGenData((USHORT)0,256);
- }
-
 FPGA.systemReset();//restore another init values 
 
 FPGA.setAScanColor(0, 0);
@@ -78,8 +71,6 @@ FPGA.MainSyncEn(1);//SyncCtrl_nENABLE - on
 
 void Ascan_init (void)
 {
-FPGA.setAScanDrawMode(0);
-FPGA.setAScanEnAddr(0);
 	//Bit    07  06  05 04  03 02  01 00
 	//Data   R   R   R  G   G   G  B   B
 
@@ -91,17 +82,6 @@ FPGA.setAScanColor(5, RED);//Green //-8
 FPGA.setAScanColor(6, YELLOW);//Blue //-16
 FPGA.setAScanColor(7, GREEN);//Blue //-32
 FPGA.setAScanColor(8, VIOLET);//R+G //yellow  //-64 B-scan!
-
-
-//////A-SCAN_init//////////////
-
-FPGA.setAScanDrawMode(0xFF);//AScanDrawMode 0 или AScan№
-FPGA.setAScanEnAddr(0xFF);//Если не произвести эту запись (AScanEn) - изображение на экране не появится!!!!!
-FPGA.setAScanWrCS(0xFF);//пишем в рам всех а-сканов
-
-FPGA.setAScanStartAddrWr(0);//а тут - ок
-FPGA.resetAScanRamCntRd();//не сбрасваелся счётчик записи TODO:
-//////A-SCAN_init//////////////
 }
 
 void Gen_init (void) 
@@ -119,7 +99,6 @@ void Acust_init(void)
 {
 //////ANALOG_init start///////////////////////////////////////////////////////////
 FPGA.setSignalInversion(1);
-FPGA.resetReadRamCounter();//RamCntRdRst - ok
 
 /*!*/ FPGA.setSignalDetector(1);//Detector = off
 
@@ -198,8 +177,6 @@ koef_array	[	21	]	=	114	;
 koef_array	[	22	]	=	128	;
 }
 
-
-
 //=======================================================================================
 unsigned char   Value;
 
@@ -207,7 +184,6 @@ int FPGA_DBUS_TEST()
 {
 	int Ok = 0;
 	unsigned short temp;
-	int Value1;
 	for(int i=0;i<15;i++)
 	{
 		FPGA_Write(DBUS_TEST_DR ,(unsigned short)1<<i);
@@ -222,7 +198,6 @@ int FPGA_ABUS_TEST()
 {
 	int Ok = 0;
  unsigned short temp;
-	int Value1;
 	for(int i=0;i<7;i++)
 	{
 		FPGA_Read( 1 << i );  

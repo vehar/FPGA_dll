@@ -189,9 +189,6 @@ FPGA.setSignalCompress(0);//Compress //3 //>>IN_SET
 FPGA.setSignalDetector(0);//Detector = pos+neg 
 
 
-	FPGA.setAScanDrawMode(1+2+4);
-	FPGA.setAScanEnAddr(1+2+4);
-	FPGA.setAScanWrCS(1);
 	FPGA.setSyncSource(1);//SyncCtrl - on //SyncInt
 	FPGA.setApainter(0);//on
 
@@ -502,8 +499,6 @@ return; //временно отключил TODO:
 //if(DebugOutActive) printf("F_OUT posX1 = %i, posX2 = %i\n", tmp_x1 , tmp_x2);
 
 
-
-
 void FPGAinit(int n)
 {
 	if(DebugOutActive) printf("%s(%i)\n", __FUNCTION__ , n);
@@ -608,7 +603,6 @@ void FPGAinit(int n)
 		//PrintAcousticScheme(*activeScheme);
 
 		FPGA.setApainter(0);//off
-		//FPGA.setApainter(1);//FPGA A-scan drawing on! 
 
 		// сначала инициализировать значениями, затем разрешать прорисовку. Иначе весь экран может залиться одним цветом
 		FPGA.setCursorX(0, 100);
@@ -616,10 +610,7 @@ void FPGAinit(int n)
 
 		FPGA.setCursorX(1, 200);
 		FPGA.setCursorY(1, 200);
-		//*
-		//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-		//FPGA.setAScanDrawMode(64+128+256);
-		//FPGA.setAScanEnAddr(64+128+256);
+
 		FPGA.setApainter(0);//on
 
 		for (int i = 0; i<8; i++)
@@ -647,8 +638,6 @@ void FPGAinit(int n)
 			}
 		}
 		//*/
-//		BSkan_errase(); 
-
 
 		//gen 4 фонит с бпеп 2
 		//ген 3 канал 3 не виден датчик
@@ -659,13 +648,6 @@ void FPGAinit(int n)
 		//1-2 /2-1 РС - обе пластины
 		//4-4 42 hand 
 
-		//FPGA_Write(GRSQ_RUN, 0);
-		//FPGA_Write(GRSQ_CR, 1);
-		//FPGA_Write(GRSQ_RUN, 1);
-
-
-		//G//R//Num
-		//FPGA_Write(GRSQ_RUN, 0);
 //////////////////////////////////////////////////////////////////
 /*
 		 WCHAR MainExePath[255];

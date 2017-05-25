@@ -3,11 +3,11 @@
 #include "FPGACommunication.h"
 
 #ifdef WINCE
-#define GMI_Interface UniDriver //RDM_11
 
 FPGACommunication::FPGACommunication()
 {
-	gmi = new GMI_Interface();
+	//General Memory Interface init
+	gmi = new UniDriver();
 	ExtBusCs1Init();
 }
 
@@ -30,11 +30,6 @@ void FPGACommunication::MainSyncEn(UINT en)
 	}
 }
 
-void FPGACommunication::setAScanDrawMode(UINT val)
-{
-//	gmi->WriteWORD(AScanDrawMode , val); 
-} 
-
 void FPGACommunication::setAScanEnAddr(UINT val)
 {
 	gmi->WriteWORD(ASCAN_EN_MR , val); 
@@ -47,6 +42,11 @@ void FPGACommunication::setAScanWrCS(UINT val)
 
 /////////////////////////////////////////////////////////
 /*
+void FPGACommunication::setAScanDrawMode(UINT val)
+{
+//	gmi->WriteWORD(AScanDrawMode , val); 
+} 
+
 void FPGACommunication::getAScanDrawMode(USHORT& val)
 {
 	gmi->ReadWORD(AScanDrawMode, val);
@@ -61,35 +61,29 @@ void FPGACommunication::getAScanWrCS(USHORT& val)
 {
 	gmi->ReadWORD(ASCAN_WR_CSR , val); 
 }
-*/
-/////////////////////////////////////////////////////////
 
+/////////////////////////////////////////////////////////
 
 void FPGACommunication::setAScanStartAddrWr(UINT val)
 {
 //	gmi->WriteWORD(AScanStartAddrWr , val); 
 }
 
-void FPGACommunication::setAScanBuff(UINT val, UINT val2)
-{
-//	gmi->WriteWORD(AScanBuffAddr1 , val); 
-//	gmi->WriteWORD(AScanBuffAddr2 , val2); 
-}
+
 
 void FPGACommunication::resetAScanRamCntRd()
 {
 //	gmi->WriteWORD(AScanRamCntRdRst ,0x01); //не сбрасвается счётчик записи TODO: проверить!
 }
-
+*/
 void FPGACommunication::setAScanColor(UINT color_addr, UINT color_val)
 {
 //	gmi->WriteWORD(AScanColor ,(color_addr<<8 | (color_val&0xFF)));
 }
-
-
-void FPGACommunication::setGenStartAddrWr(UINT val)
+void FPGACommunication::setAScanBuff(UINT val, UINT val2)
 {
-	//gmi->WriteWORD(GenStartAddrWr ,val);
+//	gmi->WriteWORD(AScanBuffAddr1 , val); 
+//	gmi->WriteWORD(AScanBuffAddr2 , val2); 
 }
 
 void FPGACommunication::setFilterCompress( USHORT val)
@@ -195,12 +189,7 @@ void FPGACommunication::setAnalogChSwich( USHORT val )
 {
 	gmi->WriteWORD(AN_CH_CSR, val);
 }
-/*
-void FPGACommunication::setAttenuator( USHORT val )
-{
-	gmi->WriteWORD(AttenSw, val);
-}
-*/
+
 void FPGACommunication::setSignalIntegration( USHORT val )
 {
 	gmi->WriteWORD(INTEGR_COEF_DR, val);
@@ -233,11 +222,6 @@ void FPGACommunication::setTgcData( USHORT val_1, USHORT val_2, int range)//! ус
 //	WriteBuf32(TGC_RAM_DR, DacData2, val_1, val_2, range);
 }
 
-void FPGACommunication::setDACCh( USHORT val )
-{
-//	gmi->WriteWORD(DacCh, val);
-}
-
 void FPGACommunication::setDACGain( USHORT val )
 {
 	gmi->WriteWORD(DAC_GAIN_DR, val);// TODO change reg
@@ -249,28 +233,10 @@ void FPGACommunication::setAcoustContGainCode( USHORT val )
 }
 
 
-
 //-------------------------------GENERATOR------------------------------------------
 void FPGACommunication::setGenSel(USHORT val ) //выбор ВЫХОДА активного генератора
 {
 	gmi->WriteWORD(GEN_CH_CSR, val);
-}
-
-void FPGACommunication::setGenOutCh( USHORT val )
-{
-	//gmi->WriteWORD(GenEn, val);
-}
-
-void FPGACommunication::setGenData( DWORD* Buff, int size )//!
-{
-	//gmi->WriteWORD(GenStartAddrWr, 0);
-	//WriteBuf32(GenBuffAddr1, GenBuffAddr2, Buff, size);
-}
-
-void FPGACommunication::setGenData( USHORT val, int range )//!
-{
-	//gmi->WriteWORD(GenStartAddrWr, 0);
-	//WriteBuf32(GenBuffAddr1, GenBuffAddr2, val, 0, range);
 }
 
 //---------------------------------------------------------------------------------
@@ -285,10 +251,6 @@ void FPGACommunication::setFilterCoeffs( USHORT* Buff, int size )
 	gmi->WriteBuf(FILT_COEFS_DR, Buff, size);
 }
 
-void FPGACommunication::resetReadRamCounter()
-{
-//	gmi->WriteWORD(RamCntRdRst, 1);
-}
 
 void FPGACommunication::setSignalADCDelay(UINT val)
 {

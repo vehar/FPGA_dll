@@ -143,14 +143,7 @@ void ReadDisplayAScan(void)
 	else {start = 0;}
 
 	 char * pch = strtok (AScanValArr+sizeof(AScanHeader)," ,"); // во втором параметре указаны разделитель	 			 
-	 
-	FPGA.setAScanDrawMode(1); 
-	FPGA.setAScanWrCS(1);
-
-//	FPGA_Write(RamCntRdRst ,0x01);
-	//FPGA_Write(AScanRamCntRdRst ,0x01);
-//	FPGA_Write(AScanStartAddrWr ,0x00);
-			
+	 		
 	//for(int i = start; i<272; i++)
 	 while(strcmp(pch,"END"))
 	{ 

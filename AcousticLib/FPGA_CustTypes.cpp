@@ -45,6 +45,7 @@ U32 FPGA_CustomPulser::convertOneValue(int ind)
 {
 	return ((delayArr[ind]*COEFF_FREQ200MHZ)<<Pulser_Bits)+formArr[ind];
 }
+
 void FPGA_CustomPulser::convert3ParamToFPGAFormat()
 {
 	int i = 0;
