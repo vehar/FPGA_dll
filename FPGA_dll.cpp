@@ -240,7 +240,7 @@ void startBScan(int n)
 	#ifdef WINCE
 
 		DWORD dwThreadId = 0;
-//ащк debug		HANDLE hBScan = CreateThread(NULL, 0, ThreadSoft_BScan, (LPVOID)0, 0, &dwThreadId); 
+//for debug		HANDLE hBScan = CreateThread(NULL, 0, ThreadSoft_BScan, (LPVOID)0, 0, &dwThreadId); 
 
 	#endif WINCE
 	}
@@ -333,7 +333,6 @@ void ToFpgaDllSend(int with_fpga, int funk, int val)
 		case F_FPGA_INIT:		if(DebugOutActive) printf("FPGAinit_case_start\n"); 
 								FPGA.systemReset();//restore init values 	FIX
 								FPGAinit(with_fpga); 
-								//FPGAinit(with_fpga);//TODO: fix this
 								
 								if(DebugOutActive) printf("FPGAinit_case_end\n");		
 								break;
@@ -417,6 +416,7 @@ void ToFpgaDllSend(int with_fpga, int funk, int val)
 	else
 	{
 		if(DebugOutActive) printf("FPGA emulated\n"); 
+		DEBUGMSG(TRUE, (TEXT("FPGA emulated\r\n")));
 		Sleep(2);
 	}
 #else
@@ -474,7 +474,7 @@ return; //временно отключил TODO:
 				CursorElevationBuff.buff_сd.excess = 0; //
 				}
 
-				buff = CursorElevationBuff; //отправляем готовые данные наверх прилдожению
+				buff = CursorElevationBuff; //отправляем готовые данные наверх приложению
 			} break;
 
 		case F_MOVE_DATA: // Track Sensor Speed, Direction, Distance
@@ -602,7 +602,7 @@ void FPGAinit(int n)
 
 		//PrintAcousticScheme(*activeScheme);
 
-		FPGA.setApainter(0);//off
+		FPGA.setApainter(0);//FPGA A-scan drawing off
 
 		// сначала инициализировать значениями, затем разрешать прорисовку. Иначе весь экран может залиться одним цветом
 		FPGA.setCursorX(0, 100);
