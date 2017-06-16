@@ -41,6 +41,7 @@ enum RDMSGpsLatLongFlag : UCHAR {
 
 };
 
+/*
 ////////////////////
 //
 //	GPS data
@@ -54,6 +55,27 @@ struct RDMSGpsInfo {
 	UCHAR		longDegrees;				// Longitude degrees
 	UCHAR		longMinutes;				// Longitude minutes
 	UCHAR		longSeconds;				// Longitude seconds
+
+};
+*/
+
+////////////////////
+//
+//	GPS data
+//
+struct RDMSGpsInfo {
+
+	UCHAR		state;						// GPS state flags
+	float		lat;						// Lattitude
+	float		lon;						// Longitude
+	UCHAR		speed;						// Speed (m/s)
+	USHORT		course;						// Course angle (0 - 359)
+	UCHAR		sec;						// Seconds (0 - 59)
+	UCHAR		min;						// Minutes (0 - 59)
+	UCHAR		hour;						// Hours (0 - 23)
+	UCHAR		year;						// Year (XXXX)
+	UCHAR		month;						// Month (1 - 12)
+	UCHAR		day;						// Day (1 - 31)
 
 };
 
@@ -187,6 +209,7 @@ struct RDMSDefectPacket : RDMSIPacket {
 
 	UCHAR			startByte;				// Start byte
 	RDMSPathSensor	pathSensorData;			// Path sensor coordinate
+	RDMSGpsInfo		gpsData;				// GPS coordinates
 	RDMSDefectData	defects[8];				// Defect data structures fro 8 channels
 	UCHAR			checkSum;				// Check sum
 	UCHAR			endByte;				// End byte

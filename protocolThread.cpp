@@ -152,7 +152,7 @@ DWORD WINAPI protocolThreadFunc(LPVOID lpParam) {
 	// Pointer to header data
 	protocolData* hdr = &exec->pHeader;
 
-	//
+	/*
 	wchar_t fileName[256];
 
 	RDMSHeader header;
@@ -265,7 +265,6 @@ DWORD WINAPI protocolThreadFunc(LPVOID lpParam) {
 	header.checkSum = header.calcCheckSum();
 
 	// Create file name
-	/*
 	swprintf(fileName,
 			 L"YAFFS_PART1\\%04d-%02d-%02d %02d-%02d-%02d, dist %02d, %lc%03d km %03d m (%ls).rdms",
 			 st.wYear,
@@ -301,14 +300,13 @@ DWORD WINAPI protocolThreadFunc(LPVOID lpParam) {
 	readAddr.offset = 114<<1;
 	readAddr.value = 0;
 
-	uniDrv.ReadBufIRQ(&readAddr);
+	uniDrv.ReadBufIRQ(&readAddr, (PBYTE)buffer, bufferSize * 2);
 
 	hdr->dataFunc((int)(1000 / cycleFreq), (int)(wordNum >> 8), (int)(bufferSize >> 8));
 
 	while (*execFlag == TRUE) {
 		Sleep(0);
 	};
-/*
 
 	HANDLE hFile = CreateFile(L"YAFFS_PART1\\file.txt",
 							  GENERIC_WRITE,
@@ -328,30 +326,91 @@ DWORD WINAPI protocolThreadFunc(LPVOID lpParam) {
 
 	double sizeCounter = 0;
 
+	RDMSDefectPacket packet;
+
+	CHAR data[47];
+
 	DWORD resultSize = 0;
 	WORD prv = 0;
 	while (*execFlag == TRUE) {
 
 		DWORD readed = uniDrv.ReadBufIRQ(&readAddr, (PBYTE)buffer, bufferSize * 2);
-		//bufferTest(buffer, bufferSize, FALSE, prv);
-		WriteFile(hFile, buffer, readed, &resultSize, NULL);
+
+		// Packet start byte
+		packet.startByte = RDMS_DEFECT_PACKET;
+
+		// Packet path sensor data
+		packet.pathSensorData.km		= buffer[0] & 0xFF00 >> 8;
+		packet.pathSensorData.m			= buffer[1];
+		packet.pathSensorData.sm		= buffer[2] & 0xFF00 >> 8;
+		packet.pathSensorData.mm		= buffer[2] & 0x00FF;
+
+		// GPS coordinates data
+		packet.gpsData.state			= 0xFF;
+		packet.gpsData.lat				= 43.1435f;
+		packet.gpsData.lon				= 45.2353f;
+		packet.gpsData.speed			= 0x02;
+		packet.gpsData.course			= 0x00;
+		packet.gpsData.sec				= 33;
+		packet.gpsData.min				= 8;
+		packet.gpsData.hour				= 15;
+		packet.gpsData.year				= 2017;
+		packet.gpsData.month			= 6;
+		packet.gpsData.day				= 14;
+		/*
+		packet.gpsData.latLongDirection	= 0x00;
+		packet.gpsData.latDegrees		= 0x00;
+		packet.gpsData.latMinutes		= 0x00;
+		packet.gpsData.latSeconds		= 0x00;
+		packet.gpsData.longDegrees		= 0x00;
+		packet.gpsData.longMinutes		= 0x00;
+		packet.gpsData.longSeconds		= 0x00;
+		*/
+
+		// Packet defects data
+		packet.defects[0].amplitude		= buffer[3] & 0xFF00 >> 8;
+		packet.defects[0].depth			= buffer[4];
+		packet.defects[1].amplitude		= buffer[5] & 0xFF00 >> 8;
+		packet.defects[1].depth			= buffer[6];
+		packet.defects[2].amplitude		= buffer[7] & 0xFF00 >> 8;
+		packet.defects[2].depth			= buffer[8];
+		packet.defects[3].amplitude		= buffer[9] & 0xFF00 >> 8;
+		packet.defects[3].depth			= buffer[10];
+		packet.defects[4].amplitude		= buffer[11] & 0xFF00 >> 8;
+		packet.defects[4].depth			= buffer[12];
+		packet.defects[5].amplitude		= buffer[13] & 0xFF00 >> 8;
+		packet.defects[5].depth			= buffer[14];
+		packet.defects[6].amplitude		= buffer[15] & 0xFF00 >> 8;
+		packet.defects[6].depth			= buffer[16];
+		packet.defects[7].amplitude		= buffer[17] & 0xFF00 >> 8;
+		packet.defects[7].depth			= buffer[18];
+
+		// Packet end byte
+		packet.endByte = RDMS_DEFECT_PACKET;
+
+		// Packet checksum
+		packet.calcCheckSum();
+
+		// Write packet to buffer
+		packet.write(data);
+
+		WriteFile(hFile, data, 47, &resultSize, NULL);
 
 		if (resultSize != readed) {
-		
+
 			printf("Unable to write data!");
 			Sleep(5000);
 			return -2;
-		
+
 		}
 
 		sizeCounter += (readed >> 10);
 		hdr->updFunc((int)sizeCounter);
 
 	}
-	*/
 
 	uniDrv.ReleaseIRQ();
-	//CloseHandle(hFile);
+	CloseHandle(hFile);
 
 	// Create protocol writer
 	//RDMSProtocolWriter* prot = new RDMSProtocolWriter(fileName, RDMS_DEFAULT_BUFFER_SIZE);
@@ -397,32 +456,32 @@ DWORD WINAPI protocolThreadFunc(LPVOID lpParam) {
 
 		if (WaitForSingleObject(hEvent, INFINITE) == WAIT_OBJECT_0) {
 
-		((RDMSDefectPacket*)packet)->startByte				= RDMS_DEFECT_PACKET;
-		((RDMSDefectPacket*)packet)->pathSensorData.km		= 0xF1;
-		((RDMSDefectPacket*)packet)->pathSensorData.m		= 0xF2F3;
-		((RDMSDefectPacket*)packet)->pathSensorData.sm		= 0xF4;
-		((RDMSDefectPacket*)packet)->pathSensorData.mm		= 0xF5;
-		((RDMSDefectPacket*)packet)->defects[0].amplitude	= 0x11;
-		((RDMSDefectPacket*)packet)->defects[0].depth		= 0x0000;
-		((RDMSDefectPacket*)packet)->defects[1].amplitude	= 0x22;
-		((RDMSDefectPacket*)packet)->defects[1].depth		= 0x0000;
-		((RDMSDefectPacket*)packet)->defects[2].amplitude	= 0x33;
-		((RDMSDefectPacket*)packet)->defects[2].depth		= 0x0000;
-		((RDMSDefectPacket*)packet)->defects[3].amplitude	= 0x44;
-		((RDMSDefectPacket*)packet)->defects[3].depth		= 0x0000;
-		((RDMSDefectPacket*)packet)->defects[4].amplitude	= 0x55;
-		((RDMSDefectPacket*)packet)->defects[4].depth		= 0x0000;
-		((RDMSDefectPacket*)packet)->defects[5].amplitude	= 0x66;
-		((RDMSDefectPacket*)packet)->defects[5].depth		= 0x0000;
-		((RDMSDefectPacket*)packet)->defects[6].amplitude	= 0x77;
-		((RDMSDefectPacket*)packet)->defects[6].depth		= 0x0000;
-		((RDMSDefectPacket*)packet)->defects[7].amplitude	= 0x88;
-		((RDMSDefectPacket*)packet)->defects[7].depth		= 0x0000;
-		((RDMSDefectPacket*)packet)->endByte				= RDMS_DEFECT_PACKET;
-		((RDMSDefectPacket*)packet)->checkSum				= ((RDMSDefectPacket*)packet)->calcCheckSum();
-		
-		// Write packet to protocol
-		prot->writePacket(*packet, packet->size());
+			((RDMSDefectPacket*)packet)->startByte				= RDMS_DEFECT_PACKET;
+			((RDMSDefectPacket*)packet)->pathSensorData.km		= 0xF1;
+			((RDMSDefectPacket*)packet)->pathSensorData.m		= 0xF2F3;
+			((RDMSDefectPacket*)packet)->pathSensorData.sm		= 0xF4;
+			((RDMSDefectPacket*)packet)->pathSensorData.mm		= 0xF5;
+			((RDMSDefectPacket*)packet)->defects[0].amplitude	= 0x11;
+			((RDMSDefectPacket*)packet)->defects[0].depth		= 0x0000;
+			((RDMSDefectPacket*)packet)->defects[1].amplitude	= 0x22;
+			((RDMSDefectPacket*)packet)->defects[1].depth		= 0x0000;
+			((RDMSDefectPacket*)packet)->defects[2].amplitude	= 0x33;
+			((RDMSDefectPacket*)packet)->defects[2].depth		= 0x0000;
+			((RDMSDefectPacket*)packet)->defects[3].amplitude	= 0x44;
+			((RDMSDefectPacket*)packet)->defects[3].depth		= 0x0000;
+			((RDMSDefectPacket*)packet)->defects[4].amplitude	= 0x55;
+			((RDMSDefectPacket*)packet)->defects[4].depth		= 0x0000;
+			((RDMSDefectPacket*)packet)->defects[5].amplitude	= 0x66;
+			((RDMSDefectPacket*)packet)->defects[5].depth		= 0x0000;
+			((RDMSDefectPacket*)packet)->defects[6].amplitude	= 0x77;
+			((RDMSDefectPacket*)packet)->defects[6].depth		= 0x0000;
+			((RDMSDefectPacket*)packet)->defects[7].amplitude	= 0x88;
+			((RDMSDefectPacket*)packet)->defects[7].depth		= 0x0000;
+			((RDMSDefectPacket*)packet)->endByte				= RDMS_DEFECT_PACKET;
+			((RDMSDefectPacket*)packet)->checkSum				= ((RDMSDefectPacket*)packet)->calcCheckSum();
+
+			// Write packet to protocol
+			prot->writePacket(*packet, packet->size());
 
 			GPIOInterruptDone(hGPIO, 65);
 
