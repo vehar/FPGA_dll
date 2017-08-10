@@ -294,16 +294,16 @@ void SetChannelParams(WORD channel, WORD delay, WORD CZone, WORD Gain)
 	FPGA_Write(SCAN_MODE_CR ,1);
 }
 	
-static int ChGenResArr[8] = {5,0,2,3,4,5,7,4}; //{5, 0, 1, 2, 6, 3, 7, 4};
+static int ChGenResArr[8] = {5, 0, 1, 2, 6, 3, 7, 4};
 void SetScanChannel(int num) //channel setter for AUTOSCAN mode
 {	
-	static int chPhy = ChGenResArr[num];
+	int chPhy = ChGenResArr[num];
 	DBG_SHOW_FUNC;
 	DEBUGMSG(TRUE, (TEXT("F_DLL: num: %u = chPhy: %u \r\n"), num, chPhy));
 
 	FPGA.setScanMode(0); //channel autoinc off	
-	FPGA.setAnalogChSwich(ChGenResArr[num]);	//BUG HERE!!!
-	//FPGA.setGenSel(chPhy);
+	FPGA.setAnalogChSwich(chPhy);	//BUG HERE!!!
+	FPGA.setGenSel(chPhy);
 	//SetChannelParams(chPhy, 0, 0xFFFF, 600);//FIX:
 	//DEBUGMSG(TRUE, (TEXT("		FIX: Default setCzone = 0xFFFF, setDACGain = 600, setSignalADCDelay = 0, setSignalCompress = 2 \r\n")));//TODO: rewrite dbg string
 }
