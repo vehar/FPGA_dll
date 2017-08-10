@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="windows-1251"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="9,00"
 	Name="FPGA_dll"
 	ProjectGUID="{01118627-3EC8-4206-81D2-73B0BDC9A1EC}"
 	RootNamespace="FPGA_dll"
 	Keyword="Win32Proj"
+	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -17,14 +18,14 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Pocket PC 2003 (ARMV4)"
-			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			OutputDirectory="$(PlatformName)\$(SolutionName)\$(ConfigurationName)"
+			IntermediateDirectory="$(PlatformName)\$(SolutionName)\$(ConfigurationName)"
 			ConfigurationType="2"
 			CharacterSet="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="IF NOT EXIST A:\AppData\Local\Temp (&#x0D;&#x0A;mkdir  A:\AppData\Local\Temp)"
+				CommandLine="IF NOT EXIST A:\AppData\Local\Temp (&#x0D;&#x0A;mkdir  A:\AppData\Local\Temp)&#x0D;&#x0A;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -73,6 +74,8 @@
 				SubSystem="0"
 				StackReserveSize="65536"
 				StackCommitSize="4096"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary="$(OutDir)/FPGA_dll.lib"
 			/>
 			<Tool
@@ -83,6 +86,9 @@
 			/>
 			<Tool
 				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
 			/>
 			<Tool
 				Name="VCCodeSignTool"
@@ -101,8 +107,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Pocket PC 2003 (ARMV4)"
-			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			OutputDirectory="$(PlatformName)\$(SolutionName)\$(ConfigurationName)"
+			IntermediateDirectory="$(PlatformName)\$(SolutionName)\$(ConfigurationName)"
 			ConfigurationType="2"
 			CharacterSet="1"
 			>
@@ -156,6 +162,8 @@
 				StackCommitSize="4096"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary="$(OutDir)/FPGA_dll.lib"
 			/>
 			<Tool
@@ -168,6 +176,9 @@
 				Name="VCBscMakeTool"
 			/>
 			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
 				Name="VCCodeSignTool"
 			/>
 			<Tool
@@ -175,7 +186,7 @@
 			/>
 			<DeploymentTool
 				ForceDirty="-1"
-				RemoteDirectory=""
+				RemoteDirectory="%CSIDL_PROGRAM_FILES%\Interface"
 				RegisterOutput="0"
 				AdditionalFiles=""
 			/>
@@ -191,79 +202,39 @@
 			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
-			<File
-				RelativePath=".\BScanHelper\BScanHelper.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\debug.h"
-				>
-			</File>
-			<File
-				RelativePath=".\ExtBusFunc\ExtBusFunc.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\FPGA\FPGA.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\FPGA_dll.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\FPGA\FPGA_helper.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\GpioDriver\GpioDriver.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\MathHelpers.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\protocolThread.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\stdafx.cpp"
-				>
-			</File>
 			<Filter
 				Name="AcustLib"
 				>
 				<File
-					RelativePath=".\AcousticLib\AcousticDefines.h"
+					RelativePath="..\AcousticLib\AcousticDefines.h"
 					>
 				</File>
 				<File
-					RelativePath=".\AcousticLib\AcousticScheme.cpp"
+					RelativePath="..\AcousticLib\AcousticScheme.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\AcousticLib\AcousticScheme.h"
+					RelativePath="..\AcousticLib\AcousticScheme.h"
 					>
 				</File>
 				<File
-					RelativePath=".\AcousticLib\FPGA_CustTypes.cpp"
+					RelativePath="..\AcousticLib\FPGA_CustTypes.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\AcousticLib\FPGA_CustTypes.h"
+					RelativePath="..\AcousticLib\FPGA_CustTypes.h"
 					>
 				</File>
 				<File
-					RelativePath=".\FPGA\FPGA_Registers.h"
+					RelativePath="..\FPGA\FPGA_Registers.h"
 					>
 				</File>
 				<File
-					RelativePath=".\AcousticLib\FPGACommunication.cpp"
+					RelativePath="..\AcousticLib\FPGACommunication.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\AcousticLib\FPGACommunication.h"
+					RelativePath="..\AcousticLib\FPGACommunication.h"
 					>
 				</File>
 			</Filter>
@@ -271,15 +242,15 @@
 				Name="UniDriver"
 				>
 				<File
-					RelativePath=".\UniDriver\driverHelper.h"
+					RelativePath="..\UniDriver\driverHelper.h"
 					>
 				</File>
 				<File
-					RelativePath=".\UniDriver\UniDriver.cpp"
+					RelativePath="..\UniDriver\UniDriver.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\UniDriver\UniDriver.h"
+					RelativePath="..\UniDriver\UniDriver.h"
 					>
 				</File>
 			</Filter>
@@ -287,15 +258,15 @@
 				Name="Protocol"
 				>
 				<File
-					RelativePath=".\Protocol\RDMSIProtocol.cpp"
+					RelativePath="..\Protocol\RDMSIProtocol.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Protocol\RDMSProtocolReader.cpp"
+					RelativePath="..\Protocol\RDMSProtocolReader.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Protocol\RDMSProtocolWriter.cpp"
+					RelativePath="..\Protocol\RDMSProtocolWriter.cpp"
 					>
 				</File>
 			</Filter>
@@ -303,88 +274,58 @@
 				Name="Freeze"
 				>
 				<File
-					RelativePath=".\Freeze\Freeze.cpp"
+					RelativePath="..\Freeze\Freeze.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Freeze\Freeze.h"
+					RelativePath="..\Freeze\Freeze.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Helpers"
+				>
+				<File
+					RelativePath="..\BScanHelper\BScanHelper.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\FPGA\FPGA.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\FPGA\FPGA_helper.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\GpioDriver\GpioDriver.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\MathHelpers.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\protocolThread.cpp"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="ExtBus"
+				>
+				<File
+					RelativePath="..\ExtBusFunc\ExtBusFunc.cpp"
 					>
 				</File>
 			</Filter>
 		</Filter>
 		<Filter
-			Name="Header Files"
-			Filter="h;hpp;hxx;hm;inl;inc;xsd"
-			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
+			Name="Main"
 			>
 			<File
-				RelativePath=".\BScanHelper\BScanHelper.h"
+				RelativePath="..\FPGA_dll.cpp"
 				>
 			</File>
-			<File
-				RelativePath=".\DM3730_Types.h"
-				>
-			</File>
-			<File
-				RelativePath=".\ExtBusFunc\ExtBusFunc.h"
-				>
-			</File>
-			<File
-				RelativePath=".\FPGA\FPGA.h"
-				>
-			</File>
-			<File
-				RelativePath=".\FPGA_dll.h"
-				>
-			</File>
-			<File
-				RelativePath=".\FPGA_dll_func.h"
-				>
-			</File>
-			<File
-				RelativePath=".\FPGA\FPGA_helper.h"
-				>
-			</File>
-			<File
-				RelativePath=".\GpioDriver\gpio.h"
-				>
-			</File>
-			<File
-				RelativePath=".\GpioDriver\GpioDriver.h"
-				>
-			</File>
-			<File
-				RelativePath=".\MathHelpers.h"
-				>
-			</File>
-			<File
-				RelativePath=".\protocolThread.hpp"
-				>
-			</File>
-			<File
-				RelativePath=".\stdafx.h"
-				>
-			</File>
-			<File
-				RelativePath=".\StructureData.h"
-				>
-			</File>
-			<Filter
-				Name="Protocol"
-				>
-				<File
-					RelativePath=".\Protocol\RDMSIProtocol.hpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Protocol\RDMSProtocolReader.hpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Protocol\RDMSProtocolWriter.hpp"
-					>
-				</File>
-			</Filter>
 		</Filter>
 	</Files>
 	<Globals>

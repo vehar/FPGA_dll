@@ -86,12 +86,7 @@ FPGA.setAScanColor(8, VIOLET);//R+G //yellow  //-64 B-scan!
 
 void Gen_init (void) 
 {
-//////GEN_init//////////////////////////////////////////////////////////////////////////
 	FPGA_Write(GEN_CH_CSR, 0);//disable gen
-//	FPGA_Write(GEN_DELAY_DR_1, 0);
-//	FPGA_Write(GEN_DURATION_DR_Adr, 8);//P-gen = 200ns + //gen clk_40M; 1 point = 25nS; 
-//	FPGA_Write(GEN_CH_CSR, 1); //Enable gen
-//////GEN_init////////////////////////////////////////////////////////////////////
 }
 
 
@@ -109,7 +104,7 @@ FPGA.setProbeDelay(activeScheme->probe.delayUs);//5-2000  //FPGA_Write(_ProbeDel
 FPGA.setSignalCompress(compress_val);//Compress //3 //>>IN_SET
 
 //===================================================================================================
-int AcoustAmplification = 710;
+int AcoustAmplification = 310;
 
 FPGA.setTgcStartAddr(0);
 FPGA.setTgcData(AcoustAmplification, AcoustAmplification, LCD_WIDTH-1);

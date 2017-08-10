@@ -1,8 +1,7 @@
 //#include "stdafx.h"
+#include <windows.h>
 #include "UniDriver.h"
 #include "driverHelper.h"
-
-#include <windows.h>
 #include "../DM3730_Types.h"
 //#include <iostream>
 //#include "IntLib.h"

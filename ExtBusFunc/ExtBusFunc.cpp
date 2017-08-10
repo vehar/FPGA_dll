@@ -79,7 +79,7 @@ void ExtBusCs1Init(void)
 
 	RWRegData_t Read_tmp1 = {GPMC_BASE_ADDR, offsetof(GPMC_REGS_t, GPMC_CONFIGDATA[1].GPMC_CONFIG1), 0};
 	bus.ReadReg(&Read_tmp1);
-	DEBUGMSG(TRUE,( TEXT("F_DLL: GPMC_CONFIGDATA[1].GPMC_CONFIG1 val =  %x \r\n"),Read_tmp1.value ));
+	DEBUGMSG(TRUE,( TEXT("	GPMC_CONFIGDATA[1].GPMC_CONFIG1 val =  0x%x \r\n"),Read_tmp1.value ));
 
 	////////////////////////////////////////////
 	RWRegData_t CS_timing = {GPMC_BASE_ADDR, offsetof(GPMC_REGS_t, GPMC_CONFIGDATA[1].GPMC_CONFIG2), 0};
@@ -93,7 +93,7 @@ void ExtBusCs1Init(void)
 
 	RWRegData_t Read_tmp2 = {GPMC_BASE_ADDR, offsetof(GPMC_REGS_t, GPMC_CONFIGDATA[1].GPMC_CONFIG2), 0};
 	bus.ReadReg(&Read_tmp2);
-	DEBUGMSG(TRUE,( TEXT("F_DLL: GPMC_CONFIGDATA[1].GPMC_CONFIG2 val =  %x \r\n"),Read_tmp2.value ));
+	DEBUGMSG(TRUE,( TEXT("	GPMC_CONFIGDATA[1].GPMC_CONFIG2 val =  0x%x \r\n"),Read_tmp2.value ));
 
 	////////////////////////////////////////////
 	RWRegData_t WE_OE_timing = {GPMC_BASE_ADDR, offsetof(GPMC_REGS_t, GPMC_CONFIGDATA[1].GPMC_CONFIG4), 0};
@@ -107,7 +107,7 @@ void ExtBusCs1Init(void)
 
 	RWRegData_t Read_tmp4 = {GPMC_BASE_ADDR, offsetof(GPMC_REGS_t, GPMC_CONFIGDATA[1].GPMC_CONFIG4), 0};
 	bus.ReadReg(&Read_tmp4);
-	DEBUGMSG(TRUE,( TEXT("F_DLL: GPMC_CONFIGDATA[1].GPMC_CONFIG4 val =  %x \r\n"),Read_tmp4.value ));
+	DEBUGMSG(TRUE,( TEXT("	GPMC_CONFIGDATA[1].GPMC_CONFIG4 val =  0x%x \r\n"),Read_tmp4.value ));
 
 	//////////////////////////////////////////// RdAccessTime and CycleTime timing parameters configuration
 	/*RWRegData_t AccTime_timing = {GPMC_BASE_ADDR, offsetof(GPMC_REGS_t, GPMC_CONFIGDATA[1].GPMC_CONFIG5), 0};

@@ -6,6 +6,7 @@
 
 FPGACommunication::FPGACommunication()
 {
+	DBG_SHOW_FUNC;
 	//General Memory Interface init
 	gmi = new UniDriver();
 	ExtBusCs1Init();
@@ -185,10 +186,6 @@ void FPGACommunication::setSignalDetector(USHORT val )
 	gmi->WriteWORD(DETECT_CR, val);
 }
 
-void FPGACommunication::setAnalogChSwich( USHORT val )
-{
-	gmi->WriteWORD(AN_CH_CSR, val);
-}
 
 void FPGACommunication::setSignalIntegration( USHORT val )
 {
@@ -232,6 +229,10 @@ void FPGACommunication::setAcoustContGainCode( USHORT val )
 	gmi->WriteWORD(ACGAIN_DR_1, val);
 }
 
+void FPGACommunication::setAnalogChSwich(USHORT val )
+{
+	gmi->WriteWORD(AN_CH_CSR, val);
+}
 
 //-------------------------------GENERATOR------------------------------------------
 void FPGACommunication::setGenSel(USHORT val ) //выбор ВЫХОДА активного генератора

@@ -5,21 +5,36 @@
 //#define DEBUG 
 #define FPGA_BUS_TESTS
 
-#include "stdafx.h"
 #include <windows.h>
 #include <commctrl.h>
- 
+#include <winbase.h>
+#include <WinIoCtl.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+
 #include "protocolThread.hpp"
 #include "Freeze/Freeze.h" 
 
 #include "debug.h" 
 
+#ifdef WINCE
+
+#include "FPGA_dll.h"
+#include "FPGA_dll_func.h"
+
+#include "FPGA_func_defs.h"
+
+#include "MathHelpers.h"
+#include "BScanHelper\BScanHelper.h"
+
+#endif
 
 void AScanFileWrite(LPCVOID lpParam); //test Ascan wr file
 void AScanFileInit (void);//test Ascan wr file
 void FPGADeinit(void); //
 
-int DebugOutActive = 0; //if(DebugOutActive) if(DebugOutActive) printf
+int DebugOutActive = 0; //if(DebugOutActive) printf
 
 int AScanShiftVal = 110; //Ò‰‚Ë„ ¿-ÒÍ‡Ì‡ ÔÓ OY
 
@@ -65,20 +80,6 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 #ifdef WINCE
 
 
-#include <winbase.h>
-#include <WinIoCtl.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-
-#include "FPGA_dll.h"
-#include "FPGA_dll_func.h"
-
-#include "FPGA_func_defs.h"
-
-#include "MathHelpers.h"
-#include "BScanHelper\BScanHelper.h"
-
 FPGACommunication FPGA;
 
 DWORD WINAPI ThreadSoft_AScan(LPVOID lpParameter);
@@ -89,6 +90,11 @@ int AScan_not_freesed = 1;
 int BScan_not_freesed = 1;
 
 buffer CursorElevationBuff;
+
+void test(void)
+{
+
+}
 
 DWORD WINAPI ThreadSoft_BScan(LPVOID lpParameter)
 {
@@ -190,7 +196,7 @@ FPGA.setSignalDetector(0);//Detector = pos+neg
 
 
 	FPGA.setSyncSource(1);//SyncCtrl - on //SyncInt
-	FPGA.setApainter(0);//on
+	//FPGA.setApainter(0);//on
 
 //hAScan = CreateThread(NULL, 0, ThreadSoft_AScan, (LPVOID)0, 0, &dwThreadId);
 
@@ -207,8 +213,8 @@ void onAScan(int n)
 	#ifdef WINCE
 
 		AScanShiftVal = 10; //Ò‰‚ËÌÛÎË ‚ÌËÁ ˝Í‡Ì‡
-		FPGA.setApainter(1);//on
-		FPGA.setAScanEnAddr(2+128); //64 for B-scan
+		//FPGA.setApainter(1);
+		FPGA.setAScanEnAddr(1);//on
 
 	#endif WINCE
 	}
@@ -221,8 +227,8 @@ void offAScan(int n)
 	if(n)
 	{
 	#ifdef WINCE
-		FPGA.setApainter(0);//on
-		FPGA.setAScanEnAddr(0);
+		//FPGA.setApainter(0);//
+		FPGA.setAScanEnAddr(0);//off
 
 	#endif WINCE
 	}
@@ -288,16 +294,18 @@ void SetChannelParams(WORD channel, WORD delay, WORD CZone, WORD Gain)
 	FPGA_Write(SCAN_MODE_CR ,1);
 }
 	
-int ChGenResArr[8] = {5, 0, 1, 2, 6, 3, 7, 4};
+static int ChGenResArr[8] = {5,0,2,3,4,5,7,4}; //{5, 0, 1, 2, 6, 3, 7, 4};
 void SetScanChannel(int num) //channel setter for AUTOSCAN mode
-{
+{	
+	static int chPhy = ChGenResArr[num];
 	DBG_SHOW_FUNC;
-	int chPhy = ChGenResArr[num];
+	DEBUGMSG(TRUE, (TEXT("F_DLL: num: %u = chPhy: %u \r\n"), num, chPhy));
 
-	DEBUGMSG(TRUE, (TEXT("		FIX: Default setCzone = 0xFFFF, setDACGain = 600, setSignalADCDelay = 0, setSignalCompress = 2 \r\n")));//TODO: rewrite dbg string
-//	SetChannelParams(chPhy, 0, 0xFFFF, 600);//FIX:
-	FPGA.setAnalogChSwich(chPhy);	
-	FPGA.setGenSel(chPhy);
+	FPGA.setScanMode(0); //channel autoinc off	
+	FPGA.setAnalogChSwich(ChGenResArr[num]);	//BUG HERE!!!
+	//FPGA.setGenSel(chPhy);
+	//SetChannelParams(chPhy, 0, 0xFFFF, 600);//FIX:
+	//DEBUGMSG(TRUE, (TEXT("		FIX: Default setCzone = 0xFFFF, setDACGain = 600, setSignalADCDelay = 0, setSignalCompress = 2 \r\n")));//TODO: rewrite dbg string
 }
 
 //////////////------DEBUG_TESTS-------------------
@@ -375,8 +383,8 @@ void ToFpgaDllSend(int with_fpga, int funk, int val)
 		case F_BSCAN_ON:		onBScan(val);					break;
 		case F_BSCAN_OFF:		offBScan(val);					break;
 
-		case F_A_FREEZE_ON:		AScan_not_freesed = 0; AScanFileInit(); AScanFileWrite(0);break;//—“Œœ- ¿ƒ– ¬ À (A-scan)
-		case F_A_FREEZE_OFF:	AScan_not_freesed = 1; ReadDisplayAScan(); break;//—“Œœ- ¿ƒ– ¬€ À (A-scan)
+		case F_A_FREEZE_ON:		AScan_not_freesed = 0; FPGA.setSyncSource(0); AScanFileInit(); AScanFileWrite(0);break;//—“Œœ- ¿ƒ– ¬ À (A-scan)
+		case F_A_FREEZE_OFF:	AScan_not_freesed = 1; FPGA.setSyncSource(1); ReadDisplayAScan(); break;//—“Œœ- ¿ƒ– ¬€ À (A-scan)
 
 		case F_B_FREEZE_ON:		BScan_not_freesed = 0;
 								FPGA.systemReset();//restore init values 	FIX
