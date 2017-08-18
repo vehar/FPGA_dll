@@ -5,18 +5,6 @@
 
 #include <windows.h>
 #include <WinIoCtl.h>
-//#include <tchar.h>
-//#include <stdio.h>
-//#include <stdlib.h> 
-//#include <memory.h> 
-//#include <string.h>
-//#include "locale.h"
-//#include <winbase.h>
-//#include <initguid.h> 
-//#include <winuser.h> 
-//#include <winuserm.h>
-//#include <commctrl.h>
-
 
 #include "FPGA.h"  
 #include "../ExtBusFunc/ExtBusFunc.h"  
@@ -83,7 +71,7 @@ extern void HardAScan_Stop(void);
 
 extern int FPGA_DBUS_TEST();
 extern int FPGA_ABUS_TEST();
-
+extern float FpgaSpeedTest(DWORD iterations, DWORD wordNum, DWORD IrqPeriod, DWORD bufSize);
 
 extern USHORT ToAdcScale (USHORT persent);
 extern USHORT ToLcdScaleY (USHORT persent);

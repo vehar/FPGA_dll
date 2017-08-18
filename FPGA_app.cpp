@@ -42,12 +42,18 @@ FPGACommunication FPGA;
 extern void ToFpgaDllSend(int with_fpga, int funk, int val);
 extern void fpgaIO(int IO, int datatype, buffer& buff);
 
+DWORD iterations  = 1;
+DWORD wordNum = 4000; //words
+DWORD IrqPeriod = 1; //ms
+DWORD bufSize = wordNum*4;
+
 int _tmain(int argc, _TCHAR* argv[])
 {
 DEBUGMSG(TRUE,( TEXT("\r\n\r\n++++++++++++++++++++++++++++++++++++++++++++++++++++++\r\n")));
 DBG_SHOW_DATE_T(DBG_TARGET);
 DBG_SHOW_FUNC_T(DBG_TARGET);
 
+FpgaSpeedTest(iterations, wordNum, IrqPeriod, bufSize);
 //ToFpgaDllSend(with_fpga, F_FPGA_INIT, 0);
 
 //test();
