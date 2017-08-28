@@ -98,7 +98,7 @@
 			/>
 			<DeploymentTool
 				ForceDirty="-1"
-				RemoteDirectory="%CSIDL_PROGRAM_FILES%\Interface"
+				RemoteDirectory="%CSIDL_PROGRAM_FILES%\Interf\"
 				RegisterOutput="0"
 				AdditionalFiles=""
 			/>

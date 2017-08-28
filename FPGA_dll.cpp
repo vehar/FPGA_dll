@@ -347,10 +347,10 @@ void ToFpgaDllSend(int with_fpga, int funk, int val)
 		
 		case F_SIGNAL_COMPRESS: FPGA.setSignalCompress(val);			break;
 
-		case F_ADC_DELAY:		FPGA.setScanMode(0); //channel autoinc off	
+		case F_ADC_DELAY:		//FPGA.setScanMode(0); //channel autoinc off	
 								FPGA.setSignalADCDelay(val);
 								break;
-		case F_GAIN:			FPGA.setScanMode(0); 
+		case F_GAIN:			//FPGA.setScanMode(0); 
 								FPGA.setDACGain(val);	
 								break; //Усиление
 
@@ -359,11 +359,11 @@ void ToFpgaDllSend(int with_fpga, int funk, int val)
 
 		case F_SYNCH_SOURCE:	FPGA.setSyncFreq(val);				break;
 
-		case F_GEN_SEL:			FPGA.setScanMode(0); //channel autoinc off	
+		case F_GEN_SEL:			//FPGA.setScanMode(0); //channel autoinc off	
 								FPGA.setGenSel(val);	
 								break;
 		case F_CH_SEL:			
-								FPGA.setScanMode(0); //channel autoinc off
+								//FPGA.setScanMode(0); //channel autoinc off
 								FPGA.setAnalogChSwich(val);		
 								//FPGA.setSignalADCDelay(val);
 								//FPGA.setScanMode(1); //channel autoinc on			
@@ -414,6 +414,9 @@ void ToFpgaDllSend(int with_fpga, int funk, int val)
 
 		case F_SCAN_CH_SET: SetScanChannel(val); break;//channel setter for AUTOSCAN mode
 
+		case F_MULTI_CH: if(val == ON) {FPGA.setScanMode(0x0F);}
+						 else {FPGA.setScanMode(0x00);}
+						 break;//channel autoinc on/off for multi channel mode mode
 
 		default:				if(DebugOutActive) printf("UNNOWN_FUNK %i\n", val); 
 								DEBUGMSG(TRUE, (TEXT("UNNOWN_FUNK %u \r\n"),  val));
