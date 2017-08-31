@@ -65,25 +65,6 @@ void RDMSHeader::read(LPCSTR buffer) {
 	memcpy(headerSymbols, buffer, sizeof(UCHAR) * 4);
 	buffer += sizeof(UCHAR) * 4;
 
-	/*
-	memcpy(&gpsData.latLongDirection, buffer, sizeof(UCHAR));
-	buffer += sizeof(UCHAR);
-	memcpy(&gpsData.course, buffer, sizeof(USHORT));
-	buffer += sizeof(USHORT);
-	memcpy(&gpsData.sec, buffer, sizeof(UCHAR));
-	buffer += sizeof(UCHAR);
-	memcpy(&gpsData.min, buffer, sizeof(UCHAR));
-	buffer += sizeof(UCHAR);
-	memcpy(&gpsData.hour, buffer, sizeof(UCHAR));
-	buffer += sizeof(UCHAR);
-	memcpy(&gpsData.year, buffer, sizeof(UCHAR));
-	buffer += sizeof(UCHAR);
-	memcpy(&gpsData.month, buffer, sizeof(UCHAR));
-	buffer += sizeof(UCHAR);
-	memcpy(&gpsData.day, buffer, sizeof(UCHAR));
-	buffer += sizeof(UCHAR);
-
-	*/
 	memcpy(&gpsData.state, buffer, sizeof(UCHAR));
 	buffer += sizeof(UCHAR);
 	memcpy(&gpsData.lat, buffer, sizeof(float));
@@ -127,31 +108,6 @@ void RDMSHeader::write(LPSTR buffer) {
 	memcpy(buffer, headerSymbols, sizeof(UCHAR) * 4);
 	buffer += sizeof(UCHAR) * 4;
 
-	/*
-	memcpy(buffer, &gpsData.latLongDirection, sizeof(UCHAR));
-	buffer += sizeof(UCHAR);
-	memcpy(buffer, &gpsData.lat, sizeof(float));
-	buffer += sizeof(float);
-	memcpy(buffer, &gpsData.lon, sizeof(float));
-	buffer += sizeof(float);
-	memcpy(buffer, &gpsData.speed, sizeof(UCHAR));
-	buffer += sizeof(UCHAR);
-	memcpy(buffer, &gpsData.course, sizeof(USHORT));
-	buffer += sizeof(USHORT);
-	memcpy(buffer, &gpsData.sec, sizeof(UCHAR));
-	buffer += sizeof(UCHAR);
-	memcpy(buffer, &gpsData.min, sizeof(UCHAR));
-	buffer += sizeof(UCHAR);
-	memcpy(buffer, &gpsData.hour, sizeof(UCHAR));
-	buffer += sizeof(UCHAR);
-	memcpy(buffer, &gpsData.year, sizeof(UCHAR));
-	buffer += sizeof(UCHAR);
-	memcpy(buffer, &gpsData.month, sizeof(UCHAR));
-	buffer += sizeof(UCHAR);
-	memcpy(buffer, &gpsData.day, sizeof(UCHAR));
-	buffer += sizeof(UCHAR);
-
-	*/
 	memcpy(buffer, &gpsData.state, sizeof(UCHAR));
 	buffer += sizeof(UCHAR);
 	memcpy(buffer, &gpsData.lat, sizeof(float));
@@ -175,7 +131,7 @@ void RDMSHeader::write(LPSTR buffer) {
 	memcpy(buffer, &gpsData.day, sizeof(UCHAR));
 	buffer += sizeof(UCHAR);
 
-  memcpy(buffer, &timeData, sizeof(ULONGLONG));
+	memcpy(buffer, &timeData, sizeof(ULONGLONG));
 	buffer += sizeof(ULONGLONG);
 	memcpy(buffer, &freeMemory, sizeof(UCHAR));
 	buffer += sizeof(UCHAR);
@@ -242,56 +198,45 @@ void RDMSSpeedPacket::write(LPSTR buffer) {
 // Calculate check sum of packet
 UCHAR RDMSDefectPacket::calcCheckSum() {
 
-	UCHAR summ;
+	checkSum =	pathSensorData.km;
+	checkSum ^=	pathSensorData.m;
+	checkSum ^=	pathSensorData.sm;
+	checkSum ^=	pathSensorData.mm;
 
-	summ =	pathSensorData.km;
-	summ ^=	pathSensorData.m;
-	summ ^=	pathSensorData.sm;
-	summ ^=	pathSensorData.mm;
-	/*
-	summ ^= gpsData.latLongDirection;
-	summ ^= gpsData.latDegrees;
-	summ ^= gpsData.latMinutes;
-	summ ^= gpsData.latSeconds;
-	summ ^= gpsData.longDegrees;
-	summ ^= gpsData.longMinutes;
-	summ ^= gpsData.longSeconds;
-	*/
-	summ ^= gpsData.state;
-	summ ^= ((int)&gpsData.lat & 0xFF000000) >> 24;
-	summ ^= ((int)&gpsData.lat & 0x00FF0000) >> 16;
-	summ ^= ((int)&gpsData.lat & 0x0000FF00) >> 8;
-	summ ^= ((int)&gpsData.lat & 0x000000FF);
-	summ ^= ((int)&gpsData.lon & 0xFF000000) >> 24;
-	summ ^= ((int)&gpsData.lon & 0x00FF0000) >> 16;
-	summ ^= ((int)&gpsData.lon & 0x0000FF00) >> 8;
-	summ ^= ((int)&gpsData.lon & 0x000000FF);
-	summ ^= gpsData.speed;
-	summ ^= (gpsData.course & 0xFF00) >> 8;
-	summ ^= (gpsData.course & 0x00FF);
-	summ ^= gpsData.sec;
-	summ ^= gpsData.min;
-	summ ^= gpsData.hour;
-	summ ^= gpsData.year;
-	summ ^= gpsData.month;
-	summ ^= gpsData.day;
+	checkSum ^= gpsData.state;
+	checkSum ^= ((int)&gpsData.lat & 0xFF000000) >> 24;
+	checkSum ^= ((int)&gpsData.lat & 0x00FF0000) >> 16;
+	checkSum ^= ((int)&gpsData.lat & 0x0000FF00) >> 8;
+	checkSum ^= ((int)&gpsData.lat & 0x000000FF);
+	checkSum ^= ((int)&gpsData.lon & 0xFF000000) >> 24;
+	checkSum ^= ((int)&gpsData.lon & 0x00FF0000) >> 16;
+	checkSum ^= ((int)&gpsData.lon & 0x0000FF00) >> 8;
+	checkSum ^= ((int)&gpsData.lon & 0x000000FF);
+	checkSum ^= gpsData.speed;
+	checkSum ^= (gpsData.course & 0xFF00) >> 8;
+	checkSum ^= (gpsData.course & 0x00FF);
+	checkSum ^= gpsData.sec;
+	checkSum ^= gpsData.min;
+	checkSum ^= gpsData.hour;
+	checkSum ^= gpsData.year;
+	checkSum ^= gpsData.month;
+	checkSum ^= gpsData.day;
 
 	for (DWORD i = 0; i < 8; ++i) {
 
-		summ ^= defects[i].amplitude;
-		summ ^= defects[i].depth;
+		checkSum ^= defects[i].amplitude;
+		checkSum ^= defects[i].depth;
 
 	}
 
-	return summ;
+	return checkSum;
 
 }
 
 // Return packet size
 USHORT RDMSDefectPacket::size() {
 
-
-	return 0x0027;
+	return 0x0032;
 
 }
 
@@ -307,44 +252,6 @@ void RDMSDefectPacket::read(LPCSTR buffer) {
 	memcpy(&pathSensorData.sm, buffer, sizeof(UCHAR));
 	buffer += sizeof(UCHAR);
 	memcpy(&pathSensorData.mm, buffer, sizeof(UCHAR));
-	buffer += sizeof(UCHAR);
-	/*
-	memcpy(&gpsData.latLongDirection, buffer, sizeof(UCHAR));
-	buffer += sizeof(UCHAR);
-	memcpy(&gpsData.latDegrees, buffer, sizeof(UCHAR));
-	buffer += sizeof(UCHAR);
-	memcpy(&gpsData.latMinutes, buffer, sizeof(UCHAR));
-	buffer += sizeof(UCHAR);
-	memcpy(&gpsData.latSeconds, buffer, sizeof(UCHAR));
-	buffer += sizeof(UCHAR);
-	memcpy(&gpsData.longDegrees, buffer, sizeof(UCHAR));
-	buffer += sizeof(UCHAR);
-	memcpy(&gpsData.longMinutes, buffer, sizeof(UCHAR));
-	buffer += sizeof(UCHAR);
-	memcpy(&gpsData.longSeconds, buffer, sizeof(UCHAR));
-	buffer += sizeof(UCHAR);
-	*/
-	memcpy(&gpsData.state, buffer, sizeof(UCHAR));
-	buffer += sizeof(UCHAR);
-	memcpy(&gpsData.lat, buffer, sizeof(float));
-	buffer += sizeof(float);
-	memcpy(&gpsData.lon, buffer, sizeof(float));
-	buffer += sizeof(float);
-	memcpy(&gpsData.speed, buffer, sizeof(UCHAR));
-	buffer += sizeof(UCHAR);
-	memcpy(&gpsData.course, buffer, sizeof(USHORT));
-	buffer += sizeof(USHORT);
-	memcpy(&gpsData.sec, buffer, sizeof(UCHAR));
-	buffer += sizeof(UCHAR);
-	memcpy(&gpsData.min, buffer, sizeof(UCHAR));
-	buffer += sizeof(UCHAR);
-	memcpy(&gpsData.hour, buffer, sizeof(UCHAR));
-	buffer += sizeof(UCHAR);
-	memcpy(&gpsData.year, buffer, sizeof(UCHAR));
-	buffer += sizeof(UCHAR);
-	memcpy(&gpsData.month, buffer, sizeof(UCHAR));
-	buffer += sizeof(UCHAR);
-	memcpy(&gpsData.day, buffer, sizeof(UCHAR));
 	buffer += sizeof(UCHAR);
 
 	memcpy(&gpsData.state, buffer, sizeof(UCHAR));
@@ -397,44 +304,6 @@ void RDMSDefectPacket::write(LPSTR buffer) {
 	memcpy(buffer, &pathSensorData.sm, sizeof(UCHAR));
 	buffer += sizeof(UCHAR);
 	memcpy(buffer, &pathSensorData.mm, sizeof(UCHAR));
-	buffer += sizeof(UCHAR);
-	/*
-	memcpy(buffer, &gpsData.latLongDirection, sizeof(UCHAR));
-	buffer += sizeof(UCHAR);
-	memcpy(buffer, &gpsData.latDegrees, sizeof(UCHAR));
-	buffer += sizeof(UCHAR);
-	memcpy(buffer, &gpsData.latMinutes, sizeof(UCHAR));
-	buffer += sizeof(UCHAR);
-	memcpy(buffer, &gpsData.latSeconds, sizeof(UCHAR));
-	buffer += sizeof(UCHAR);
-	memcpy(buffer, &gpsData.longDegrees, sizeof(UCHAR));
-	buffer += sizeof(UCHAR);
-	memcpy(buffer, &gpsData.longMinutes, sizeof(UCHAR));
-	buffer += sizeof(UCHAR);
-	memcpy(buffer, &gpsData.longSeconds, sizeof(UCHAR));
-	buffer += sizeof(UCHAR);
-	*/
-	memcpy(buffer, &gpsData.state, sizeof(UCHAR));
-	buffer += sizeof(UCHAR);
-	memcpy(buffer, &gpsData.lat, sizeof(float));
-	buffer += sizeof(float);
-	memcpy(buffer, &gpsData.lon, sizeof(float));
-	buffer += sizeof(float);
-	memcpy(buffer, &gpsData.speed, sizeof(UCHAR));
-	buffer += sizeof(UCHAR);
-	memcpy(buffer, &gpsData.course, sizeof(USHORT));
-	buffer += sizeof(USHORT);
-	memcpy(buffer, &gpsData.sec, sizeof(UCHAR));
-	buffer += sizeof(UCHAR);
-	memcpy(buffer, &gpsData.min, sizeof(UCHAR));
-	buffer += sizeof(UCHAR);
-	memcpy(buffer, &gpsData.hour, sizeof(UCHAR));
-	buffer += sizeof(UCHAR);
-	memcpy(buffer, &gpsData.year, sizeof(UCHAR));
-	buffer += sizeof(UCHAR);
-	memcpy(buffer, &gpsData.month, sizeof(UCHAR));
-	buffer += sizeof(UCHAR);
-	memcpy(buffer, &gpsData.day, sizeof(UCHAR));
 	buffer += sizeof(UCHAR);
 
 	memcpy(buffer, &gpsData.state, sizeof(UCHAR));
@@ -495,27 +364,7 @@ void RDMSTrackCoordPacket::read(LPCSTR buffer) {
 
 	memcpy(&startByte, buffer, sizeof(UCHAR));
 	buffer += sizeof(UCHAR);
-  
-	/*
-	memcpy(&gpsData.latLongDirection, buffer, sizeof(UCHAR));
 
-	buffer += sizeof(UCHAR);
-	memcpy(&gpsData.course, buffer, sizeof(USHORT));
-	buffer += sizeof(USHORT);
-	memcpy(&gpsData.sec, buffer, sizeof(UCHAR));
-	buffer += sizeof(UCHAR);
-	memcpy(&gpsData.min, buffer, sizeof(UCHAR));
-	buffer += sizeof(UCHAR);
-	memcpy(&gpsData.hour, buffer, sizeof(UCHAR));
-	buffer += sizeof(UCHAR);
-	memcpy(&gpsData.year, buffer, sizeof(UCHAR));
-	buffer += sizeof(UCHAR);
-	memcpy(&gpsData.month, buffer, sizeof(UCHAR));
-	buffer += sizeof(UCHAR);
-	memcpy(&gpsData.day, buffer, sizeof(UCHAR));
-	buffer += sizeof(UCHAR);
-
-	*/
 	memcpy(&gpsData.state, buffer, sizeof(UCHAR));
 	buffer += sizeof(UCHAR);
 	memcpy(&gpsData.lat, buffer, sizeof(float));
@@ -567,8 +416,7 @@ void RDMSTrackCoordPacket::write(LPSTR buffer) {
 	memcpy(buffer, &startByte, sizeof(UCHAR));
 	buffer += sizeof(UCHAR);
 
-	/*
-	memcpy(buffer, &gpsData.latLongDirection, sizeof(UCHAR));
+	memcpy(buffer, &gpsData.state, sizeof(UCHAR));
 	buffer += sizeof(UCHAR);
 	memcpy(buffer, &gpsData.lat, sizeof(float));
 	buffer += sizeof(float);
@@ -588,7 +436,6 @@ void RDMSTrackCoordPacket::write(LPSTR buffer) {
 	buffer += sizeof(UCHAR);
 	memcpy(buffer, &gpsData.month, sizeof(UCHAR));
 	buffer += sizeof(UCHAR);
-
 	memcpy(buffer, &gpsData.day, sizeof(UCHAR));
 	buffer += sizeof(UCHAR);
 
