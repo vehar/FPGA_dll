@@ -42,6 +42,28 @@ enum RDMSGpsLatLongFlag : UCHAR {
 
 };
 
+/*
+////////////////////
+//
+//	GPS data
+//
+struct RDMSGpsInfo {
+
+	UCHAR		state;						// GPS state flags
+	float		lat;						// Lattitude
+	float		lon;						// Longitude
+	UCHAR		speed;						// Speed (m/s)
+	USHORT		course;						// Course angle (0 - 359)
+	UCHAR		sec;						// Seconds (0 - 59)
+	UCHAR		min;						// Minutes (0 - 59)
+	UCHAR		hour;						// Hours (0 - 23)
+	UCHAR		year;						// Year (XXXX)
+	UCHAR		month;						// Month (1 - 12)
+	UCHAR		day;						// Day (1 - 31)
+
+};
+*/
+
 ////////////////////
 //
 //	GPS data
