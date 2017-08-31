@@ -11,7 +11,9 @@
 
 
 #include "FPGA\FPGA.h"
-/*
+#include "FPGA\FPGA_Registers.h"
+
+/* // VH - Is it necessary?
 int fpgaDBus() {
 
 	int Ok = 0;
@@ -283,12 +285,18 @@ DWORD WINAPI protocolThreadFunc(LPVOID lpParam) {
 
 	DWORD bufferSize = 5000;
 	DWORD wordNum = 1000; //words
-	DWORD cycleFreq = 50; //ms
+	DWORD IrqPeriod = 50; //ms
 
 	//ExtBusCs1Init();
-	FPGA_Write(2, 1);
-	FPGA_Write(6, cycleFreq * 100);// t = val*100 [ms]
-	FPGA_Write(115, wordNum);// num of words written in time from FSYNC_DR
+	FPGA_Write(SYSTEM_RESET_CR ,1);
+	FPGA_Write(FSYNC_DR ,IrqPeriod*100);// t = val*100 [ms]
+	FPGA_Write(TEST_IRQ_CR ,wordNum);// num of words written in time from FSYNC_DR
+
+	//Select scan sync source
+	FPGA_Write(SYNC_CR, INT_SYNC); //Internal synk
+	//FPGA_Write(SYNC_CR, STOP); //Track sensor synk
+	FPGA_Write(ASCAN_EN_MR, 1);
+
 
 	UniDriver uniDrv;
 
@@ -298,12 +306,12 @@ DWORD WINAPI protocolThreadFunc(LPVOID lpParam) {
 
 	RWRegData_t	readAddr;
 	readAddr.baseAddr = GPMC_CS1_BASE;
-	readAddr.offset = 114<<1;
+	readAddr.offset = (ADC_DATA_DR)<<1; //old was 114
 	readAddr.value = 0;
 
 	uniDrv.ReadBufIRQ(&readAddr);
 
-	hdr->dataFunc((int)(1000 / cycleFreq), (int)(wordNum >> 8), (int)(bufferSize >> 8));
+	hdr->dataFunc((int)(1000 / IrqPeriod), (int)(wordNum >> 8), (int)(bufferSize >> 8));
 
 	while (*execFlag == TRUE) {
 		Sleep(0);

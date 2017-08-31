@@ -95,6 +95,19 @@ void UniDriver::InitIRQ(DWORD dwPin, DWORD bufSize, DWORD accessSize, DWORD dwWa
 
 }
 
+DWORD UniDriver::ReadBufIRQ(RWRegData_t* readData, PBYTE buf, DWORD bufSize) {
+
+	DWORD readed = 0;
+
+	if(hDrv) {
+
+		DeviceIoControl(hDrv, IOCTL_INTREADBUF, (LPVOID)readData, sizeof(RWRegData_t), (LPVOID)buf, bufSize, &readed, NULL);
+	
+	}
+	return readed;
+
+}
+
 DWORD UniDriver::ReadBufIRQ(RWRegData_t* readData/*, PBYTE buf, DWORD bufSize*/) {
 
 	DWORD readed = 0;

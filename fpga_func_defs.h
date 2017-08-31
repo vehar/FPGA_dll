@@ -177,5 +177,7 @@
 	#define ON				1
 	#define OFF				0
 
+#define F_MULTI_CH_GAIN_SET 67 //установка усиления (порога) для выбраного канала в многоканальном режиме
+
 
 #endif FPGA_VARIABLE_H

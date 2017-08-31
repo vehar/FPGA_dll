@@ -99,7 +99,8 @@ void FPGACommunication::resetFilterCoeffsAddr()
 
 void FPGACommunication::setScanMode(UINT val)
 {
-	DBG_SHOW_FUNC_T("FPGAComm");
+	DBG_SHOW_FUNC_T("FPGAComm"); DEBUGMSG(TRUE, (TEXT("val %u \r\n"), val));
+
 	gmi->WriteWORD(SCAN_MODE_CR ,val);
 }
 void FPGACommunication::setTgcStartAddr(UINT val)
