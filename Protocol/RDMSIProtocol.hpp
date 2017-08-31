@@ -24,7 +24,8 @@ enum RDMSPacketType : UCHAR {
 	RDMS_TURNOUT_PACKET			= 0x07,		// Turnout packet
 	RDMS_ACOUSTIC_PACKET		= 0x08,		// Acoustic contact packet
 	RDMS_GAIN_PACKET			= 0x09,		// Gain packet
-	RDMS_SYNC_PACKET			= 0x0A		// Syncronization packet
+	RDMS_SYNC_PACKET			= 0x0A,		// Syncronization packet
+	RDMS_VOLTAGE_TEMP_PACKET	= 0x0B		// Voltage and temperature packet
 
 };
 
@@ -48,13 +49,17 @@ enum RDMSGpsLatLongFlag : UCHAR {
 //
 struct RDMSGpsInfo {
 
-	UCHAR		latLongDirection;			// Latitude/Longitude flag
-	UCHAR		latDegrees;					// Latitude degrees
-	UCHAR		latMinutes;					// Latitude minutes
-	UCHAR		latSeconds;					// Latitude seconds
-	UCHAR		longDegrees;				// Longitude degrees
-	UCHAR		longMinutes;				// Longitude minutes
-	UCHAR		longSeconds;				// Longitude seconds
+	UCHAR		state;						// GPS state flags
+	float		lat;						// Lattitude
+	float		lon;						// Longitude
+	UCHAR		speed;						// Speed (m/s)
+	USHORT		course;						// Course angle (0 - 359)
+	UCHAR		sec;						// Seconds (0 - 59)
+	UCHAR		min;						// Minutes (0 - 59)
+	UCHAR		hour;						// Hours (0 - 23)
+	UCHAR		year;						// Year (XXXX)
+	UCHAR		month;						// Month (1 - 12)
+	UCHAR		day;						// Day (1 - 31)
 
 };
 */
@@ -414,6 +419,37 @@ struct RDMSSyncPacket : RDMSIPacket {
 
 	UCHAR		startByte;					// Start byte
 	UCHAR		syncronization;				// Syncronization
+	UCHAR		checkSum;					// Check sum
+	UCHAR		endByte;					// End byte
+
+	// Calculate check sum of packet
+	UCHAR		calcCheckSum();
+
+	// Return packet size
+	USHORT		size();
+
+	// Read packet data from buffer
+	void		read(LPCSTR);
+	// Write packet data to buffer
+	void		write(LPSTR);
+
+};
+
+/////////////////////////////////////
+//
+//	Voltage/Temperature packet
+//
+struct RDMSVoltageTempPacket : RDMSIPacket {
+
+	UCHAR		startByte;					// Start byte
+	float		stmTemperature;				// STM temperature
+	float		axelTemperature;			// Axelerometer temperature
+	float		accumCurrent;				// Accumulator current
+	float		accumVoltage;				// Accummulator voltage
+	float		board_1_8V;					// Board 1.8 V
+	float		board_3_3V;					// Board 3.3 V
+	float		board_5V;					// Board 5 V
+	float		board_140V;					// Board 140 V
 	UCHAR		checkSum;					// Check sum
 	UCHAR		endByte;					// End byte
 

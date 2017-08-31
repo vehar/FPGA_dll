@@ -113,10 +113,8 @@ UCHAR WriteBuf32(DWORD addr, DWORD addr1, UINT val, UINT val_1, int size);
 	void setFilterEn(USHORT val);
 	void setFilterCoeffs(USHORT* Buff, int size);
 
-	void setGenData(DWORD* Buff, int size);
-	void setGenData( USHORT val, int size );//RDM11
 	void setGenSel(USHORT val);
-	void setGenOutCh(USHORT val);
+
 	
 	void setAcoustContGainCode(USHORT val);
 	void getAC_SUM_DR( USHORT& val); //acoustic contact

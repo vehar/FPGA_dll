@@ -9,9 +9,9 @@ struct execInfo {
 
 	// Thread execution flag
 	// True - thread runs now, false - thread will stop
-	BOOL threadExecuting;
+	BOOL			threadExecuting;
 	// Protocol header data
-	protocolData pHeader;
+	protocolData*	pHeader;
 
 };
 
@@ -21,7 +21,7 @@ static execInfo* execStruct = NULL;
 static HANDLE protThread = NULL;
 
 // Start protocol thread
-DWORD startProtocolThread(const protocolData&);
+DWORD startProtocolThread();
 // Stop protocol thread
 void stopProtocolThread();
 

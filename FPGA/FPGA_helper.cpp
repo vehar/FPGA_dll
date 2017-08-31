@@ -1,5 +1,3 @@
-//#include "stdafx.h"
-
 #include "FPGA_helper.h"
 
 //TODO: dock it!!!!
@@ -48,13 +46,6 @@ activeScheme->params.gainDb = 10;
 #define GEN_CNT 7 //TODO:
 void FPGA_Regs_deinit(void)//дополнить деинитом буфферов
 {
-//All generators deinit
- for (int i = 0; i <= GEN_CNT; i++)
- {
-	FPGA.setGenSel(i);//Select gen buff
-	FPGA.setGenData((USHORT)0,256);
- }
-
 FPGA.systemReset();//restore another init values 
 
 FPGA.setAScanColor(0, 0);
@@ -78,8 +69,6 @@ FPGA.MainSyncEn(1);//SyncCtrl_nENABLE - on
 
 void Ascan_init (void)
 {
-FPGA.setAScanDrawMode(0);
-FPGA.setAScanEnAddr(0);
 	//Bit    07  06  05 04  03 02  01 00
 	//Data   R   R   R  G   G   G  B   B
 
@@ -91,27 +80,11 @@ FPGA.setAScanColor(5, RED);//Green //-8
 FPGA.setAScanColor(6, YELLOW);//Blue //-16
 FPGA.setAScanColor(7, GREEN);//Blue //-32
 FPGA.setAScanColor(8, VIOLET);//R+G //yellow  //-64 B-scan!
-
-
-//////A-SCAN_init//////////////
-
-FPGA.setAScanDrawMode(0xFF);//AScanDrawMode 0 или AScan№
-FPGA.setAScanEnAddr(0xFF);//Если не произвести эту запись (AScanEn) - изображение на экране не появится!!!!!
-FPGA.setAScanWrCS(0xFF);//пишем в рам всех а-сканов
-
-FPGA.setAScanStartAddrWr(0);//а тут - ок
-FPGA.resetAScanRamCntRd();//не сбрасваелся счётчик записи TODO:
-//////A-SCAN_init//////////////
 }
 
 void Gen_init (void) 
 {
-//////GEN_init//////////////////////////////////////////////////////////////////////////
 	FPGA_Write(GEN_CH_CSR, 0);//disable gen
-//	FPGA_Write(GEN_DELAY_DR_1, 0);
-//	FPGA_Write(GEN_DURATION_DR_Adr, 8);//P-gen = 200ns + //gen clk_40M; 1 point = 25nS; 
-//	FPGA_Write(GEN_CH_CSR, 1); //Enable gen
-//////GEN_init////////////////////////////////////////////////////////////////////
 }
 
 
@@ -119,7 +92,6 @@ void Acust_init(void)
 {
 //////ANALOG_init start///////////////////////////////////////////////////////////
 FPGA.setSignalInversion(1);
-FPGA.resetReadRamCounter();//RamCntRdRst - ok
 
 /*!*/ FPGA.setSignalDetector(1);//Detector = off
 
@@ -130,7 +102,7 @@ FPGA.setProbeDelay(activeScheme->probe.delayUs);//5-2000  //FPGA_Write(_ProbeDel
 FPGA.setSignalCompress(compress_val);//Compress //3 //>>IN_SET
 
 //===================================================================================================
-int AcoustAmplification = 710;
+int AcoustAmplification = 310;
 
 FPGA.setTgcStartAddr(0);
 FPGA.setTgcData(AcoustAmplification, AcoustAmplification, LCD_WIDTH-1);
@@ -198,8 +170,6 @@ koef_array	[	21	]	=	114	;
 koef_array	[	22	]	=	128	;
 }
 
-
-
 //=======================================================================================
 unsigned char   Value;
 
@@ -207,7 +177,6 @@ int FPGA_DBUS_TEST()
 {
 	int Ok = 0;
 	unsigned short temp;
-	int Value1;
 	for(int i=0;i<15;i++)
 	{
 		FPGA_Write(DBUS_TEST_DR ,(unsigned short)1<<i);
@@ -222,7 +191,6 @@ int FPGA_ABUS_TEST()
 {
 	int Ok = 0;
  unsigned short temp;
-	int Value1;
 	for(int i=0;i<7;i++)
 	{
 		FPGA_Read( 1 << i );  
@@ -230,4 +198,142 @@ int FPGA_ABUS_TEST()
 		if(temp != 1<<i) Ok |= 1<<i;
 	}
 	return Ok;
+}
+
+
+void Plott (WORD val)
+{
+	DEBUGMSG(TRUE, (TEXT("$%u;"), val));
+}
+
+int t = 0;
+
+
+extern BOOL bufferTest(WORD* buffer, DWORD words, BOOL prevExists, WORD& prev);
+
+float FpgaSpeedTest(DWORD iterations, DWORD wordNum, DWORD IrqPeriod, DWORD bufSize)
+{
+	UniDriver	uniDrv;
+DWORD dwThreadId = 0; 
+
+FPGA_Write(SYSTEM_RESET_CR ,1);
+FPGA_Write(FSYNC_DR ,IrqPeriod*100);// t = val*100 [ms]
+FPGA_Write(TEST_IRQ_CR ,wordNum);// num of words written in time from FSYNC_DR
+
+//Select scan sync source
+FPGA_Write(SYNC_CR, INT_SYNC); //Internal synk
+//FPGA_Write(SYNC_CR, STOP); //Track sensor synk
+FPGA_Write(ASCAN_EN_MR, 1);
+
+WORD* buf = new WORD[bufSize];
+
+uniDrv.InitIRQ(65, bufSize, wordNum, 10000); 
+
+printf("Async communication test started...\r\n");
+printf("===================================\r\n");
+printf("\r\n");
+printf("Buffer size:\t\t%d machine words (16 bit)\r\n", bufSize);
+printf("Packet size:\t\t%d machine words (16 bit) = %d Bytes\r\n", wordNum, wordNum*2);
+printf("Num of iterations:\t%d \r\n", iterations);
+printf("Interrupt frequency:\t%d Hz. (%d ms IRQ)\r\n", (1000 / IrqPeriod), IrqPeriod);
+
+RWRegData_t regData;
+regData.baseAddr = GPMC_CS1_BASE;
+regData.offset = (ADC_DATA_DR)<<1;//TEST_CNT_DR /SPEED_TEST_DR
+regData.value = 0;
+
+HANDLE hFile = CreateFile(L"\\YAFFS_PART1\\file.txt",
+			  GENERIC_READ | GENERIC_WRITE,
+			  NULL,
+			  NULL,
+			  CREATE_ALWAYS,
+			  NULL,
+			  NULL);
+
+if (hFile == INVALID_HANDLE_VALUE) {
+	
+	printf("Unable to create file!");
+	Sleep(5000);
+	return -2;
+	
+}
+
+DWORD64 readed = 0;
+DWORD writed = 0;
+BOOL result = FALSE;
+WORD prv = 0;
+DWORD cnt = 0;
+DWORD dataAmount = 0;
+float tick = GetTickCount();
+
+do {
+
+	readed += uniDrv.ReadBufIRQ(&regData, (PBYTE)buf, bufSize * 2);
+	result = bufferTest(buf, bufSize, FALSE, prv);
+	WriteFile(hFile, buf, bufSize * 2, &writed, NULL);
+
+	if (++cnt > iterations) break;
+
+} while (true);
+
+tick = GetTickCount() - tick;
+//Time correction
+//tick = tick - (IrqPeriod)*iterations;
+
+dataAmount = (bufSize*2*iterations)/1024;
+float Speed = dataAmount/(tick/1000);
+//--------------------------------------------------------------------------------
+printf("RW_SPEED_TEST: Total data amount: %d kB\r\n", (dataAmount));
+printf("RW_SPEED_TEST: Total elapsed time: %f mS\r\n", (tick));
+printf("RW_SPEED_TEST: Approx. speed: %f kB/S\r\n", (Speed));
+printf("RW_TEST: END\r\n");
+
+/*
+DEBUGMSG(TRUE, (TEXT("RW_SPEED_TEST: Elapsed time: %d mS\r\n"), (tick)));
+DEBUGMSG(TRUE, (TEXT("RW_SPEED_TEST: Approx. speed: %d kB/S\r\n"), (Speed)));
+DEBUGMSG(TRUE, (TEXT("RW_TEST: END\r\n")));
+*/
+/*
+CloseHandle(hFile);
+hFile = CreateFile(L"\\YAFFS_PART1\\file.txt",
+			  GENERIC_READ | GENERIC_WRITE,
+			  NULL, NULL, OPEN_ALWAYS,
+ 			  NULL,  NULL);
+
+
+for (DWORD64 i = 0; i<readed; i+=bufSize*2)
+{
+ReadFile(hFile, buf, bufSize*2, NULL, NULL);
+for(DWORD64 j = 0; j<bufSize; j++){Plott(buf[j]);}
+Sleep(0);
+}
+//*/  
+    
+/*
+CloseHandle(hFile);
+hFile = CreateFile(L"\\YAFFS_PART1\\file.txt",
+			  GENERIC_READ | GENERIC_WRITE,
+			  NULL, NULL, OPEN_ALWAYS,
+			  NULL, NULL);
+
+ 
+	DWORD resultSize = 0;
+	result = ReadFile(hFile,
+					  buf,
+					  2,
+					  &resultSize,
+					  NULL);
+	DWORD count = 0;
+	DWORD errorCount = 0;
+	WORD prev = buf[0];
+*/	
+
+printf("\r\n");
+printf("===================================\r\n");
+printf("Async communication test done!\r\n");
+
+uniDrv.ReleaseIRQ();
+CloseHandle(hFile);
+
+	return Speed;
 }

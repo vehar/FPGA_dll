@@ -173,5 +173,11 @@
 #define F_TEST_IRQ_DIS   	64
 #define F_SCAN_CH_SET   	65
 
+#define F_MULTI_CH			66 //управление работой многоканального режима ХВ
+	#define ON				1
+	#define OFF				0
+
+#define F_MULTI_CH_GAIN_SET 67 //установка усиления (порога) для выбраного канала в многоканальном режиме
+
 
 #endif FPGA_VARIABLE_H

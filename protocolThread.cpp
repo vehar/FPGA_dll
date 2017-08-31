@@ -4,6 +4,7 @@
 
 #include "GpioDriver\gpio.h"
 #include "UniDriver\UniDriver.h"
+#include "FPGA/FPGA_Registers.h"
 
 #include "protocolThread.hpp"
 #include "Protocol\RDMSIProtocol.hpp"
@@ -11,6 +12,58 @@
 
 
 #include "FPGA\FPGA.h"
+
+protocolData* pData = NULL;
+
+//
+struct OnBoardParams     
+{    
+	float StmTemperature;
+	float AxelTemp;
+	float Akkum_C;
+	float Akkum_V;
+	float Board_1_8V;
+	float Board_3_3V;
+	float Board_5V;
+	float Board_140V; 
+}; 
+
+typedef struct struct_GpsTime
+{
+	char sec;
+	char min;
+	char hour;
+}GpsTimeType;
+
+typedef struct struct_GpsDate
+{
+	char year;
+	char month;
+	char day;
+}GpsDateType;
+
+typedef struct struct_GpsInfo
+{	
+	char state;
+	float lat;
+	float lon;
+	int course;
+	int speed;
+	GpsTimeType time;
+	GpsDateType date;
+} GpsInfoType;
+
+union buffIO
+{
+	OnBoardParams volt;
+	GpsInfoType GpsInfo;
+};
+
+typedef void (__stdcall *SPIINITFUNC)();
+typedef void (__stdcall *SPIIOFUNC)(int, int, buffIO&);
+//
+
+
 /*
 int fpgaDBus() {
 
@@ -79,7 +132,7 @@ BOOL bufferTest(WORD* buffer, DWORD words, BOOL prevExists, WORD& prev) {
 
 
 // Start protocol thread
-DWORD startProtocolThread(const protocolData &pData) {
+DWORD startProtocolThread() {
 
 	// Check if thread exists
 	if (protThread == NULL) {
@@ -145,11 +198,22 @@ void stopProtocolThread() {
 // Protocol thread
 DWORD WINAPI protocolThreadFunc(LPVOID lpParam) {
 
-	// Get pointer to 
+	ExtBusCs1Init();
+
+	DWORD bufferSize	= 8 << 10;		// buff		8192
+	DWORD wordNum		= 8 << 4;		// words	128
+	DWORD cycleFreq		= 1;			// ms
+
+	FPGA_Write(SYSTEM_RESET_CR, 1);
+	FPGA_Write(FSYNC_DR, cycleFreq * 100);		// t = val * 100 [ms]
+	FPGA_Write(TEST_IRQ_CR, wordNum);			// num of words written in time from FSYNC_DR
+
+	// Get pointer to thread param
 	execInfo* exec = (execInfo*)lpParam;
 	// Poiner to execution flag
 	BOOL* execFlag = &exec->threadExecuting;
 	// Pointer to header data
+  
 	protocolData* hdr = &exec->pHeader;
 
 	/*
@@ -194,7 +258,7 @@ DWORD WINAPI protocolThreadFunc(LPVOID lpParam) {
 			((RDMSTrackCoordPacket*)packet)->checkSum					= ((RDMSTrackCoordPacket*)packet)->calcCheckSum();
 
 			header.controlType = RDMS_CONTROL_TYPE_TRACK;
-			header.direction = hdr->railRoad.distanceÑount;
+			header.direction = hdr->railRoad.distanceÃ‘ount;
 			break;
 
 		case 1:
@@ -211,7 +275,7 @@ DWORD WINAPI protocolThreadFunc(LPVOID lpParam) {
 			((RDMSKmStockPacket*)packet)->checkSum				= ((RDMSKmStockPacket*)packet)->calcCheckSum();
 
 			header.controlType	= RDMS_CONTROL_TYPE_KM_STOCK;
-			header.direction	= hdr->pokm.distanceÑount;
+			header.direction	= hdr->pokm.distanceÃ‘ount;
 			break;
 
 		case 2:
@@ -226,7 +290,7 @@ DWORD WINAPI protocolThreadFunc(LPVOID lpParam) {
 			((RDMSRspPacket*)packet)->checkSum				= ((RDMSRspPacket*)packet)->calcCheckSum();
 
 			header.controlType	= RDMS_CONTROL_TYPE_RSP;
-			header.direction	= hdr->railRSP.distanceÑount;
+			header.direction	= hdr->railRSP.distanceÃ‘ount;
 			break;
 
 		case 3:
@@ -302,13 +366,14 @@ DWORD WINAPI protocolThreadFunc(LPVOID lpParam) {
 
 	uniDrv.ReadBufIRQ(&readAddr, (PBYTE)buffer, bufferSize * 2);
 
-	hdr->dataFunc((int)(1000 / cycleFreq), (int)(wordNum >> 8), (int)(bufferSize >> 8));
+
+	uniDrv.InitIRQ(65, bufferSize * 2, wordNum * 2, 50);
 
 	while (*execFlag == TRUE) {
 		Sleep(0);
 	};
 
-	HANDLE hFile = CreateFile(L"YAFFS_PART1\\file.txt",
+	HANDLE hFile = CreateFile(L"YAFFS_PART1\\Protocols\\file.txt",
 							  GENERIC_WRITE,
 							  NULL,
 							  NULL,
@@ -320,11 +385,60 @@ DWORD WINAPI protocolThreadFunc(LPVOID lpParam) {
 	
 		printf("Unable to create file!");
 		Sleep(5000);
+		uniDrv.ReleaseIRQ();
 		return -1;
 	
 	}
 
-	double sizeCounter = 0;
+	HINSTANCE lib = LoadLibrary(L"dllSpiServer.dll");
+	if(!lib) {
+
+		printf("DLL not found!!!");
+		Sleep(5000);
+		uniDrv.ReleaseIRQ();
+		return -3;
+
+	}
+
+	SPIIOFUNC SPIIO = (SPIIOFUNC)GetProcAddressA(lib, "SpiIo");
+	if (!SPIIO) {
+
+		printf("Func not found!!!");
+		Sleep(5000);
+		uniDrv.ReleaseIRQ();
+		return -4;
+
+	}
+
+	SPIINITFUNC SPIInit = (SPIINITFUNC)GetProcAddressA(lib, "SPIinit");
+	if (!SPIInit) {
+
+		printf("Func not found!!!");
+		Sleep(5000);
+		uniDrv.ReleaseIRQ();
+		return -5;
+
+	}
+
+	for (DWORD i = 0; i < wordNum; ++i) {
+	
+		buffer[i] = 0x0000;
+	
+	}
+
+	SPIInit();
+
+	RDMSDefectPacket		defectPacket;
+	RDMSVoltageTempPacket	vtPacket;
+
+	RDMSGainPacket			gainPacket;
+	gainPacket.startByte	= RDMS_GAIN_PACKET;
+	gainPacket.channelNum	= 0x00;
+	gainPacket.gain			= 0x00;
+	gainPacket.endByte		= RDMS_GAIN_PACKET;
+
+	DWORD readed = 85;
+	//CHAR data[85];
 
 	RDMSDefectPacket packet;
 
@@ -333,6 +447,12 @@ DWORD WINAPI protocolThreadFunc(LPVOID lpParam) {
 	DWORD resultSize = 0;
 	WORD prv = 0;
 	while (*execFlag == TRUE) {
+
+
+		/*
+		if (hdr->sensitivity.check != 0x00) {
+
+			int* channel = &hdr->sensitivity.channel0;
 
 		DWORD readed = uniDrv.ReadBufIRQ(&readAddr, (PBYTE)buffer, bufferSize * 2);
 
@@ -404,45 +524,87 @@ DWORD WINAPI protocolThreadFunc(LPVOID lpParam) {
 
 		}
 
-		sizeCounter += (readed >> 10);
-		hdr->updFunc((int)sizeCounter);
+
+			for (int i = 0; i < 8; ++i) {
+
 
 	}
 
 	uniDrv.ReleaseIRQ();
 	CloseHandle(hFile);
 
-	// Create protocol writer
-	//RDMSProtocolWriter* prot = new RDMSProtocolWriter(fileName, RDMS_DEFAULT_BUFFER_SIZE);
+				}
 
-	// Write packet to protocol
-	//prot->writePacket(*packet, packet->size());
-	// Delete packet
-	//delete packet;
+			}
 
-	/*
-	packet = new RDMSDefectPacket;
+			hdr->sensitivity.check = 0x00;
 
-	//
-	HANDLE hGPIO = GPIOOpen();  
-	if (!hGPIO) {
+		}
+		//
 
-		printf("GPIOOpen() error\n");
-		return -1;
-	};
+		buffIO bf;
+		ZeroMemory(&bf, sizeof(buffIO));
 
-	GPIOSetMode(hGPIO, 21, GPIO_DIR_INPUT);
-	GPIOPullup(hGPIO, 21, 0);
-	GPIOClrBit(hGPIO, 21);
-	GPIOSetMode(hGPIO, 21, GPIO_DIR_OUTPUT);
+		// Try to get some GPS!
+		SPIIO(1, 2, bf);
 
-	GPIOSetMode(hGPIO, 65, GPIO_DIR_INPUT | GPIO_INT_HIGH_LOW);
-	GPIOPullup(hGPIO, 65, 1);
-	HANDLE hEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
-	GPIOInterruptRelease(hGPIO, 65);
-	if (!GPIOInterruptInitialize(hGPIO, 65, hEvent)) {
+		vtPacket.startByte			= RDMS_VOLTAGE_TEMP_PACKET;
+		vtPacket.stmTemperature		= bf.volt.StmTemperature;
+		vtPacket.axelTemperature	= bf.volt.AxelTemp;
+		vtPacket.accumCurrent		= bf.volt.Akkum_C;
+		vtPacket.accumVoltage		= bf.volt.Akkum_V;
+		vtPacket.board_1_8V			= bf.volt.Board_1_8V;
+		vtPacket.board_3_3V			= bf.volt.Board_3_3V;
+		vtPacket.board_5V			= bf.volt.Board_5V;
+		vtPacket.board_140V			= bf.volt.Board_140V;
+		vtPacket.calcCheckSum();
+		vtPacket.endByte			= RDMS_VOLTAGE_TEMP_PACKET;
+		// Write packet to buffer
+		vtPacket.write(data);
 
-		return -2;
+		ZeroMemory(&bf, sizeof(buffIO));
+		SPIIO(1, 1, bf);
+
+		// Packet start byte
+		defectPacket.startByte				= RDMS_DEFECT_PACKET;
+		// Packet path sensor data
+		defectPacket.pathSensorData.km		= buffer[0] & 0xFF00 >> 8;
+		defectPacket.pathSensorData.m		= buffer[1];
+		defectPacket.pathSensorData.sm		= buffer[2] & 0xFF00 >> 8;
+		defectPacket.pathSensorData.mm		= buffer[2] & 0x00FF;
+		// GPS coordinates data
+		defectPacket.gpsData.state			= bf.GpsInfo.state;
+		defectPacket.gpsData.lat			= bf.GpsInfo.lat;
+		defectPacket.gpsData.lon			= bf.GpsInfo.lon;
+		defectPacket.gpsData.speed			= bf.GpsInfo.speed & 0x000000FF;
+		defectPacket.gpsData.course			= bf.GpsInfo.course & 0x0000FFFF;
+		defectPacket.gpsData.sec			= bf.GpsInfo.time.sec;
+		defectPacket.gpsData.min			= bf.GpsInfo.time.min;
+		defectPacket.gpsData.hour			= bf.GpsInfo.time.hour;
+		defectPacket.gpsData.year			= bf.GpsInfo.date.year;
+		defectPacket.gpsData.month			= bf.GpsInfo.date.month;
+		defectPacket.gpsData.day			= bf.GpsInfo.date.day;
+
+		// Packet defects data
+		uniDrv.ReadBufIRQ(&readAddr, (PBYTE)buffer, wordNum * 2);
+
+		for (int i = 0; i < 8; ++i) {
+
+			defectPacket.defects[i].depth		= buffer[10 + 10 * i] & 0xFFFF;
+			defectPacket.defects[i].amplitude	= 0x00;
+
+		}
+
+		// Packet end byte
+		defectPacket.endByte				= RDMS_DEFECT_PACKET;
+		// Packet checksum
+		defectPacket.calcCheckSum();
+		// Write packet to buffer
+		defectPacket.write(data + 35);
+
+		WriteFile(hFile, data, 85, &resultSize, NULL);
+
+		if (resultSize != readed) {
 
 	}
 	GPIOInterruptDone(hGPIO, 65);
@@ -483,38 +645,30 @@ DWORD WINAPI protocolThreadFunc(LPVOID lpParam) {
 			// Write packet to protocol
 			prot->writePacket(*packet, packet->size());
 
-			GPIOInterruptDone(hGPIO, 65);
-
-			Sleep(0);
-
 		}
+
+		hdr->memLimit -= resultSize;
+
+		if (resultSize > hdr->memLimit) {
+		
+			*execFlag = FALSE;
+		
+		}
+		*/
+
+		char data[1024];
+		uniDrv.ReadBufIRQ(&readAddr, (PBYTE)buffer, wordNum * 2);
+		sprintf(data, "IRQ count:\t%d", 0);
+		WriteFile(hFile, data, strlen(data), &resultSize, NULL);
+
+		Sleep(0);
 
 	}
 
-	tick = GetTickCount() - tick;
-	WCHAR buffer[256];
-	swprintf(buffer, L"F_DLL_SPEED_TEST: Elapsed time: %f\r\n", ((float)tick / 1000.0f));
-	DEBUGMSG(TRUE, (buffer));
-	swprintf(buffer, L"F_DLL_SPEED_TEST: Approx. speed: %f\r\n", ((float)(524288000.0f / 1024.0f) / ((float)tick / 1000.0f)));
-	DEBUGMSG(TRUE, (buffer));
+	FreeLibrary(lib);
 
-	DEBUGMSG(TRUE, (TEXT("F_DLL_SPEED_TEST: Write done\r\n")));
-	//
-
-	// Delete packet
-	delete packet;
-	*/
-
-	// Destroy protocol
-	//delete prot;
-
-	/*
-	SetEvent(hEvent);
-	GPIOInterruptDisable(hGPIO, 65);
-	GPIOInterruptRelease(hGPIO, 65);
-	GPIOClose(hGPIO);
-	CloseHandle(hEvent);
-	*/
+	uniDrv.ReleaseIRQ();
+	CloseHandle(hFile);
 
 	// We are done
 	return 0;
