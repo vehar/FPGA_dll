@@ -29,7 +29,7 @@
 		                                                        
 #define GEN_CH_CSR					 (GEN_BASE_ADR + 8)           //_GEN_EN_MR_Adr //GenCSAddr
 #define GEN_DURATION_DR_Adr			 (GEN_BASE_ADR + 9)           //_GEN_DURATION_DR_Adr //GenStartAddrWr
-                                                                
+
 //ANALOG                                                        
 #define ANALOG_BASE_ADR 20                                      
 #define INTEGR_COEF_DR				 (ANALOG_BASE_ADR + 1)        //
@@ -39,7 +39,7 @@
 #define AC_SUM_DR					 (ANALOG_BASE_ADR + 5)        //R
 #define CH_SET_CR					 (ANALOG_BASE_ADR + 6)  //R
 #define DAC_GAIN_DR					 (ANALOG_BASE_ADR + 7)  // W - curent amplification
-		                                                            
+
 //FILTER	                                                    
 #define FILT_BASE_ADR 30	                                    
 #define FILT_COEFS_RST_CR			 (FILT_BASE_ADR + 1)          //
@@ -90,7 +90,7 @@
 //STROBE                                                        
 #define STROBE_BASE_ADR 90                                      
 #define STROBE_1_BASE 				 (STROBE_BASE_ADR + 1)        	
-		                                                        
+
 #define STROBE_1_STR_DR 			 (STROBE_1_BASE + 1)       //
 #define STROBE_1_END_DR 			 (STROBE_1_BASE + 2)       //
 #define STROBE_1_LVL_DR				 (STROBE_1_BASE + 3)	        //
@@ -105,6 +105,11 @@
 #define STROBE_2_END_DR 			 (STROBE_2_BASE + 2)	        //
 #define STROBE_2_LVL_DR				 (STROBE_2_BASE + 3)	        //
 		                                                        
+		                                                         
+#define STROBE_2_STR_DR 			 (STROBE_2_BASE + 1)	        //
+#define STROBE_2_END_DR 			 (STROBE_2_BASE + 2)	        //
+#define STROBE_2_LVL_DR				 (STROBE_2_BASE + 3)	        //
+		                                                          
 #define STROBE_2_1EL_DR  			 (STROBE_2_BASE + 4) 	        //R
 #define STROBE_2_MAX_DR	 			 (STROBE_2_BASE + 5) 	        //R
 #define STROBE_2_ZERO_DR 			 (STROBE_2_BASE + 6) 	        //R

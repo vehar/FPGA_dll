@@ -514,7 +514,7 @@ return; //временно отключил TODO:
 		break;
 		// IGOR
 		case F_START_PROTOCOL:
-			startProtocolThread(buff.buff_prot_header);
+			startProtocolThread();
 			break;
 		case F_STOP_PROTOCOL:
 			stopProtocolThread();

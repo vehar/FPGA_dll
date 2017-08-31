@@ -1,7 +1,8 @@
 //#include "stdafx.h"
-#include <windows.h>
 #include "UniDriver.h"
 #include "driverHelper.h"
+
+#include <windows.h>
 #include "../DM3730_Types.h"
 //#include <iostream>
 //#include "IntLib.h"
@@ -91,7 +92,11 @@ void UniDriver::InitIRQ(DWORD dwPin, DWORD bufSize, DWORD accessSize, DWORD dwWa
 	intData.bufSize		= bufSize; //0x1FF //800
 	intData.accessSize	= accessSize; //0xFF //100
 
-	DeviceIoControl(hDrv, IOCTL_INTINIT, (LPVOID)&intData, sizeof(DEVICE_INT_DATA), NULL, NULL, NULL, NULL);
+	DWORD errorCode = 0;
+
+	DeviceIoControl(hDrv, IOCTL_INTINIT, (LPVOID)&intData, sizeof(DEVICE_INT_DATA), NULL, NULL, &errorCode, NULL);
+
+	//printf("Error code: %d", errorCode);
 
 }
 
@@ -102,20 +107,7 @@ DWORD UniDriver::ReadBufIRQ(RWRegData_t* readData, PBYTE buf, DWORD bufSize) {
 	if(hDrv) {
 
 		DeviceIoControl(hDrv, IOCTL_INTREADBUF, (LPVOID)readData, sizeof(RWRegData_t), (LPVOID)buf, bufSize, &readed, NULL);
-	
-	}
-	return readed;
-
-}
-
-DWORD UniDriver::ReadBufIRQ(RWRegData_t* readData/*, PBYTE buf, DWORD bufSize*/) {
-
-	DWORD readed = 0;
-
-	if(hDrv) {
-
-		//DeviceIoControl(hDrv, IOCTL_INTREADBUF, (LPVOID)readData, sizeof(RWRegData_t), (LPVOID)buf, bufSize, &readed, NULL);
-		DeviceIoControl(hDrv, IOCTL_INTREADBUF, (LPVOID)readData, sizeof(RWRegData_t), NULL, NULL, &readed, NULL);
+		//DeviceIoControl(hDrv, IOCTL_INTREADBUF, (LPVOID)readData, sizeof(RWRegData_t), NULL, NULL, &readed, NULL);
 	
 	}
 	return readed;
@@ -128,7 +120,8 @@ DWORD UniDriver::ReadIRQ(RWRegData_t* readData) {
 
 	if(hDrv) {
 
-		DeviceIoControl(hDrv, IOCTL_INTREAD, (LPVOID)readData, sizeof(RWRegData_t), NULL, NULL, &readed, NULL);
+		DeviceIoControl(hDrv, IOCTL_INTREAD, (LPVOID)readData, sizeof(RWRegData_t), (LPVOID)&readData->value, 4, &readed, NULL);
+		//DeviceIoControl(hDrv, IOCTL_INTREAD, (LPVOID)readData, sizeof(RWRegData_t), NULL, NULL, &readed, NULL);
 	
 	}
 	return readed;

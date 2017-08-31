@@ -262,7 +262,7 @@ DWORD64 readed = 0;
 DWORD writed = 0;
 BOOL result = FALSE;
 WORD prv = 0;
-int cnt = 0;
+DWORD cnt = 0;
 DWORD dataAmount = 0;
 float tick = GetTickCount();
 
