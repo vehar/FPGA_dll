@@ -227,7 +227,7 @@ DWORD WINAPI protocolThreadFunc(LPVOID lpParam) {
 	readAddr.offset		= 114 << 1;
 	readAddr.value		= 0;
 
-	HANDLE hFile = CreateFile(L"YAFFS_PART1\\Protocols\\file.txt",
+	HANDLE hFile = CreateFile(L"YAFFS_PART1\\Protocols\\file.txt", 
 							  GENERIC_WRITE,
 							  NULL,
 							  NULL,
