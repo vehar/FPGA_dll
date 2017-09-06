@@ -45,10 +45,27 @@ void FPGACommunication::MainSyncEn(UINT en)
 	}
 }
 
-void FPGACommunication::setAScanEnAddr(UINT val)
+void FPGACommunication::setAScanEn(UINT val)
 {
-	DBG_SHOW_FUNC_T("FPGAComm"); DEBUGMSG(TRUE, (TEXT("val %u \r\n"), val));
-	gmi->WriteWORD(ASCAN_EN_MR , val); 
+		USHORT tmpReg = 0;
+	gmi->ReadWORD(CONTROL_REG, tmpReg);
+
+	if(val == 1)
+    {
+		tmpReg |= (1 << ASCAN_EN_b);
+		gmi->WriteWORD(CONTROL_REG ,tmpReg);
+	} 
+    else if (val == 0)
+    {
+		tmpReg &= ~(1 << ASCAN_EN_b);
+		gmi->WriteWORD(CONTROL_REG ,tmpReg);
+	}
+	else
+	{
+		ASSERT_FAILED(val);
+	}
+
+	//gmi->WriteWORD(ASCAN_EN_MR , val); 
 }
 
 void FPGACommunication::setAScanWrCS(UINT val)
@@ -333,6 +350,28 @@ void FPGACommunication::setAnalogChSwich(USHORT val )
 }
 
 //-------------------------------GENERATOR------------------------------------------
+void FPGACommunication::setHWGenPow(USHORT val ) //выбор ВЫХОДА активного генератора
+{
+	USHORT tmpReg = 0;
+	gmi->ReadWORD(CONTROL_REG, tmpReg);
+
+	if(val == 1)
+    {
+		tmpReg |= (1 << GEN_HW_EN_b);
+		gmi->WriteWORD(CONTROL_REG ,tmpReg);
+	} 
+    else if (val == 0)
+    {
+		tmpReg &= ~(1 << GEN_HW_EN_b);
+		gmi->WriteWORD(CONTROL_REG ,tmpReg);
+	}
+	else
+	{
+		ASSERT_FAILED(val);
+	}
+}
+
+
 void FPGACommunication::setGenSel(USHORT val ) //выбор ВЫХОДА активного генератора
 {
 	gmi->WriteWORD(GEN_EN, val);

@@ -209,7 +209,7 @@ void onAScan(int n)
 		AScanShiftVal = 10; //сдвинули вниз экрана
 
 		FPGA.setScanMode(0); //Set manual ch control
-		FPGA.setAScanEnAddr(1);//on
+		FPGA.setAScanEn(1);//on
 
 	#endif WINCE
 	}
@@ -224,7 +224,7 @@ void offAScan(int n)
 	#ifdef WINCE
 
 		FPGA.setScanMode(1); //back to auto ch inc
-		FPGA.setAScanEnAddr(0);//off
+		FPGA.setAScanEn(0);//off
 
 	#endif WINCE
 	}
@@ -260,8 +260,8 @@ void SetChannelParams(WORD channel, WORD delay, WORD CZone, WORD Gain)
 	FPGA_Write(DAC_GAIN_DR ,Gain);
 
 	FPGA_Write(AN_CH_CSR ,channel);
-	FPGA.setScanMode(0);
-	FPGA.setScanMode(1);
+//	FPGA.setScanMode(0);
+//	FPGA.setScanMode(1);
 }
 	
 //channel map
@@ -296,7 +296,7 @@ void SetScanChannel(int num) //channel setter for AUTOSCAN mode
 
 	SetChannelParams(chPhy, 0, 0xFFFF, Gain_tmp);//FIX:
 
-	FPGA.setScanMode(1);
+//	FPGA.setScanMode(1);
 	DEBUGMSG(TRUE, (TEXT("----FIX: Default setCzone = 0xFFFF, setDACGain = %u, setSignalADCDelay = 0, setSignalCompress = 2 \r\n"), Gain_tmp));//TODO: rewrite dbg string
 	}
 }
@@ -399,19 +399,36 @@ void ToFpgaDllSend(int with_fpga, int funk, int val)
 
 		case F_SCAN_CH_SET: SetScanChannel(val); break;//channel setter for AUTOSCAN (Multichannel) mode 
 
-		case F_MULTI_CH: if(val == ON)
+		case F_MULTI_CH: if(val == ON) // при заходе и выходе с формы многоканального
 						 {
 							 InMultiChMode_f = 1; 
 							 FPGA.setScanMode(1); 
-							 FPGA.setAScanEnAddr(1);//Ascan on
+							 FPGA.setAScanEn(1);//Ascan on
+							 FPGA.setHWGenPow(ON);
 						 }
 						 else 
 						 {
 							 InMultiChMode_f = 0; 
 							 FPGA.setScanMode(0); 
-							 FPGA.setAScanEnAddr(0);//Ascan off 
+							 FPGA.setAScanEn(0);//Ascan off 
+							 FPGA.setHWGenPow(OFF);
 						 }
 						 break;//channel autoinc on/off for multi channel mode mode
+
+		case F_SINGLE_CH: if(val == ON) // при заходе и выходе с формы ќƒЌќканального
+						 {
+							 InMultiChMode_f = 0; 
+							 FPGA.setScanMode(1); 
+							 FPGA.setAScanEn(1);//Ascan on
+							 FPGA.setHWGenPow(ON); 
+						 }
+						 else 
+						 {
+							 FPGA.setScanMode(0); 
+							 FPGA.setAScanEn(0);//Ascan off 
+							 FPGA.setHWGenPow(OFF);
+						 }
+						 break;	
 
 		case F_MULTI_CH_GAIN_SET: 	FPGA.setChDacGain(currentChannel, val);	 break;//channel autoinc on/off for multi channel mode mode
 
@@ -670,6 +687,6 @@ void FPGAinit(int n)
 void FPGADeinit (void) //выключение fpga и всей св€заной периферии
 {
 	FPGA.setScanMode(0); //channel autoinc off
-	FPGA.setGenSel(0); 
+	FPGA.setHWGenPow(0); 
     FPGA.setAnalogChSwich(0);
 } 

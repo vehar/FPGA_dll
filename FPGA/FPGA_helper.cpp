@@ -84,7 +84,7 @@ FPGA.setAScanColor(8, VIOLET);//R+G //yellow  //-64 B-scan!
 
 void Gen_init (void) 
 {
-	FPGA_Write(GEN_EN, 0);//disable gen
+	FPGA.setHWGenPow(0);//disable gen
 }
 
 
@@ -130,14 +130,14 @@ FPGA.setGateLevel(0, 100);// TODO: fix bug with max 500 in FPGA //ToAdcScale(act
 //управление автономной отрисовкой ј-скана на FPGA
 void HardAScan_Start(void)
 {
-	FPGA.setAScanEnAddr(1+2+4);
+	FPGA.setAScanEn(1+2+4);
 	FPGA.setSyncSource(1);//SyncCtrl - on //SyncInt
 	FPGA.setApainter(1);//on
 }
 
 void HardAScan_Stop(void)
 {
-	FPGA.setAScanEnAddr(1+2+4); 
+	FPGA.setAScanEn(1+2+4); 
 	FPGA.setSyncSource(1);//SyncCtrl - on //SyncInt
 	FPGA.setApainter(0);//off
 }
@@ -223,7 +223,6 @@ FPGA_Write(TEST_IRQ_CR ,wordNum);// num of words written in time from FSYNC_DR
 FPGA.setSyncSource(INT_SYNC);//Select scan sync source
 
 //FPGA_Write(SYNC_CR, STOP); //Track sensor synk
-FPGA_Write(ASCAN_EN_MR, 1);
 
 WORD* buf = new WORD[bufSize];
 

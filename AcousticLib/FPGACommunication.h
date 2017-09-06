@@ -13,6 +13,8 @@
 
 //#define WINCE
 
+#define ASSERT_FAILED(v) do{DBG_SHOW_FUNC_T("FPGA_ASSERT_FAILED"); DEBUGMSG(TRUE, (TEXT("with val = %u \r\n"), v));} while(0)
+
 #include "../FPGA/FPGA_Registers.h" //all internal FPGA registers adresses
 
 //Адаптер для Acustlib
@@ -60,7 +62,7 @@ void setChDacGain(USHORT channel, USHORT gain);
 void setSignalPattern(UINT val);
 void MainSyncEn(UINT en);
 void setAScanDrawMode(UINT val);
-void setAScanEnAddr(UINT val);
+void setAScanEn(UINT val);
 void setAScanWrCS(UINT val);
 void setAScanStartAddrWr(UINT val);
 void resetAScanRamCntRd();
@@ -116,7 +118,8 @@ UCHAR WriteBuf32(DWORD addr, DWORD addr1, UINT val, UINT val_1, int size);
 	void setFilterEn(USHORT val);
 	void setFilterCoeffs(USHORT* Buff, int size);
 
-	void setGenSel(USHORT val);
+	void setHWGenPow(USHORT val);
+        void setGenSel(USHORT val);
 
 	
 	void setAcoustContGainCode(USHORT val);

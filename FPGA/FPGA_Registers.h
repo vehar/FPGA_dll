@@ -6,12 +6,17 @@
 
 //>>REG_DEF_START<<
 
+#define ON  (1)
+#define OFF (0)
+
 //SYSTEM
 #define FMC_SYNC_nEN_b	(0)
 #define FMC_SYNC_SRC_b	(1)
 #define FMC_ADC_EN_b	(2)
 #define FMC_DAC_EN_b	(3)
 #define FMC_SCAN_MODE_b	(4)
+#define GEN_HW_EN_b    	(5) //old GEN_EN
+#define ASCAN_EN_b    	(6) //old ASCAN_EN_MR
 
 #define CONTROL_REG 1 //0-SYNC_nEN_CR 1-SYNC_CR 2-ADC_EN 3-DAC_EN 4-SCAN_MODE_CR
 //----------------------------------------------------------------------------------
@@ -50,7 +55,7 @@
 #define GEN_DELAY_DR_7				 (GEN_BASE_ADR + 7)           //
 		                                                        
 #define GEN_EN					 (GEN_BASE_ADR + 8)           //_GEN_EN_MR_Adr //GenCSAddr
-*/
+*/		                                                        
 #define GEN_DURATION_DR_Adr			 (GEN_BASE_ADR + 9)           //_GEN_DURATION_DR_Adr //GenStartAddrWr
 
 //ANALOG                                                        
@@ -58,7 +63,7 @@
 #define INTEGR_COEF_DR				 (ANALOG_BASE_ADR + 1)        //
 #define COMPRESS_DR					 (ANALOG_BASE_ADR + 2)        //
 #define DETECT_CR					 (ANALOG_BASE_ADR + 3)        //
-#define AN_CH_CSR					 (ANALOG_BASE_ADR + 4)        //	
+#define AN_CH_CSR					 (3) //(ANALOG_BASE_ADR + 4)        //	
 #define AC_SUM_DR					 (ANALOG_BASE_ADR + 5)        //R
 #define CH_SET_CR					 (ANALOG_BASE_ADR + 6)  //R
 #define DAC_GAIN_DR					 (ANALOG_BASE_ADR + 7)  // W - curent amplification
@@ -80,7 +85,7 @@
 #define ACGAIN_DR_1					 (ACGAIN_BASE_ADR + 1)        //	
 #define ACGAIN_DR_2					 (ACGAIN_BASE_ADR + 2)        // 
 #define ACGAIN_DR_3					 (ACGAIN_BASE_ADR + 3)        //
-#define ACGAIN_DR_4					 (ACGAIN_BASE_ADR + 4)         //
+#define ACGAIN_DR_4					 (ACGAIN_BASE_ADR + 4)        //
 #define ACGAIN_DR_5					 (ACGAIN_BASE_ADR + 5)        //
 #define ACGAIN_DR_6					 (ACGAIN_BASE_ADR + 6)        //
 #define ACGAIN_DR_7					 (ACGAIN_BASE_ADR + 7)        //
@@ -96,7 +101,7 @@
 //ASCAN 	                                                    
 #define ASCAN_BASE_ADR 70		                                
 #define ASCAN_WR_CSR				 (ASCAN_BASE_ADR + 1)         //		
-#define ASCAN_EN_MR					 (ASCAN_BASE_ADR + 2)         //		
+//#define ASCAN_EN_MR					 (ASCAN_BASE_ADR + 2)         //		
 #define ASCAN_COLOR 				 (ASCAN_BASE_ADR + 3)         // !!!
 #define LCD_CR						 (ASCAN_BASE_ADR + 4)         // CPU lcd bus -on/off
                                                                 
@@ -151,7 +156,7 @@
 //bit defines
 
 typedef enum {STOP = 0, INT_SYNC, EXT_SYNC, EXT_CONTROLLER} SyncCtr_reg;
-typedef enum {OFF, NEG_SIG, POS_SIG, NEG_POS_SIG} Detector_reg; 		//positive-negative signal detection
+//typedef enum {OFF, NEG_SIG, POS_SIG, NEG_POS_SIG} Detector_reg; 		//positive-negative signal detection
 typedef enum {CH1_COMB, CH1_SEPAR, CH2_COMB, CH2_SEPAR} AN_CH_CSR_reg; //COMBINED MODE, SEPARATED MODE
 typedef enum {ATTEN_OFF, ATTEN_ON} AttenSw_reg;							//Input signal attenuator
 typedef enum {INVERTION_OFF, INVERTION_ON} InvertSignal_reg; 
