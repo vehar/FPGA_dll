@@ -204,11 +204,7 @@ DWORD WINAPI protocolThreadFunc(LPVOID lpParam) {
 	DWORD wordNum		= 8 << 4;		// words	128
 	DWORD cycleFreq		= 1;			// ms
 
-<<<<<<< HEAD
 	//FPGA_Write(SYSTEM_RESET_CR, 1);
-=======
-	FPGA_Write(SYSTEM_RESET_CR, 1);
->>>>>>> f66e7d8245b588411ab737ab3b5f66fd75ead5fc
 	FPGA_Write(FSYNC_DR, cycleFreq * 100);		// t = val * 100 [ms]
 	FPGA_Write(TEST_IRQ_CR, wordNum);			// num of words written in time from FSYNC_DR
 
@@ -223,12 +219,7 @@ DWORD WINAPI protocolThreadFunc(LPVOID lpParam) {
 
 	WORD* buffer = new WORD[bufferSize];
 
-<<<<<<< HEAD
 	uniDrv.InitIRQ(65, bufferSize * 2, wordNum * 2, 50);
-=======
-
-	uniDrv.InitIRQ(65, bufferSize * 2, wordNum * 2, 50); 
->>>>>>> f66e7d8245b588411ab737ab3b5f66fd75ead5fc
 
 	RWRegData_t	readAddr;
 	readAddr.baseAddr	= GPMC_CS1_BASE;
@@ -252,11 +243,7 @@ DWORD WINAPI protocolThreadFunc(LPVOID lpParam) {
 	
 	}
 
-<<<<<<< HEAD
 	HINSTANCE lib = LoadLibrary(L"SPI_dll.dll");
-=======
-	HINSTANCE lib = LoadLibrary(L"dllSpiServer.dll");
->>>>>>> f66e7d8245b588411ab737ab3b5f66fd75ead5fc
 	if(!lib) {
 
 		printf("DLL not found!!!");
@@ -304,11 +291,7 @@ DWORD WINAPI protocolThreadFunc(LPVOID lpParam) {
 	gainPacket.endByte		= RDMS_GAIN_PACKET;
 
 	DWORD readed = 85;
-<<<<<<< HEAD
 	CHAR data[85];
-=======
-	//CHAR data[85];
->>>>>>> f66e7d8245b588411ab737ab3b5f66fd75ead5fc
 
 	DWORD resultSize = 0;
 	WORD prv = 0;
@@ -336,11 +319,7 @@ DWORD WINAPI protocolThreadFunc(LPVOID lpParam) {
 			hdr->sensitivity.check = 0x00;
 
 		}
-<<<<<<< HEAD
 		*/
-=======
-		//
->>>>>>> f66e7d8245b588411ab737ab3b5f66fd75ead5fc
 
 		buffIO bf;
 		ZeroMemory(&bf, sizeof(buffIO));
@@ -413,10 +392,7 @@ DWORD WINAPI protocolThreadFunc(LPVOID lpParam) {
 
 		}
 
-<<<<<<< HEAD
 		/*
-=======
->>>>>>> f66e7d8245b588411ab737ab3b5f66fd75ead5fc
 		hdr->memLimit -= resultSize;
 
 		if (resultSize > hdr->memLimit) {
@@ -426,18 +402,12 @@ DWORD WINAPI protocolThreadFunc(LPVOID lpParam) {
 		}
 		*/
 
-<<<<<<< HEAD
 		/*
-=======
->>>>>>> f66e7d8245b588411ab737ab3b5f66fd75ead5fc
 		char data[1024];
 		uniDrv.ReadBufIRQ(&readAddr, (PBYTE)buffer, wordNum * 2);
 		sprintf(data, "IRQ count:\t%d", 0);
 		WriteFile(hFile, data, strlen(data), &resultSize, NULL);
-<<<<<<< HEAD
 		*/
-=======
->>>>>>> f66e7d8245b588411ab737ab3b5f66fd75ead5fc
 
 		Sleep(0);
 
