@@ -108,19 +108,21 @@ DWORD UniDriver::ReadBufIRQ(RWRegData_t* readData, PBYTE buf, DWORD bufSize) {
 
 }
 
-DWORD UniDriver::ReadBufIRQ(RWRegData_t* readData/*, PBYTE buf, DWORD bufSize*/) {
+/*
+DWORD UniDriver::ReadBufIRQ(RWRegData_t* readData, PBYTE buf, DWORD bufSize) {
 
 	DWORD readed = 0;
 
 	if(hDrv) {
 
-		//DeviceIoControl(hDrv, IOCTL_INTREADBUF, (LPVOID)readData, sizeof(RWRegData_t), (LPVOID)buf, bufSize, &readed, NULL);
-		DeviceIoControl(hDrv, IOCTL_INTREADBUF, (LPVOID)readData, sizeof(RWRegData_t), NULL, NULL, &readed, NULL);
+		DeviceIoControl(hDrv, IOCTL_INTREADBUF, (LPVOID)readData, sizeof(RWRegData_t), (LPVOID)buf, bufSize, &readed, NULL);
+		//DeviceIoControl(hDrv, IOCTL_INTREADBUF, (LPVOID)readData, sizeof(RWRegData_t), NULL, NULL, &readed, NULL);
 	
 	}
 	return readed;
 
 }
+*/
 
 DWORD UniDriver::ReadIRQ(RWRegData_t* readData) {
 

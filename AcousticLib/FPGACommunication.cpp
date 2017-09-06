@@ -16,6 +16,7 @@ FPGACommunication::~FPGACommunication()
 {
 	delete gmi;
 }
+
 //========================================RDM11 V.H.=======================================
 void FPGACommunication::setSignalPattern(UINT val)
 {
@@ -24,15 +25,29 @@ void FPGACommunication::setSignalPattern(UINT val)
 
 void FPGACommunication::MainSyncEn(UINT en)
 {
-	if(en == 1){
+	USHORT tmpReg = 0;
+	/*if(en == 1){
 		gmi->WriteWORD(SYNC_nEN_CR ,0);//SyncCtrl_nENABLE - oN
 	} else if (en == 0){
 	gmi->WriteWORD(SYNC_nEN_CR ,1);//SyncCtrl_nENABLE - oFF
+	}*/
+	gmi->ReadWORD(CONTROL_REG, tmpReg);
+
+	if(en == 0) 
+    {
+		tmpReg |= (1 << FMC_SYNC_nEN_b);//SyncCtrl_nENABLE - oN
+		gmi->WriteWORD(CONTROL_REG ,tmpReg);
+	} 
+    else if (en == 1)
+    {
+		tmpReg &= ~(1 << FMC_SYNC_nEN_b);//SyncCtrl_nENABLE - oFF
+		gmi->WriteWORD(CONTROL_REG ,tmpReg);
 	}
 }
 
 void FPGACommunication::setAScanEnAddr(UINT val)
 {
+	DBG_SHOW_FUNC_T("FPGAComm"); DEBUGMSG(TRUE, (TEXT("val %u \r\n"), val));
 	gmi->WriteWORD(ASCAN_EN_MR , val); 
 }
 
@@ -101,7 +116,20 @@ void FPGACommunication::setScanMode(UINT val)
 {
 	DBG_SHOW_FUNC_T("FPGAComm"); DEBUGMSG(TRUE, (TEXT("val %u \r\n"), val));
 
-	gmi->WriteWORD(SCAN_MODE_CR ,val);
+	//gmi->WriteWORD(SCAN_MODE_CR ,val);
+	USHORT tmpReg = 0;
+	gmi->ReadWORD(CONTROL_REG, tmpReg);
+
+	if(val == 1)
+    {
+		tmpReg |= (1 << FMC_SCAN_MODE_b);
+		gmi->WriteWORD(CONTROL_REG ,tmpReg);
+	} 
+    else if (val == 0)
+    {
+		tmpReg &= ~(1 << FMC_SCAN_MODE_b);
+		gmi->WriteWORD(CONTROL_REG ,tmpReg);
+	}
 }
 void FPGACommunication::setTgcStartAddr(UINT val)
 {
@@ -175,7 +203,75 @@ void FPGACommunication::setSyncFreq(UINT freqInSamples)
 
 void FPGACommunication::setSyncSource(USHORT syncSource)
 {
-	gmi->WriteWORD(SYNC_CR, syncSource);
+	USHORT tmpReg = 0;
+	gmi->ReadWORD(CONTROL_REG, tmpReg);
+
+	if(syncSource == 1)
+    {
+		tmpReg |= (1 << FMC_SYNC_SRC_b);
+		gmi->WriteWORD(CONTROL_REG ,tmpReg);
+	} 
+    else if (syncSource == 0)
+    {
+		tmpReg &= ~(1 << FMC_SYNC_SRC_b);
+		gmi->WriteWORD(CONTROL_REG ,tmpReg);
+	}
+
+	//gmi->WriteWORD(SYNC_CR, syncSource);
+}
+
+void FPGACommunication::setChDacGain(USHORT channel, USHORT gain)
+{
+	USHORT tmpReg = 0;
+	USHORT Reg = 0;
+
+	switch(channel)
+	{
+		case 1: Reg = DAC_GAIN_CH1; break;
+		case 2: Reg = DAC_GAIN_CH2; break;
+		case 3: Reg = DAC_GAIN_CH3; break;
+		case 4: Reg = DAC_GAIN_CH4; break;
+		case 5: Reg = DAC_GAIN_CH5; break;
+		case 6: Reg = DAC_GAIN_CH6; break;
+		case 7: Reg = DAC_GAIN_CH7; break;
+		case 8: Reg = DAC_GAIN_CH8; break;
+		default : return;
+	}
+	gmi->WriteWORD(Reg ,gain);
+}
+
+void FPGACommunication::setDAC(USHORT en)
+{
+	USHORT tmpReg = 0;
+	gmi->ReadWORD(CONTROL_REG, tmpReg);
+
+	if(en == 1)
+    {
+		tmpReg |= (1 << FMC_DAC_EN_b);
+		gmi->WriteWORD(CONTROL_REG ,tmpReg);
+	} 
+    else if (en == 0)
+    {
+		tmpReg &= ~(1 << FMC_DAC_EN_b);
+		gmi->WriteWORD(CONTROL_REG ,tmpReg);
+	}
+}
+
+void FPGACommunication::setADC(USHORT en)
+{
+	USHORT tmpReg = 0;
+	gmi->ReadWORD(CONTROL_REG, tmpReg);
+
+	if(en == 1)
+    {
+		tmpReg |= (1 << FMC_ADC_EN_b);
+		gmi->WriteWORD(CONTROL_REG ,tmpReg);
+	} 
+    else if (en == 0)
+    {
+		tmpReg &= ~(1 << FMC_ADC_EN_b);
+		gmi->WriteWORD(CONTROL_REG ,tmpReg);
+	}
 }
 
 void FPGACommunication::setSignalCompress(USHORT val)
@@ -239,7 +335,7 @@ void FPGACommunication::setAnalogChSwich(USHORT val )
 //-------------------------------GENERATOR------------------------------------------
 void FPGACommunication::setGenSel(USHORT val ) //выбор ВЫХОДА активного генератора
 {
-	gmi->WriteWORD(GEN_CH_CSR, val);
+	gmi->WriteWORD(GEN_EN, val);
 }
 
 //---------------------------------------------------------------------------------

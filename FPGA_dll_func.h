@@ -32,7 +32,7 @@ union buffer
 {
 	ñursor		buff_ñurs;
 	cursData	buff_ñd;
-	protocolData	buff_prot_header;
+	protocolData*	buff_prot_header;
 	//
 	moveData	buff_md;
 	//

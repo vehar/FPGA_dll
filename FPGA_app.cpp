@@ -25,6 +25,7 @@
 #include "FPGA_dll_func.h"
 
 #include "FPGA_func_defs.h"
+//#include "FPGA_registers.h"
 
 #include "MathHelpers.h"
 #include "BScanHelper\BScanHelper.h"
@@ -53,7 +54,9 @@ DEBUGMSG(TRUE,( TEXT("\r\n\r\n++++++++++++++++++++++++++++++++++++++++++++++++++
 DBG_SHOW_DATE_T(DBG_TARGET);
 DBG_SHOW_FUNC_T(DBG_TARGET);
 
-FpgaSpeedTest(iterations, wordNum, IrqPeriod, bufSize);
+FpgaCycleRegTest(CONTROL_REG);
+
+//FpgaSpeedTest(iterations, wordNum, IrqPeriod, bufSize);
 //ToFpgaDllSend(with_fpga, F_FPGA_INIT, 0);
 
 //test();

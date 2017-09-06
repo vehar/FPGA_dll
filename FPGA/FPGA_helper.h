@@ -71,7 +71,10 @@ extern void HardAScan_Stop(void);
 
 extern int FPGA_DBUS_TEST();
 extern int FPGA_ABUS_TEST();
+
 extern float FpgaSpeedTest(DWORD iterations, DWORD wordNum, DWORD IrqPeriod, DWORD bufSize);
+extern void FpgaCycleRegTest(DWORD reg);//Test for Kirilov
+
 
 extern USHORT ToAdcScale (USHORT persent);
 extern USHORT ToLcdScaleY (USHORT persent);

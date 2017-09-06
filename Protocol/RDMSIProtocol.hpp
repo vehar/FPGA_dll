@@ -24,7 +24,8 @@ enum RDMSPacketType : UCHAR {
 	RDMS_TURNOUT_PACKET			= 0x07,		// Turnout packet
 	RDMS_ACOUSTIC_PACKET		= 0x08,		// Acoustic contact packet
 	RDMS_GAIN_PACKET			= 0x09,		// Gain packet
-	RDMS_SYNC_PACKET			= 0x0A		// Syncronization packet
+	RDMS_SYNC_PACKET			= 0x0A,		// Syncronization packet
+	RDMS_VOLTAGE_TEMP_PACKET	= 0x0B		// Voltage and temperature packet
 
 };
 
@@ -47,15 +48,19 @@ enum RDMSGpsLatLongFlag : UCHAR {
 //
 struct RDMSGpsInfo {
 
-	UCHAR		latLongDirection;			// Latitude/Longitude flag
-	UCHAR		latDegrees;					// Latitude degrees
-	UCHAR		latMinutes;					// Latitude minutes
-	UCHAR		latSeconds;					// Latitude seconds
-	UCHAR		longDegrees;				// Longitude degrees
-	UCHAR		longMinutes;				// Longitude minutes
-	UCHAR		longSeconds;				// Longitude seconds
+	UCHAR		state;						//	0	1		GPS state flags
+	float		lat;						//	1	4		Lattitude
+	float		lon;						//	5	4		Longitude
+	UCHAR		speed;						//	9	1		Speed (m/s)
+	USHORT		course;						//	10	2		Course angle (0 - 359)
+	UCHAR		sec;						//	12	1		Seconds (0 - 59)
+	UCHAR		min;						//	13	1		Minutes (0 - 59)
+	UCHAR		hour;						//	14	1		Hours (0 - 23)
+	UCHAR		year;						//	15	1		Year (XXXX)
+	UCHAR		month;						//	16	1		Month (1 - 12)
+	UCHAR		day;						//	17	1		Day (1 - 31)
 
-};
+};											//	18
 
 ///////////////////////
 //
@@ -63,12 +68,12 @@ struct RDMSGpsInfo {
 //
 struct RDMSPathSensor {
 
-	UCHAR		km;							// Distance in kilometers
-	USHORT		m;							// Distance in meters
-	UCHAR		sm;							// Distance in santimeters
-	UCHAR		mm;							// Distance in millimeters
+	UCHAR		km;							//	0	1		Distance in kilometers
+	USHORT		m;							//	1	2		Distance in meters
+	UCHAR		sm;							//	3	1		Distance in santimeters
+	UCHAR		mm;							//	4	1		Distance in millimeters
 
-};
+};											//	5
 
 //////////////////
 //
@@ -76,10 +81,10 @@ struct RDMSPathSensor {
 //
 struct RDMSSpeed {
 
-	UCHAR		integer;					// Integer part of speded value
-	UCHAR		fractional;					// Fractional part of speed value
+	UCHAR		integer;					//	0	1		Integer part of speded value
+	UCHAR		fractional;					//	1	1		Fractional part of speed value
 
-};
+};											//	2
 
 ///////////////////////////
 //
@@ -119,15 +124,15 @@ struct RDMSIPacket {
 //
 struct RDMSHeader : RDMSIPacket {
 
-	UCHAR			headerSymbols[4];		// Header symbols ("RDMS")
-	RDMSGpsInfo		gpsData;				// GPS coordinates
-	ULONGLONG		timeData;				// Current UNIX timestamp
-	UCHAR			freeMemory;				// Free memory (%)
-	UCHAR			railType;				// Rail type
-	USHORT			operatorNumber;			// Operator`s number
-	UCHAR			direction;				// Countdown direction (+, -)
-	RDMSCtrlType	controlType;			// Control type
-	UCHAR			checkSum;				// Check sum
+	UCHAR			headerSymbols[4];		//	0	4		Header symbols ("RDMS")
+	RDMSGpsInfo		gpsData;				//	5	18		5GPS coordinates
+	ULONGLONG		timeData;				//	22	8		Current UNIX timestamp
+	UCHAR			freeMemory;				//	30	1		Free memory (%)
+	UCHAR			railType;				//	32	1		Rail type
+	USHORT			operatorNumber;			//	33	2		Operator`s number
+	UCHAR			direction;				//	34	1		Countdown direction (+, -)
+	RDMSCtrlType	controlType;			//	35	1		Control type
+	UCHAR			checkSum;				//	36	1		Check sum
 
 	// Calculate check sum of packet
 	UCHAR			calcCheckSum();
@@ -140,7 +145,7 @@ struct RDMSHeader : RDMSIPacket {
 	// Write packet data to buffer
 	void			write(LPSTR);
 
-};
+};											//	37 bytes
 
 
 //////////////////////////////////////
@@ -149,11 +154,11 @@ struct RDMSHeader : RDMSIPacket {
 //
 struct RDMSSpeedPacket : RDMSIPacket {
 
-	UCHAR		startByte;					// Start byte
-	UCHAR		timeDifference;				// Difference with previous timestamp
-	RDMSSpeed	speed;						// Movement speed
-	UCHAR		checkSum;					// Check sum
-	UCHAR		endByte;					// End byte
+	UCHAR		startByte;					//	0	1		Start byte
+	UCHAR		timeDifference;				//	1	1		Difference with previous timestamp
+	RDMSSpeed	speed;						//	2	2		Movement speed
+	UCHAR		checkSum;					//	4	1		Check sum
+	UCHAR		endByte;					//	5	1		End byte
 
 	// Calculate check sum of packet
 	UCHAR		calcCheckSum();
@@ -166,7 +171,7 @@ struct RDMSSpeedPacket : RDMSIPacket {
 	// Write packet data to buffer
 	void		write(LPSTR);
 
-};
+};											// 6
 
 ///////////////////////
 //
@@ -174,10 +179,10 @@ struct RDMSSpeedPacket : RDMSIPacket {
 //
 struct RDMSDefectData {
 
-	UCHAR		amplitude;					// Signal amplitude
-	USHORT		depth;						// Defect depth (mm)
+	UCHAR		amplitude;					//	0	1		Signal amplitude
+	USHORT		depth;						//	1	2		Defect depth (mm)
 
-};
+};											//	3
 
 ///////////////////////////////////////
 //
@@ -185,11 +190,12 @@ struct RDMSDefectData {
 //
 struct RDMSDefectPacket : RDMSIPacket {
 
-	UCHAR			startByte;				// Start byte
-	RDMSPathSensor	pathSensorData;			// Path sensor coordinate
-	RDMSDefectData	defects[8];				// Defect data structures fro 8 channels
-	UCHAR			checkSum;				// Check sum
-	UCHAR			endByte;				// End byte
+	UCHAR			startByte;				//	0	1		Start byte
+	RDMSPathSensor	pathSensorData;			//	1	5		Path sensor coordinate
+	RDMSGpsInfo		gpsData;				//	6	18		GPS coordinates
+	RDMSDefectData	defects[8];				//	25	3 * 8	Defect data structures fro 8 channels
+	UCHAR			checkSum;				//	50	1		Check sum
+	UCHAR			endByte;				//	51	1		End byte
 
 	// Calculate check sum of packet
 	UCHAR			calcCheckSum();
@@ -202,7 +208,7 @@ struct RDMSDefectPacket : RDMSIPacket {
 	// Write packet data to buffer
 	void			write(LPSTR);
 
-};
+};											//	52
 
 ///////////////////////////////
 //
@@ -210,10 +216,10 @@ struct RDMSDefectPacket : RDMSIPacket {
 //
 struct RDMSTextData {
 
-	UCHAR		nameLength;					// Name length (characters)
-	WCHAR		name[256];					// Name data (UNICODE)
+	UCHAR		nameLength;					//	0	1		Name length (characters)
+	WCHAR		name[256];					//	1	0..255	Name data (UNICODE)
 
-};
+};											//	1..510
 
 ///////////////////////////////////////////
 //
@@ -221,14 +227,14 @@ struct RDMSTextData {
 //
 struct RDMSTrackCoordPacket : RDMSIPacket {
 
-	UCHAR			startByte;				// Start byte
-	RDMSGpsInfo		gpsData;				// GPS coordinate
-	RDMSPathSensor	pathSensorData;			// Path sensor coordinate
-	USHORT			railNumber;				// Rail number
-	UCHAR			thread;					// Left or right thread
-	RDMSTextData	stageName;				// Track coordinate stage data
-	UCHAR			checkSum;				// Check sum
-	UCHAR			endByte;				// End byte
+	UCHAR			startByte;				//	0	1		Start byte
+	RDMSGpsInfo		gpsData;				//	1	18		GPS coordinate
+	RDMSPathSensor	pathSensorData;			//	20	5		Path sensor coordinate
+	//USHORT			railNumber;				//	25	2		Rail number
+	//UCHAR			thread;					//	27	1		Left or right thread
+	//RDMSTextData	stageName;				//	28	1..510	Track coordinate stage data
+	UCHAR			checkSum;				//	538	1		Check sum
+	UCHAR			endByte;				//	539	1		End byte
 
 	// Calculate check sum of packet
 	UCHAR			calcCheckSum();
@@ -241,7 +247,7 @@ struct RDMSTrackCoordPacket : RDMSIPacket {
 	// Write packet data to buffer
 	void			write(LPSTR);
 
-};
+};											//	540
 
 ///////////////////////////
 //
@@ -249,11 +255,11 @@ struct RDMSTrackCoordPacket : RDMSIPacket {
 //
 struct RDMSRailPos {
 
-	UCHAR		km;							// Kilometers
-	USHORT		m;							// Meters
-	UCHAR		trackNumber;				// Track number
+	UCHAR		km;							//	0	1		Kilometers
+	USHORT		m;							//	1	2		Meters
+	UCHAR		trackNumber;				//	3	1		Track number
 
-};
+};											//	4
 
 ////////////////////////////////////////
 //
@@ -261,13 +267,12 @@ struct RDMSRailPos {
 //
 struct RDMSKmStockPacket : RDMSIPacket {
 
-	UCHAR			startByte;				// Start byte
-	RDMSRailPos		position;				// Km stock position data
-	//USHORT			railwayRunNum;			// Railway number
-	USHORT			railNum;				// Rail number
-	RDMSTextData	stageName;				// Km stock stage name data
-	UCHAR			checkSum;				// Check sum
-	UCHAR			endByte;				// End byte
+	UCHAR			startByte;				//	0	1		Start byte
+	RDMSRailPos		position;				//	1	4		Km stock position data
+	USHORT			railNum;				//	5	2		Rail number
+	RDMSTextData	stageName;				//	7	1..510	Km stock stage name data
+	UCHAR			checkSum;				//	517	1		Check sum
+	UCHAR			endByte;				//	518	1		End byte
 
 	// Calculate check sum of packet
 	UCHAR			calcCheckSum();
@@ -280,7 +285,7 @@ struct RDMSKmStockPacket : RDMSIPacket {
 	// Write packet data to buffer
 	void			write(LPSTR);
 
-};
+};											//	519
 
 ////////////////////////////////////
 //
@@ -288,12 +293,12 @@ struct RDMSKmStockPacket : RDMSIPacket {
 //
 struct RDMSRspPacket : RDMSIPacket {
 
-	UCHAR			startByte;				// Start byte
-	USHORT			rackNum;				// Rack number
-	USHORT			railNum;				// Rail number
-	RDMSTextData	nameData;				// RSP name data
-	UCHAR			checkSum;				// Check sum
-	UCHAR			endByte;				// End byte
+	UCHAR			startByte;				//	0	1		Start byte
+	USHORT			rackNum;				//	1	2		Rack number
+	USHORT			railNum;				//	3	2		Rail number
+	RDMSTextData	nameData;				//	5	1..510	RSP name data
+	UCHAR			checkSum;				//	515	1		Check sum
+	UCHAR			endByte;				//	516	1		End byte
 
 	// Calculate check sum of packet
 	UCHAR			calcCheckSum();
@@ -306,7 +311,7 @@ struct RDMSRspPacket : RDMSIPacket {
 	// Write packet data to buffer
 	void			write(LPSTR);
 
-};
+};											//	517
 
 ////////////////////////////////////////
 //
@@ -314,12 +319,12 @@ struct RDMSRspPacket : RDMSIPacket {
 //
 struct RDMSTurnoutPacket : RDMSIPacket {
 
-	UCHAR			startByte;				// Start byte
-	RDMSRailPos		position;				// Turnout position data
-	UCHAR			type;					// Turnout type
-	RDMSTextData	stageName;				// Turnout stage name data
-	UCHAR			checkSum;				// Check sum
-	UCHAR			endByte;				// End byte
+	UCHAR			startByte;				//	0	1		Start byte
+	RDMSRailPos		position;				//	1	4		Turnout position data
+	UCHAR			type;					//	5	1		Turnout type
+	RDMSTextData	stageName;				//	6	1..510	Turnout stage name data
+	UCHAR			checkSum;				//	516	1		Check sum
+	UCHAR			endByte;				//	517	1		End byte
 
 	// Calculate check sum of packet
 	UCHAR			calcCheckSum();
@@ -332,7 +337,7 @@ struct RDMSTurnoutPacket : RDMSIPacket {
 	// Write packet data to buffer
 	void			write(LPSTR);
 
-};
+};											//	518
 
 /////////////////////////////////////////
 //
@@ -340,10 +345,10 @@ struct RDMSTurnoutPacket : RDMSIPacket {
 //
 struct RDMSAcousticPacket : RDMSIPacket {
 
-	UCHAR		startByte;					// Start byte
-	UCHAR		contact;					// Acoustic contact (Yes / No)
-	UCHAR		checkSum;					// Check sum
-	UCHAR		endByte;					// End byte
+	UCHAR		startByte;					//	0	1		Start byte
+	UCHAR		contact;					//	1	1		Acoustic contact (Yes / No)
+	UCHAR		checkSum;					//	2	1		Check sum
+	UCHAR		endByte;					//	3	1		End byte
 
 	// Calculate check sum of packet
 	UCHAR		calcCheckSum();
@@ -356,7 +361,7 @@ struct RDMSAcousticPacket : RDMSIPacket {
 	// Write packet data to buffer
 	void		write(LPSTR);
 
-};
+};											// 4
 
 /////////////////////////////////////
 //
@@ -364,11 +369,11 @@ struct RDMSAcousticPacket : RDMSIPacket {
 //
 struct RDMSGainPacket : RDMSIPacket {
 
-	UCHAR		startByte;					// Start byte
-	UCHAR		channelNum;					// Channel number
-	UCHAR		gain;						// Gain
-	UCHAR		checkSum;					// Check sum
-	UCHAR		endByte;					// End byte
+	UCHAR		startByte;					//	0	1		Start byte
+	UCHAR		channelNum;					//	1	1		Channel number
+	UCHAR		gain;						//	2	1		Gain
+	UCHAR		checkSum;					//	3	1		Check sum
+	UCHAR		endByte;					//	4	1		End byte
 
 	// Calculate check sum of packet
 	UCHAR		calcCheckSum();
@@ -381,7 +386,7 @@ struct RDMSGainPacket : RDMSIPacket {
 	// Write packet data to buffer
 	void		write(LPSTR);
 
-};
+};											//	5
 
 /////////////////////////////////////
 //
@@ -389,10 +394,10 @@ struct RDMSGainPacket : RDMSIPacket {
 //
 struct RDMSSyncPacket : RDMSIPacket {
 
-	UCHAR		startByte;					// Start byte
-	UCHAR		syncronization;				// Syncronization
-	UCHAR		checkSum;					// Check sum
-	UCHAR		endByte;					// End byte
+	UCHAR		startByte;					//	0	1		Start byte
+	UCHAR		syncronization;				//	1	1		Syncronization
+	UCHAR		checkSum;					//	2	1		Check sum
+	UCHAR		endByte;					//	3	1		End byte
 
 	// Calculate check sum of packet
 	UCHAR		calcCheckSum();
@@ -405,7 +410,38 @@ struct RDMSSyncPacket : RDMSIPacket {
 	// Write packet data to buffer
 	void		write(LPSTR);
 
-};
+};											//	4
+
+/////////////////////////////////////
+//
+//	Voltage/Temperature packet
+//
+struct RDMSVoltageTempPacket : RDMSIPacket {
+
+	UCHAR		startByte;					//	0	1		Start byte
+	float		stmTemperature;				//	1	4		STM temperature
+	float		axelTemperature;			//	5	4		Axelerometer temperature
+	float		accumCurrent;				//	9	4		Accumulator current
+	float		accumVoltage;				//	13	4		Accummulator voltage
+	float		board_1_8V;					//	17	4		Board 1.8 V
+	float		board_3_3V;					//	21	4		Board 3.3 V
+	float		board_5V;					//	25	4		Board 5 V
+	float		board_140V;					//	29	4		Board 140 V
+	UCHAR		checkSum;					//	33	1		Check sum
+	UCHAR		endByte;					//	34	1		End byte
+
+	// Calculate check sum of packet
+	UCHAR		calcCheckSum();
+
+	// Return packet size
+	USHORT		size();
+
+	// Read packet data from buffer
+	void		read(LPCSTR);
+	// Write packet data to buffer
+	void		write(LPSTR);
+
+};											//	35
 
 //////////////////
 //
@@ -413,8 +449,8 @@ struct RDMSSyncPacket : RDMSIPacket {
 //
 struct RDMSTail : RDMSIPacket {
 
-	UCHAR		headerSymbols[4];			// Header symbols ("RDMS")
-	UCHAR		checkSum;					// File check sum
+	UCHAR		headerSymbols[4];			//	0	1		Header symbols ("RDMS")
+	UCHAR		checkSum;					//	1	4		File check sum
 
 	// Calculate check sum of packet
 	UCHAR		calcCheckSum();
@@ -427,7 +463,7 @@ struct RDMSTail : RDMSIPacket {
 	// Write packet data to buffer
 	void		write(LPSTR);
 
-};
+};											//	5
 
 
 //////////////////////

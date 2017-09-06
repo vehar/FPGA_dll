@@ -44,7 +44,6 @@ enum Sync{SyncStop = 0, SyncInt = 1, SyncExt = 2, SyncCont = 3};
 
 class FPGACommunication
 {
-	//GMI_Interface *gmi;
    UniDriver *gmi;
 public:
 	FPGACommunication();
@@ -54,6 +53,10 @@ public:
 	UCHAR WriteBuf32(DWORD addr, DWORD addr1, DWORD *val, int size);
 	
 //========================================RDM11 V.H.=======================================
+void setADC(USHORT en);
+void setDAC(USHORT en);
+void setChDacGain(USHORT channel, USHORT gain);
+
 void setSignalPattern(UINT val);
 void MainSyncEn(UINT en);
 void setAScanDrawMode(UINT val);

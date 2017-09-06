@@ -1,4 +1,4 @@
-//-------------- interfac description file
+//-------------- interface description file
 
 //MAX 128 Addr
 #ifndef REGISTER_DEFINES
@@ -6,19 +6,41 @@
 
 //>>REG_DEF_START<<
 
-//SYSTEM														
+//SYSTEM
+#define FMC_SYNC_nEN_b	(0)
+#define FMC_SYNC_SRC_b	(1)
+#define FMC_ADC_EN_b	(2)
+#define FMC_DAC_EN_b	(3)
+#define FMC_SCAN_MODE_b	(4)
+
+#define CONTROL_REG 1 //0-SYNC_nEN_CR 1-SYNC_CR 2-ADC_EN 3-DAC_EN 4-SCAN_MODE_CR
+//----------------------------------------------------------------------------------
+
+
 #define SYSTEM_BASE_ADR 1										
 #define SYSTEM_RESET_CR				 (SYSTEM_BASE_ADR + 1)        //_FreqSync1Addr
-#define SCAN_MODE_CR 				 (SYSTEM_BASE_ADR + 2)        //
-#define SYNC_nEN_CR					 (SYSTEM_BASE_ADR + 3)        //_SyncCtrlAddr
+//-CONTROL_REG #define SCAN_MODE_CR 			(SYSTEM_BASE_ADR + 2)        //
+//-CONTROL_REG #define SYNC_nEN_CR	 			(SYSTEM_BASE_ADR + 3)        //_SyncCtrlAddr
 #define GRSQ_RUN					 (SYSTEM_BASE_ADR + 4)        //	_GRSQ_RUN //Generator-reciever run sequence configuration reg
 #define FSYNC_DR 					 (SYSTEM_BASE_ADR + 5)        //
-#define SYNC_CR 					 (SYSTEM_BASE_ADR + 6)        //
+//CONTROL_REG #define SYNC_CR 					 (SYSTEM_BASE_ADR + 6)        //
 #define MAIN_CR 					 (SYSTEM_BASE_ADR + 7)        //
 #define LPM_CR 						 (SYSTEM_BASE_ADR + 8)        //control reg 0-adc Npwdn; 1- ...
                                                                 
 //GENERATOR                                                     
-#define GEN_BASE_ADR 10                                         
+#define GEN_BASE_ADR 10
+
+#define DAC_GAIN_CH1 (0x0A)
+#define DAC_GAIN_CH2 (0x0B)
+#define DAC_GAIN_CH3 (0x0C)
+#define DAC_GAIN_CH4 (0x0D)
+#define DAC_GAIN_CH5 (0x0E)
+#define DAC_GAIN_CH6 (0x0F)
+#define DAC_GAIN_CH7 (0x10)
+#define DAC_GAIN_CH8 (0x11)
+
+#define GEN_EN		 (0x12)
+/*
 #define GEN_DELAY_DR_1				 (GEN_BASE_ADR + 1)           //_GEN_DELAY_DR0_Adr //GenBuffAddr1
 #define GEN_DELAY_DR_2				 (GEN_BASE_ADR + 2)           //	
 #define GEN_DELAY_DR_3				 (GEN_BASE_ADR + 3)           // 
@@ -27,9 +49,10 @@
 #define GEN_DELAY_DR_6				 (GEN_BASE_ADR + 6)           //
 #define GEN_DELAY_DR_7				 (GEN_BASE_ADR + 7)           //
 		                                                        
-#define GEN_CH_CSR					 (GEN_BASE_ADR + 8)           //_GEN_EN_MR_Adr //GenCSAddr
+#define GEN_EN					 (GEN_BASE_ADR + 8)           //_GEN_EN_MR_Adr //GenCSAddr
+*/
 #define GEN_DURATION_DR_Adr			 (GEN_BASE_ADR + 9)           //_GEN_DURATION_DR_Adr //GenStartAddrWr
-                                                                
+
 //ANALOG                                                        
 #define ANALOG_BASE_ADR 20                                      
 #define INTEGR_COEF_DR				 (ANALOG_BASE_ADR + 1)        //
@@ -39,7 +62,7 @@
 #define AC_SUM_DR					 (ANALOG_BASE_ADR + 5)        //R
 #define CH_SET_CR					 (ANALOG_BASE_ADR + 6)  //R
 #define DAC_GAIN_DR					 (ANALOG_BASE_ADR + 7)  // W - curent amplification
-		                                                            
+
 //FILTER	                                                    
 #define FILT_BASE_ADR 30	                                    
 #define FILT_COEFS_RST_CR			 (FILT_BASE_ADR + 1)          //
@@ -90,7 +113,7 @@
 //STROBE                                                        
 #define STROBE_BASE_ADR 90                                      
 #define STROBE_1_BASE 				 (STROBE_BASE_ADR + 1)        	
-		                                                        
+
 #define STROBE_1_STR_DR 			 (STROBE_1_BASE + 1)       //
 #define STROBE_1_END_DR 			 (STROBE_1_BASE + 2)       //
 #define STROBE_1_LVL_DR				 (STROBE_1_BASE + 3)	        //
@@ -104,7 +127,7 @@
 #define STROBE_2_STR_DR 			 (STROBE_2_BASE + 1)	        //
 #define STROBE_2_END_DR 			 (STROBE_2_BASE + 2)	        //
 #define STROBE_2_LVL_DR				 (STROBE_2_BASE + 3)	        //
-		                                                        
+		                                                         
 #define STROBE_2_1EL_DR  			 (STROBE_2_BASE + 4) 	        //R
 #define STROBE_2_MAX_DR	 			 (STROBE_2_BASE + 5) 	        //R
 #define STROBE_2_ZERO_DR 			 (STROBE_2_BASE + 6) 	        //R

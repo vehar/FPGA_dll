@@ -84,7 +84,7 @@ FPGA.setAScanColor(8, VIOLET);//R+G //yellow  //-64 B-scan!
 
 void Gen_init (void) 
 {
-	FPGA_Write(GEN_CH_CSR, 0);//disable gen
+	FPGA_Write(GEN_EN, 0);//disable gen
 }
 
 
@@ -220,8 +220,8 @@ FPGA_Write(SYSTEM_RESET_CR ,1);
 FPGA_Write(FSYNC_DR ,IrqPeriod*100);// t = val*100 [ms]
 FPGA_Write(TEST_IRQ_CR ,wordNum);// num of words written in time from FSYNC_DR
 
-//Select scan sync source
-FPGA_Write(SYNC_CR, INT_SYNC); //Internal synk
+FPGA.setSyncSource(INT_SYNC);//Select scan sync source
+
 //FPGA_Write(SYNC_CR, STOP); //Track sensor synk
 FPGA_Write(ASCAN_EN_MR, 1);
 
@@ -262,7 +262,7 @@ DWORD64 readed = 0;
 DWORD writed = 0;
 BOOL result = FALSE;
 WORD prv = 0;
-int cnt = 0;
+DWORD cnt = 0;
 DWORD dataAmount = 0;
 float tick = GetTickCount();
 
@@ -336,4 +336,46 @@ uniDrv.ReleaseIRQ();
 CloseHandle(hFile);
 
 	return Speed;
+}
+//Test for Kirilov
+void FpgaCycleRegTest(DWORD reg) //SCAN_MODE_CR
+{
+	int readedVal = 0;
+	int result = 0;
+	int cycleAmount = 10000;
+
+	printf("RW_Test start. cycleAmount = %i, Reg addr %i \r\n", cycleAmount, reg);
+
+for(int t = 0; t < cycleAmount; t++)
+{
+	for(int i = 0; i <= 15; i++)
+	{
+		FPGA_Write(reg ,i); 
+		printf("WR:%i \t", i);
+		readedVal = FPGA_Read(reg+2); 
+		printf("RD:%i \r\n", readedVal);
+		if(i != readedVal) 
+		{
+			result = 0;
+			//goto EXIT;
+		}
+		else
+		{
+			result = 1;
+		}
+		readedVal = 0;
+	}
+}
+EXIT:
+	//Message box Here
+	if(result)
+	{
+		MessageBox(NULL, TEXT("test"), TEXT("SUCSESS!"), MB_OK);
+	}
+	else
+	{
+		MessageBox(NULL, TEXT("test"), TEXT("FAIL!"), MB_OK);
+	}
+
+	printf("RW_Test end!  \r\n");
 }

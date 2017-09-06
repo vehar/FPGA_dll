@@ -22,9 +22,7 @@
 
 #include "FPGA_dll.h"
 #include "FPGA_dll_func.h"
-
 #include "FPGA_func_defs.h"
-
 #include "MathHelpers.h"
 #include "BScanHelper\BScanHelper.h"
 
@@ -35,9 +33,7 @@ void AScanFileInit (void);//test Ascan wr file
 void FPGADeinit(void); //
 
 int DebugOutActive = 0; //if(DebugOutActive) printf
-
 int AScanShiftVal = 110; //сдвиг А-скана по OY
-
 int bus_ok = 1;
 
 BOOL APIENTRY DllMain( HANDLE hModule, 
@@ -91,10 +87,7 @@ int BScan_not_freesed = 1;
 
 buffer CursorElevationBuff;
 
-void test(void)
-{
-
-}
+void test(void){}
 
 DWORD WINAPI ThreadSoft_BScan(LPVOID lpParameter)
 {
@@ -197,8 +190,6 @@ FPGA.setDACGain(654);
 
 FPGA.setSyncSource(1);//SyncCtrl - on //SyncInt
 
-//hAScan = CreateThread(NULL, 0, ThreadSoft_AScan, (LPVOID)0, 0, &dwThreadId);
-
 	#endif WINCE
 	}
 }
@@ -216,8 +207,8 @@ void onAScan(int n)
 		startAScan(1);// DELETE IT!
 
 		AScanShiftVal = 10; //сдвинули вниз экрана
-		//FPGA.setApainter(1);
-		FPGA.setScanMode(0x00); //Set manual ch control
+
+		FPGA.setScanMode(0); //Set manual ch control
 		FPGA.setAScanEnAddr(1);//on
 
 	#endif WINCE
@@ -231,8 +222,8 @@ void offAScan(int n)
 	if(n)
 	{
 	#ifdef WINCE
-		//FPGA.setApainter(0);//
-		FPGA.setScanMode(0x0F); //back to auto ch inc
+
+		FPGA.setScanMode(1); //back to auto ch inc
 		FPGA.setAScanEnAddr(0);//off
 
 	#endif WINCE
@@ -246,15 +237,6 @@ void startBScan(int n)
 	if(DebugOutActive) printf("%s(%i)\n", __FUNCTION__ , n);
 	DBG_SHOW_FUNC;
 
-	if(n)
-	{
-	#ifdef WINCE
-
-		DWORD dwThreadId = 0;
-//for debug		HANDLE hBScan = CreateThread(NULL, 0, ThreadSoft_BScan, (LPVOID)0, 0, &dwThreadId); 
-
-	#endif WINCE
-	}
 }
 
 void onBScan(int n)
@@ -262,30 +244,12 @@ void onBScan(int n)
 	if(DebugOutActive) printf("%s(%i)\n", __FUNCTION__ , n);
 	DBG_SHOW_FUNC;
 
-	if(n)
-	{
-	#ifdef WINCE
-
-	//	AScanShiftVal = 125;// сдвинули А-скан вверх
-		//Sleep(5000);
-	//	FPGA.setAScanEnAddr(2+64+128); //64+128 for B-scan
-
-	#endif WINCE
-	}
 }
 void offBScan(int n)
 {
 	if(DebugOutActive) printf("%s(%i)\n", __FUNCTION__ , n);
 	DBG_SHOW_FUNC;
 
-	if(n)
-	{
-	#ifdef WINCE
-
-		//FPGA.setAScanEnAddr(0);
-
-	#endif WINCE
-	}
 }
 
 int Gain_tmp = 0;
@@ -300,22 +264,39 @@ void SetChannelParams(WORD channel, WORD delay, WORD CZone, WORD Gain)
 	FPGA.setScanMode(1);
 }
 	
-static int ChGenResArr[8] = {5, 0, 1, 2, 6, 3, 7, 4};
+//channel map
+//									Generator, Analog reciever
+static int GenAnalogFPGA_channels[8][2] = {{5, 5}, // RS-eho
+										   {5, 5}, // RS-ztm
+										   {1, 1}, // 42-forward
+										   {2, 2}, // 42-backward 
+										   {6, 7}, // 70-forward
+										   {4, 4}, // 55-right
+										   {7, 6}, // 70-backward
+										   {3, 3}  // 55-left
+													};
+USHORT currentChannel = 0;
+
 void SetScanChannel(int num) //channel setter for AUTOSCAN mode
 {	
-	int chPhy = ChGenResArr[num];
+	int genPhy = GenAnalogFPGA_channels[num][0]; 
+	int chPhy = GenAnalogFPGA_channels[num][1];
+	
 	DBG_SHOW_FUNC;
-	DEBUGMSG(TRUE, (TEXT("F_DLL: num: %u = chPhy: %u \r\n"), num, chPhy));
+	DEBUGMSG(TRUE, (TEXT("F_DLL: ch idx: %u TO-> genPhy: %u, chPhy: %u \r\n"), num, genPhy, chPhy));
 
 //	FPGA.setScanMode(0); //channel autoinc off	
-	FPGA.setAnalogChSwich(chPhy);	//BUG HERE!!!
-	FPGA.setGenSel(chPhy);
+	
+	FPGA.setGenSel(genPhy);
+	FPGA.setAnalogChSwich(chPhy);	//BUG was HERE!!!
 
-	if(InMultiChMode_f)
+	if(InMultiChMode_f) //
 	{
+		currentChannel = num; //globaly
+
 	SetChannelParams(chPhy, 0, 0xFFFF, Gain_tmp);//FIX:
 
-	FPGA.setScanMode(0xFF);
+	FPGA.setScanMode(1);
 	DEBUGMSG(TRUE, (TEXT("----FIX: Default setCzone = 0xFFFF, setDACGain = %u, setSignalADCDelay = 0, setSignalCompress = 2 \r\n"), Gain_tmp));//TODO: rewrite dbg string
 	}
 }
@@ -359,12 +340,11 @@ void ToFpgaDllSend(int with_fpga, int funk, int val)
 		
 		case F_SIGNAL_COMPRESS: FPGA.setSignalCompress(val);			break;
 
-		case F_ADC_DELAY:		//FPGA.setScanMode(0); //channel autoinc off	
-								FPGA.setSignalADCDelay(val);
-								break;
-		case F_GAIN:			//FPGA.setScanMode(0); 
-								FPGA.setDACGain(val);	
-								Gain_tmp = val;
+		case F_ADC_DELAY:		FPGA.setSignalADCDelay(val);			break;
+		case F_GAIN:			FPGA.setDACGain(val); //TODO: delete as obsolete	
+								Gain_tmp = val; //TODO: delete as obsolete
+
+								if(InMultiChMode_f){FPGA.setChDacGain(currentChannel, val);} //In multi channel mode
 								break; //Усиление
 
 		case F_ZONE_START:	  	FPGA.setGateStart(0, val);				break; //
@@ -372,15 +352,8 @@ void ToFpgaDllSend(int with_fpga, int funk, int val)
 
 		case F_SYNCH_SOURCE:	FPGA.setSyncFreq(val);				break;
 
-		case F_GEN_SEL:			//FPGA.setScanMode(0); //channel autoinc off	
-								FPGA.setGenSel(val);	
-								break;
-		case F_CH_SEL:			
-								//FPGA.setScanMode(0); //channel autoinc off
-								FPGA.setAnalogChSwich(val);		
-								//FPGA.setSignalADCDelay(val);
-								//FPGA.setScanMode(1); //channel autoinc on			
-			break; 
+		case F_GEN_SEL:			FPGA.setGenSel(val);				break;
+		case F_CH_SEL:	    	FPGA.setAnalogChSwich(val);			break; 
 		
 
 		case F_LCD_MODE:		FPGA.setLcdMode(val);				break;//0-switch to cpu; 1-black screen 
@@ -390,7 +363,7 @@ void ToFpgaDllSend(int with_fpga, int funk, int val)
 
 		case F_ASCAN_START:		startAScan(val);				break;//start thread
 		case F_ASCAN_ON:		onAScan(val);				break;
-		case F_ASCAN_OFF:		offAScan(val);				break;
+		case F_ASCAN_OFF:		offAScan(val);				break; 
 				
 		case F_BSCAN_START:		startBScan(val);				break;//start thread
 		case F_BSCAN_ON:		onBScan(val);					break;
@@ -402,13 +375,12 @@ void ToFpgaDllSend(int with_fpga, int funk, int val)
 		case F_B_FREEZE_ON:		BScan_not_freesed = 0;
 								FPGA.systemReset();//restore init values 	FIX
 		break;//СТОП-КАДР ВКЛ (B-scan)
+
 		case F_B_FREEZE_OFF:	BScan_not_freesed = 1; break;//СТОП-КАДР ВЫКЛ (B-scan)
 
 		//signal
 		case F_DETECTOR_SET:	FPGA.setSignalDetector(val); break; //3 = Detector = pos+neg  
 		case F_INTEGRATOR_SET:	FPGA.setSignalIntegration(val); break;//Количество точек, по которым интегрируется сигнал = 2^ IntegratorKoef //0=off
-		case F_SOFT_SMOOTH:		while(0); /*obsolete*/ break;//вкл-выкл програмное сглаживание сигнала
-
 
 		case F_TGC_ON:		FPGA.setTgcState(1);			 break;//
 		case F_TGC_OFF:		FPGA.setTgcState(0);			 break;//
@@ -425,21 +397,31 @@ void ToFpgaDllSend(int with_fpga, int funk, int val)
 		case F_TEST_IRQ_EN:	 TestIRQ_En();		 break;//
 		case F_TEST_IRQ_DIS: TestIRQ_Dis();		 break;//
 
-		case F_SCAN_CH_SET: SetScanChannel(val); break;//channel setter for AUTOSCAN mode
+		case F_SCAN_CH_SET: SetScanChannel(val); break;//channel setter for AUTOSCAN (Multichannel) mode 
 
-		case F_MULTI_CH: if(val == ON) {InMultiChMode_f = 1; FPGA.setScanMode(0x0F);}
-						 else {InMultiChMode_f = 0; FPGA.setScanMode(0x00);}
+		case F_MULTI_CH: if(val == ON)
+						 {
+							 InMultiChMode_f = 1; 
+							 FPGA.setScanMode(1); 
+							 FPGA.setAScanEnAddr(1);//Ascan on
+						 }
+						 else 
+						 {
+							 InMultiChMode_f = 0; 
+							 FPGA.setScanMode(0); 
+							 FPGA.setAScanEnAddr(0);//Ascan off 
+						 }
 						 break;//channel autoinc on/off for multi channel mode mode
 
-		case F_MULTI_CH_GAIN_SET: 	while(0);	 break;//channel autoinc on/off for multi channel mode mode
+		case F_MULTI_CH_GAIN_SET: 	FPGA.setChDacGain(currentChannel, val);	 break;//channel autoinc on/off for multi channel mode mode
 
-		default:				if(DebugOutActive) printf("UNNOWN_FUNK %i\n", val); 
+		default:				if(DebugOutActive) {printf("UNNOWN_FUNK %i\n", val);} 
 								DEBUGMSG(TRUE, (TEXT("UNNOWN_FUNK %u \r\n"),  val));
 								Sleep(2);
 								break;
 		}
 	}
-	else
+	else // Without FPGA or FPGA test fail
 	{
 		if(DebugOutActive) printf("FPGA emulated\n"); 
 		DEBUGMSG(TRUE, (TEXT("FPGA emulated\r\n")));
@@ -459,7 +441,6 @@ DWORD tmp_ch = 0;
 
 void fpgaIO(int IO, int datatype, buffer& buff)
 {
-//if(DebugOutActive) printf("%s(IO: %i, datatype = %i)\n", __FUNCTION__ , IO, datatype);
 int cnt = 0;
 		switch(datatype)
 		{
@@ -514,7 +495,7 @@ return; //временно отключил TODO:
 		break;
 		// IGOR
 		case F_START_PROTOCOL:
-			startProtocolThread(buff.buff_prot_header);
+			startProtocolThread();
 			break;
 		case F_STOP_PROTOCOL:
 			stopProtocolThread();
@@ -522,8 +503,6 @@ return; //временно отключил TODO:
 		//
 		}
 }
-//if(DebugOutActive) printf("F_OUT posX1 = %i, posX2 = %i\n", tmp_x1 , tmp_x2);
-
 
 void FPGAinit(int n)
 {
@@ -542,18 +521,14 @@ void FPGAinit(int n)
 
 	//--------------------Tests section start----------------------------------------
 		DBUS_TEST_result = FPGA_DBUS_TEST();
-		//if(DebugOutActive) printf(" FPGA_D_BUS_TEST %s ", (DBUS_TEST_result?"ERR = ":"OK\n"));
 		if(DBUS_TEST_result)
 		{
-			//if(DebugOutActive) printf("%d\n",DBUS_TEST_result); 
 			error++;
 		}
 	        
 		ABUS_TEST_result = FPGA_ABUS_TEST();
-		//if(DebugOutActive) printf("FPGA_A_BUS_TEST %s ", (ABUS_TEST_result?"ERR = ":"OK\n"));
 		if(ABUS_TEST_result)
 		{
-			//if(DebugOutActive) printf("%d\n",ABUS_TEST_result); 
 			error++;
 		}
 	//--------------------Tests section end------------------------------------------
@@ -603,8 +578,6 @@ void FPGAinit(int n)
 		Ascan_init();
 		//TEST_A-SCAN////////////////
 		FPGA.setApainter(0);//off
-		//draw_sine(20,2);
-		//test_all_Ascans();
 		////////////////////////////
 
 		Gen_init();
