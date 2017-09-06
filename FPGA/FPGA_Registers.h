@@ -127,7 +127,11 @@
 #define STROBE_2_STR_DR 			 (STROBE_2_BASE + 1)	        //
 #define STROBE_2_END_DR 			 (STROBE_2_BASE + 2)	        //
 #define STROBE_2_LVL_DR				 (STROBE_2_BASE + 3)	        //
+<<<<<<< HEAD
 		                                                         
+=======
+		                                                        
+>>>>>>> f66e7d8245b588411ab737ab3b5f66fd75ead5fc
 #define STROBE_2_1EL_DR  			 (STROBE_2_BASE + 4) 	        //R
 #define STROBE_2_MAX_DR	 			 (STROBE_2_BASE + 5) 	        //R
 #define STROBE_2_ZERO_DR 			 (STROBE_2_BASE + 6) 	        //R

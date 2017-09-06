@@ -152,6 +152,7 @@ void RDMSHeader::write(LPSTR buffer) {
 	buffer += sizeof(UCHAR) * 4;
 
 	memcpy(buffer, &gpsData.state, sizeof(UCHAR));
+<<<<<<< HEAD
 	buffer += sizeof(UCHAR);
 	memcpy(buffer, &gpsData.lat, sizeof(float));
 	buffer += sizeof(float);
@@ -163,6 +164,19 @@ void RDMSHeader::write(LPSTR buffer) {
 	buffer += sizeof(USHORT);
 	memcpy(buffer, &gpsData.sec, sizeof(UCHAR));
 	buffer += sizeof(UCHAR);
+=======
+	buffer += sizeof(UCHAR);
+	memcpy(buffer, &gpsData.lat, sizeof(float));
+	buffer += sizeof(float);
+	memcpy(buffer, &gpsData.lon, sizeof(float));
+	buffer += sizeof(float);
+	memcpy(buffer, &gpsData.speed, sizeof(UCHAR));
+	buffer += sizeof(UCHAR);
+	memcpy(buffer, &gpsData.course, sizeof(USHORT));
+	buffer += sizeof(USHORT);
+	memcpy(buffer, &gpsData.sec, sizeof(UCHAR));
+	buffer += sizeof(UCHAR);
+>>>>>>> f66e7d8245b588411ab737ab3b5f66fd75ead5fc
 	memcpy(buffer, &gpsData.min, sizeof(UCHAR));
 	buffer += sizeof(UCHAR);
 	memcpy(buffer, &gpsData.hour, sizeof(UCHAR));
@@ -247,6 +261,7 @@ void RDMSSpeedPacket::write(LPSTR buffer) {
 // Calculate check sum of packet
 UCHAR RDMSDefectPacket::calcCheckSum() {
 
+<<<<<<< HEAD
 	UCHAR chk	=	pathSensorData.km;
 	chk			^=	pathSensorData.m;
 	chk			^=	pathSensorData.sm;
@@ -280,6 +295,40 @@ UCHAR RDMSDefectPacket::calcCheckSum() {
 	}
 
 	return chk;
+=======
+	checkSum =	pathSensorData.km;
+	checkSum ^=	pathSensorData.m;
+	checkSum ^=	pathSensorData.sm;
+	checkSum ^=	pathSensorData.mm;
+
+	checkSum ^= gpsData.state;
+	checkSum ^= ((int)&gpsData.lat & 0xFF000000) >> 24;
+	checkSum ^= ((int)&gpsData.lat & 0x00FF0000) >> 16;
+	checkSum ^= ((int)&gpsData.lat & 0x0000FF00) >> 8;
+	checkSum ^= ((int)&gpsData.lat & 0x000000FF);
+	checkSum ^= ((int)&gpsData.lon & 0xFF000000) >> 24;
+	checkSum ^= ((int)&gpsData.lon & 0x00FF0000) >> 16;
+	checkSum ^= ((int)&gpsData.lon & 0x0000FF00) >> 8;
+	checkSum ^= ((int)&gpsData.lon & 0x000000FF);
+	checkSum ^= gpsData.speed;
+	checkSum ^= (gpsData.course & 0xFF00) >> 8;
+	checkSum ^= (gpsData.course & 0x00FF);
+	checkSum ^= gpsData.sec;
+	checkSum ^= gpsData.min;
+	checkSum ^= gpsData.hour;
+	checkSum ^= gpsData.year;
+	checkSum ^= gpsData.month;
+	checkSum ^= gpsData.day;
+
+	for (DWORD i = 0; i < 8; ++i) {
+
+		checkSum ^= defects[i].amplitude;
+		checkSum ^= defects[i].depth;
+
+	}
+
+	return checkSum;
+>>>>>>> f66e7d8245b588411ab737ab3b5f66fd75ead5fc
 
 }
 
@@ -493,6 +542,7 @@ void RDMSTrackCoordPacket::write(LPSTR buffer) {
 	buffer += sizeof(UCHAR);
 
 	memcpy(buffer, &gpsData.state, sizeof(UCHAR));
+<<<<<<< HEAD
 	buffer += sizeof(UCHAR);
 	memcpy(buffer, &gpsData.lat, sizeof(float));
 	buffer += sizeof(float);
@@ -514,6 +564,29 @@ void RDMSTrackCoordPacket::write(LPSTR buffer) {
 	buffer += sizeof(UCHAR);
 	memcpy(buffer, &gpsData.day, sizeof(UCHAR));
 	buffer += sizeof(UCHAR);
+=======
+	buffer += sizeof(UCHAR);
+	memcpy(buffer, &gpsData.lat, sizeof(float));
+	buffer += sizeof(float);
+	memcpy(buffer, &gpsData.lon, sizeof(float));
+	buffer += sizeof(float);
+	memcpy(buffer, &gpsData.speed, sizeof(UCHAR));
+	buffer += sizeof(UCHAR);
+	memcpy(buffer, &gpsData.course, sizeof(USHORT));
+	buffer += sizeof(USHORT);
+	memcpy(buffer, &gpsData.sec, sizeof(UCHAR));
+	buffer += sizeof(UCHAR);
+	memcpy(buffer, &gpsData.min, sizeof(UCHAR));
+	buffer += sizeof(UCHAR);
+	memcpy(buffer, &gpsData.hour, sizeof(UCHAR));
+	buffer += sizeof(UCHAR);
+	memcpy(buffer, &gpsData.year, sizeof(UCHAR));
+	buffer += sizeof(UCHAR);
+	memcpy(buffer, &gpsData.month, sizeof(UCHAR));
+	buffer += sizeof(UCHAR);
+	memcpy(buffer, &gpsData.day, sizeof(UCHAR));
+	buffer += sizeof(UCHAR);
+>>>>>>> f66e7d8245b588411ab737ab3b5f66fd75ead5fc
 
 	memcpy(buffer, &pathSensorData.km, sizeof(UCHAR));
 	buffer += sizeof(UCHAR);
@@ -795,10 +868,17 @@ void RDMSAcousticPacket::write(LPSTR buffer) {
 // Calculate check sum of packet
 UCHAR RDMSGainPacket::calcCheckSum() {
 
+<<<<<<< HEAD
 	UCHAR chk	=	channelNum;
 	chk			^=	gain;
 
 	return chk;
+=======
+	checkSum =	channelNum;
+	checkSum ^=	gain;
+
+	return checkSum;
+>>>>>>> f66e7d8245b588411ab737ab3b5f66fd75ead5fc
 
 }
 
@@ -884,6 +964,7 @@ void RDMSSyncPacket::write(LPSTR buffer) {
 // Calculate check sum of packet
 UCHAR RDMSVoltageTempPacket::calcCheckSum() {
 
+<<<<<<< HEAD
 	UCHAR chk	=	((*(int*)&stmTemperature) & 0xFF000000) >> 24;
 	chk			^=	((*(int*)&stmTemperature) & 0x00FF0000) >> 16;
 	chk			^=	((*(int*)&stmTemperature) & 0x0000FF00) >> 8;
@@ -918,13 +999,53 @@ UCHAR RDMSVoltageTempPacket::calcCheckSum() {
 	chk 		^=	((*(int*)&board_140V) & 0x000000FF);
 
 	return chk;
+=======
+	checkSum =	((int)stmTemperature & 0xFF000000) >> 24;
+	checkSum ^=	((int)stmTemperature & 0x00FF0000) >> 16;
+	checkSum ^=	((int)stmTemperature & 0x0000FF00) >> 8;
+	checkSum ^=	((int)stmTemperature & 0x000000FF);
+	checkSum ^=	((int)axelTemperature & 0xFF000000) >> 24;
+	checkSum ^=	((int)axelTemperature & 0x00FF0000) >> 16;
+	checkSum ^=	((int)axelTemperature & 0x0000FF00) >> 8;
+	checkSum ^=	((int)axelTemperature & 0x000000FF);
+	checkSum ^=	((int)accumCurrent & 0xFF000000) >> 24;
+	checkSum ^=	((int)accumCurrent & 0x00FF0000) >> 16;
+	checkSum ^=	((int)accumCurrent & 0x0000FF00) >> 8;
+	checkSum ^=	((int)accumCurrent & 0x000000FF);
+	checkSum ^=	((int)accumVoltage & 0xFF000000) >> 24;
+	checkSum ^=	((int)accumVoltage & 0x00FF0000) >> 16;
+	checkSum ^=	((int)accumVoltage & 0x0000FF00) >> 8;
+	checkSum ^=	((int)accumVoltage & 0x000000FF);
+	checkSum ^=	((int)board_1_8V & 0xFF000000) >> 24;
+	checkSum ^=	((int)board_1_8V & 0x00FF0000) >> 16;
+	checkSum ^=	((int)board_1_8V & 0x0000FF00) >> 8;
+	checkSum ^=	((int)board_1_8V & 0x000000FF);
+	checkSum ^=	((int)board_3_3V & 0xFF000000) >> 24;
+	checkSum ^=	((int)board_3_3V & 0x00FF0000) >> 16;
+	checkSum ^=	((int)board_3_3V & 0x0000FF00) >> 8;
+	checkSum ^=	((int)board_3_3V & 0x000000FF);
+	checkSum ^=	((int)board_5V & 0xFF000000) >> 24;
+	checkSum ^=	((int)board_5V & 0x00FF0000) >> 16;
+	checkSum ^=	((int)board_5V & 0x0000FF00) >> 8;
+	checkSum ^=	((int)board_5V & 0x000000FF);
+	checkSum ^=	((int)board_140V & 0xFF000000) >> 24;
+	checkSum ^=	((int)board_140V & 0x00FF0000) >> 16;
+	checkSum ^=	((int)board_140V & 0x0000FF00) >> 8;
+	checkSum ^=	((int)board_140V & 0x000000FF);
+
+	return checkSum;
+>>>>>>> f66e7d8245b588411ab737ab3b5f66fd75ead5fc
 
 }
 
 // Return packet size
 USHORT RDMSVoltageTempPacket::size() {
 
+<<<<<<< HEAD
 	return 0x0023;
+=======
+	return 0x23;
+>>>>>>> f66e7d8245b588411ab737ab3b5f66fd75ead5fc
 
 }
 
