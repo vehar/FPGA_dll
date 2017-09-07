@@ -242,6 +242,8 @@ void FPGACommunication::setChDacGain(USHORT channel, USHORT gain)
 	USHORT tmpReg = 0;
 	USHORT Reg = 0;
 
+DBG_SHOW_FUNC_T("FPGAComm"); DEBUGMSG(TRUE, (TEXT("gain =%u \r\n"), gain));
+
 	switch(channel)
 	{
 		case 1: Reg = DAC_GAIN_CH1; break;
@@ -256,6 +258,47 @@ void FPGACommunication::setChDacGain(USHORT channel, USHORT gain)
 	}
 	gmi->WriteWORD(Reg ,gain);
 }
+
+#define LO_HALF (0)
+#define HI_HALF (1)
+
+void FPGACommunication::setChCompression(USHORT channel, WORD compress)
+{
+	WORD RD_RegVal = 0;
+	WORD WR_RegVal = 0;
+	WORD Reg = 0;
+	WORD Haif_f = 0;
+
+	switch(channel)
+	{
+		case 1: Reg = COMPRESS_DR_1_2; Haif_f = LO_HALF; break;
+		case 2: Reg = COMPRESS_DR_1_2; Haif_f = HI_HALF; break;
+		case 3: Reg = COMPRESS_DR_3_4; Haif_f = LO_HALF; break;
+		case 4: Reg = COMPRESS_DR_3_4; Haif_f = HI_HALF; break;
+		case 5: Reg = COMPRESS_DR_5_6; Haif_f = LO_HALF; break;
+		case 6: Reg = COMPRESS_DR_5_6; Haif_f = HI_HALF; break;
+		case 7: Reg = COMPRESS_DR_7_8; Haif_f = LO_HALF; break;
+		case 8: Reg = COMPRESS_DR_7_8; Haif_f = HI_HALF; break;
+		default : return;
+	}
+	gmi->ReadWORD(Reg, RD_RegVal);
+
+	if(Haif_f == LO_HALF)
+	{
+		RD_RegVal = RD_RegVal & 0xF0; //clean Low reg half 
+		WR_RegVal = RD_RegVal | (compress & 0x0F); //write masked value back to reg
+	}
+	else if(Haif_f == HI_HALF)
+	{
+		RD_RegVal = RD_RegVal & 0x0F; //clean High reg half 
+		WR_RegVal = RD_RegVal | ((compress & 0x0F)<<8); //write masked value back to reg
+	}
+	
+	DBG_SHOW_FUNC_T("FPGAComm"); DEBUGMSG(TRUE, (TEXT("CH =%u compress =%u RD_RegVal =%u WR_RegVal =%u \r\n"), channel, compress, RD_RegVal, WR_RegVal));
+
+	gmi->WriteWORD(Reg ,WR_RegVal);
+}
+
 
 void FPGACommunication::setDAC(USHORT en)
 {
@@ -374,7 +417,7 @@ void FPGACommunication::setHWGenPow(USHORT val ) //выбор ВЫХОДА активного генера
 
 void FPGACommunication::setGenSel(USHORT val ) //выбор ВЫХОДА активного генератора
 {
-	gmi->WriteWORD(GEN_EN, val);
+	//gmi->WriteWORD(GEN_EN, val);
 }
 
 //---------------------------------------------------------------------------------

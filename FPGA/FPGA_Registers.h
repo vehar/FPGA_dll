@@ -44,7 +44,12 @@
 #define DAC_GAIN_CH7 (0x10)
 #define DAC_GAIN_CH8 (0x11)
 
-#define GEN_EN		 (0x12)
+
+#define COMPRESS_DR_1_2		 (0x12)
+#define COMPRESS_DR_3_4		 (0x13)
+#define COMPRESS_DR_5_6		 (0x14)
+#define COMPRESS_DR_7_8		 (0x15)
+
 /*
 #define GEN_DELAY_DR_1				 (GEN_BASE_ADR + 1)           //_GEN_DELAY_DR0_Adr //GenBuffAddr1
 #define GEN_DELAY_DR_2				 (GEN_BASE_ADR + 2)           //	

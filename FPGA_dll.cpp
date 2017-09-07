@@ -277,17 +277,31 @@ static int GenAnalogFPGA_channels[8][2] = {{5, 5}, // RS-eho
 													};
 USHORT currentChannel = 0;
 
+WORD InterfToPhyChDecode(WORD ch)
+{
+	return GenAnalogFPGA_channels[ch][1];
+}
+
+WORD InterfToPhyDACGainDecode(int val)
+{
+	//10mv = 1dB
+	//10 DAC LSB = 1dB
+	//Gain phy range = [-34..+62]dB. BUT DAC bias val = +40mV
+	//so 34*10+40mV = 380
+	return (val*10) + 380;
+}
+
 void SetScanChannel(int num) //channel setter for AUTOSCAN mode
 {	
 	int genPhy = GenAnalogFPGA_channels[num][0]; 
-	int chPhy = GenAnalogFPGA_channels[num][1];
+	int chPhy = InterfToPhyChDecode(num);
 	
 	DBG_SHOW_FUNC;
 	DEBUGMSG(TRUE, (TEXT("F_DLL: ch idx: %u TO-> genPhy: %u, chPhy: %u \r\n"), num, genPhy, chPhy));
 
 //	FPGA.setScanMode(0); //channel autoinc off	
 	
-	FPGA.setGenSel(genPhy);
+	//FPGA.setGenSel(genPhy);
 	FPGA.setAnalogChSwich(chPhy);	//BUG was HERE!!!
 
 	if(InMultiChMode_f) //
@@ -295,6 +309,9 @@ void SetScanChannel(int num) //channel setter for AUTOSCAN mode
 		currentChannel = num; //globaly
 
 	SetChannelParams(chPhy, 0, 0xFFFF, Gain_tmp);//FIX:
+	
+	if(chPhy == 5){FPGA.setChCompression(chPhy, 12);} //test //для РС и ЗТМ 12 для остальных 40
+	else {FPGA.setChCompression(chPhy, 40);}
 
 //	FPGA.setScanMode(1);
 	DEBUGMSG(TRUE, (TEXT("----FIX: Default setCzone = 0xFFFF, setDACGain = %u, setSignalADCDelay = 0, setSignalCompress = 2 \r\n"), Gain_tmp));//TODO: rewrite dbg string
@@ -341,10 +358,10 @@ void ToFpgaDllSend(int with_fpga, int funk, int val)
 		case F_SIGNAL_COMPRESS: FPGA.setSignalCompress(val);			break;
 
 		case F_ADC_DELAY:		FPGA.setSignalADCDelay(val);			break;
-		case F_GAIN:			FPGA.setDACGain(val); //TODO: delete as obsolete	
+		case F_GAIN:			FPGA.setDACGain(InterfToPhyDACGainDecode(val)); //TODO: delete as obsolete	
 								Gain_tmp = val; //TODO: delete as obsolete
 
-								if(InMultiChMode_f){FPGA.setChDacGain(currentChannel, val);} //In multi channel mode
+								if(InMultiChMode_f){FPGA.setChDacGain(currentChannel, InterfToPhyDACGainDecode(val));} //In multi channel mode
 								break; //Усиление
 
 		case F_ZONE_START:	  	FPGA.setGateStart(0, val);				break; //
@@ -430,7 +447,7 @@ void ToFpgaDllSend(int with_fpga, int funk, int val)
 						 }
 						 break;	
 
-		case F_MULTI_CH_GAIN_SET: 	FPGA.setChDacGain(currentChannel, val);	 break;//channel autoinc on/off for multi channel mode mode
+		case F_MULTI_CH_GAIN_SET: 	FPGA.setChDacGain(InterfToPhyChDecode(currentChannel), InterfToPhyDACGainDecode(val));	 break;//channel autoinc on/off for multi channel mode mode
 
 		default:				if(DebugOutActive) {printf("UNNOWN_FUNK %i\n", val);} 
 								DEBUGMSG(TRUE, (TEXT("UNNOWN_FUNK %u \r\n"),  val));

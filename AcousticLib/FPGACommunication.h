@@ -58,6 +58,7 @@ public:
 void setADC(USHORT en);
 void setDAC(USHORT en);
 void setChDacGain(USHORT channel, USHORT gain);
+void setChCompression(USHORT channel, USHORT compress);
 
 void setSignalPattern(UINT val);
 void MainSyncEn(UINT en);
