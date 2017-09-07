@@ -91,7 +91,6 @@ void Gen_init (void)
 void Acust_init(void)
 {
 //////ANALOG_init start///////////////////////////////////////////////////////////
-FPGA.setSignalInversion(1);
 
 /*!*/ FPGA.setSignalDetector(1);//Detector = off
 

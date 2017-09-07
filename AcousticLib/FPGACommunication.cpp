@@ -17,6 +17,28 @@ FPGACommunication::~FPGACommunication()
 	delete gmi;
 }
 
+void FPGACommunication::BitWR(WORD reg, char bit, char val)
+{
+	USHORT tmp = 0;
+	gmi->ReadWORD(reg, tmp);
+
+	if(bit>15){ASSERT_FAILED(bit);}
+
+	if(val == 1)
+    {
+		tmp |= (1 << bit);
+		gmi->WriteWORD(reg ,tmp);
+	} 
+    else if (val == 0)
+    {
+		tmp &= ~(1 << bit);
+		gmi->WriteWORD(reg ,tmp);
+	}
+	else
+	{
+		ASSERT_FAILED(val);
+	}
+}
 //========================================RDM11 V.H.=======================================
 void FPGACommunication::setSignalPattern(UINT val)
 {
@@ -26,11 +48,7 @@ void FPGACommunication::setSignalPattern(UINT val)
 void FPGACommunication::MainSyncEn(UINT en)
 {
 	USHORT tmpReg = 0;
-	/*if(en == 1){
-		gmi->WriteWORD(SYNC_nEN_CR ,0);//SyncCtrl_nENABLE - oN
-	} else if (en == 0){
-	gmi->WriteWORD(SYNC_nEN_CR ,1);//SyncCtrl_nENABLE - oFF
-	}*/
+
 	gmi->ReadWORD(CONTROL_REG, tmpReg);
 
 	if(en == 0) 
@@ -47,25 +65,7 @@ void FPGACommunication::MainSyncEn(UINT en)
 
 void FPGACommunication::setAScanEn(UINT val)
 {
-		USHORT tmpReg = 0;
-	gmi->ReadWORD(CONTROL_REG, tmpReg);
-
-	if(val == 1)
-    {
-		tmpReg |= (1 << ASCAN_EN_b);
-		gmi->WriteWORD(CONTROL_REG ,tmpReg);
-	} 
-    else if (val == 0)
-    {
-		tmpReg &= ~(1 << ASCAN_EN_b);
-		gmi->WriteWORD(CONTROL_REG ,tmpReg);
-	}
-	else
-	{
-		ASSERT_FAILED(val);
-	}
-
-	//gmi->WriteWORD(ASCAN_EN_MR , val); 
+	BitWR(CONTROL_REG, ASCAN_EN_b, val);
 }
 
 void FPGACommunication::setAScanWrCS(UINT val)
@@ -74,41 +74,7 @@ void FPGACommunication::setAScanWrCS(UINT val)
 }
 
 /////////////////////////////////////////////////////////
-/*
-void FPGACommunication::setAScanDrawMode(UINT val)
-{
-//	gmi->WriteWORD(AScanDrawMode , val); 
-} 
 
-void FPGACommunication::getAScanDrawMode(USHORT& val)
-{
-	gmi->ReadWORD(AScanDrawMode, val);
-} 
-
-void FPGACommunication::getAScanEnAddr(USHORT& val)
-{
-	gmi->ReadWORD(ASCAN_EN_MR , val); 
-}
-
-void FPGACommunication::getAScanWrCS(USHORT& val)
-{
-	gmi->ReadWORD(ASCAN_WR_CSR , val); 
-}
-
-/////////////////////////////////////////////////////////
-
-void FPGACommunication::setAScanStartAddrWr(UINT val)
-{
-//	gmi->WriteWORD(AScanStartAddrWr , val); 
-}
-
-
-
-void FPGACommunication::resetAScanRamCntRd()
-{
-//	gmi->WriteWORD(AScanRamCntRdRst ,0x01); //не сбрасвается счётчик записи TODO: проверить!
-}
-*/
 void FPGACommunication::setAScanColor(UINT color_addr, UINT color_val)
 {
 //	gmi->WriteWORD(AScanColor ,(color_addr<<8 | (color_val&0xFF)));
@@ -133,20 +99,7 @@ void FPGACommunication::setScanMode(UINT val)
 {
 	DBG_SHOW_FUNC_T("FPGAComm"); DEBUGMSG(TRUE, (TEXT("val %u \r\n"), val));
 
-	//gmi->WriteWORD(SCAN_MODE_CR ,val);
-	USHORT tmpReg = 0;
-	gmi->ReadWORD(CONTROL_REG, tmpReg);
-
-	if(val == 1)
-    {
-		tmpReg |= (1 << FMC_SCAN_MODE_b);
-		gmi->WriteWORD(CONTROL_REG ,tmpReg);
-	} 
-    else if (val == 0)
-    {
-		tmpReg &= ~(1 << FMC_SCAN_MODE_b);
-		gmi->WriteWORD(CONTROL_REG ,tmpReg);
-	}
+	BitWR(CONTROL_REG, FMC_SCAN_MODE_b, val);
 }
 void FPGACommunication::setTgcStartAddr(UINT val)
 {
@@ -220,21 +173,7 @@ void FPGACommunication::setSyncFreq(UINT freqInSamples)
 
 void FPGACommunication::setSyncSource(USHORT syncSource)
 {
-	USHORT tmpReg = 0;
-	gmi->ReadWORD(CONTROL_REG, tmpReg);
-
-	if(syncSource == 1)
-    {
-		tmpReg |= (1 << FMC_SYNC_SRC_b);
-		gmi->WriteWORD(CONTROL_REG ,tmpReg);
-	} 
-    else if (syncSource == 0)
-    {
-		tmpReg &= ~(1 << FMC_SYNC_SRC_b);
-		gmi->WriteWORD(CONTROL_REG ,tmpReg);
-	}
-
-	//gmi->WriteWORD(SYNC_CR, syncSource);
+	BitWR(CONTROL_REG, FMC_SYNC_SRC_b, syncSource);
 }
 
 void FPGACommunication::setChDacGain(USHORT channel, USHORT gain)
@@ -302,36 +241,12 @@ void FPGACommunication::setChCompression(USHORT channel, WORD compress)
 
 void FPGACommunication::setDAC(USHORT en)
 {
-	USHORT tmpReg = 0;
-	gmi->ReadWORD(CONTROL_REG, tmpReg);
-
-	if(en == 1)
-    {
-		tmpReg |= (1 << FMC_DAC_EN_b);
-		gmi->WriteWORD(CONTROL_REG ,tmpReg);
-	} 
-    else if (en == 0)
-    {
-		tmpReg &= ~(1 << FMC_DAC_EN_b);
-		gmi->WriteWORD(CONTROL_REG ,tmpReg);
-	}
+	BitWR(CONTROL_REG, FMC_DAC_EN_b, en);
 }
 
 void FPGACommunication::setADC(USHORT en)
 {
-	USHORT tmpReg = 0;
-	gmi->ReadWORD(CONTROL_REG, tmpReg);
-
-	if(en == 1)
-    {
-		tmpReg |= (1 << FMC_ADC_EN_b);
-		gmi->WriteWORD(CONTROL_REG ,tmpReg);
-	} 
-    else if (en == 0)
-    {
-		tmpReg &= ~(1 << FMC_ADC_EN_b);
-		gmi->WriteWORD(CONTROL_REG ,tmpReg);
-	}
+	BitWR(CONTROL_REG, FMC_ADC_EN_b, en);
 }
 
 void FPGACommunication::setSignalCompress(USHORT val)
@@ -350,10 +265,6 @@ void FPGACommunication::setSignalIntegration( USHORT val )
 	gmi->WriteWORD(INTEGR_COEF_DR, val);
 }
 
-void FPGACommunication::setSignalInversion( USHORT val )
-{
-//	gmi->WriteWORD(InversionSignal, val);
-}
 
 void FPGACommunication::getAC_SUM_DR( USHORT& val )
 {
@@ -395,23 +306,7 @@ void FPGACommunication::setAnalogChSwich(USHORT val )
 //-------------------------------GENERATOR------------------------------------------
 void FPGACommunication::setHWGenPow(USHORT val ) //выбор ВЫХОДА активного генератора
 {
-	USHORT tmpReg = 0;
-	gmi->ReadWORD(CONTROL_REG, tmpReg);
-
-	if(val == 1)
-    {
-		tmpReg |= (1 << GEN_HW_EN_b);
-		gmi->WriteWORD(CONTROL_REG ,tmpReg);
-	} 
-    else if (val == 0)
-    {
-		tmpReg &= ~(1 << GEN_HW_EN_b);
-		gmi->WriteWORD(CONTROL_REG ,tmpReg);
-	}
-	else
-	{
-		ASSERT_FAILED(val);
-	}
+	BitWR(CONTROL_REG, GEN_HW_EN_b, val);
 }
 
 
@@ -440,8 +335,6 @@ void FPGACommunication::setSignalADCDelay(UINT val)
 
 void FPGACommunication::getSignalData( USHORT *Buff, int size )
 {
-	//gmi->ReadWORD(ADC_DATA_DR, Buff[0]);
-	//gmi->ReadWORD(ADC_DATA_DR, Buff[0]);
 	ReadBuf(ADC_DATA_DR, Buff, size+1);
 }
 

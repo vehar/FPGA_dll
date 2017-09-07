@@ -59,6 +59,7 @@ void setADC(USHORT en);
 void setDAC(USHORT en);
 void setChDacGain(USHORT channel, USHORT gain);
 void setChCompression(USHORT channel, USHORT compress);
+void BitWR(WORD reg, char bit, char val);
 
 void setSignalPattern(UINT val);
 void MainSyncEn(UINT en);
@@ -110,7 +111,6 @@ UCHAR WriteBuf32(DWORD addr, DWORD addr1, UINT val, UINT val_1, int size);
 
 	void setSignalDataLen(USHORT val);
 	void setSignalCompress(USHORT val);
-	void setSignalInversion(USHORT val);
 	void setSignalDetector(USHORT val);
 	void setAnalogChSwich(USHORT val);
 	void setSignalIntegration(USHORT val);
