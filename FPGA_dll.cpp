@@ -75,62 +75,13 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 
 #ifdef WINCE
 
-
 FPGACommunication FPGA;
-
 DWORD WINAPI ThreadSoft_AScan(LPVOID lpParameter);
-DWORD WINAPI ThreadSoft_BScan(LPVOID lpParameter);
-
 
 int AScan_not_freesed = 1;
-int BScan_not_freesed = 1;
 
 buffer CursorElevationBuff;
 
-void test(void){}
-
-DWORD WINAPI ThreadSoft_BScan(LPVOID lpParameter)
-{
-	if(DebugOutActive) printf("%s(%i)\n", __FUNCTION__ , lpParameter);
-	DBG_SHOW_FUNC;
-
-	int i = LCD_WIDTH;
-	while(1)
-	{
-		Sleep(20);
-	if(BScan_not_freesed)
-	{
-		FPGA.setAScanWrCS(64+128);
-
-		//Просто горизонтальный курсор индицирующий прямо на А-скане момент превышения
-		FPGA.getGateMeasureTFirst(0, elevation);
-
-		FPGA.setCursorX(0, (elevation-1000)/4/4);
-		//FPGA.setCursorY(0, ToLcdScaleY(activeScheme->gates[0].levelPercent)); //TODO: fix
-		FPGA.setCursorY(0,  AScanShiftVal-50/*ToLcdScaleY(activeScheme->gates[0].levelPercent)*/);
-		////////////////////////////////////////////////////////////////
-
-		CursorElevationBuff.buff_сd.excess = elevation;//Заполнение данными о превышении для отправки наверх и расчёта маркеров
-
-		BSkan_errase_colomn(i);
-		//А тут - сами точки Б-скана
-		if(elevation != 0)
-		{			
-			FPGA.setCursorX(1, i);
-			//FPGA.setCursorY(1, VAL_MIRROR_X((elevation-1000)/4/5));//LCD_MAX_ASCAN_Y_RANGE LCD_ASCAN_Y_BIAS
-			FPGA.setCursorY(1, VAL_MIRROR_X(ToLcdScaleX(elevation/2+100)));//LCD_MAX_ASCAN_Y_RANGE LCD_ASCAN_Y_BIAS
-
-			FPGA.setAScanBuff(1, 3);
-		}
-		i--;
-		if(i==0)
-		{
-			i = LCD_WIDTH; /*BSkan_errase(); */
-		}
-	}
-	}
-	return 0;
-}
 
 #endif WINCE
 
@@ -232,25 +183,7 @@ void offAScan(int n)
 
 
 //=================================================================================================
-void startBScan(int n)
-{
-	if(DebugOutActive) printf("%s(%i)\n", __FUNCTION__ , n);
-	DBG_SHOW_FUNC;
 
-}
-
-void onBScan(int n)
-{
-	if(DebugOutActive) printf("%s(%i)\n", __FUNCTION__ , n);
-	DBG_SHOW_FUNC;
-
-}
-void offBScan(int n)
-{
-	if(DebugOutActive) printf("%s(%i)\n", __FUNCTION__ , n);
-	DBG_SHOW_FUNC;
-
-}
 
 int Gain_tmp = 0;
 void SetChannelParams(WORD channel, WORD delay, WORD CZone, WORD Gain)
@@ -260,8 +193,6 @@ void SetChannelParams(WORD channel, WORD delay, WORD CZone, WORD Gain)
 	FPGA_Write(DAC_GAIN_DR ,Gain);
 
 	FPGA_Write(AN_CH_CSR ,channel);
-//	FPGA.setScanMode(0);
-//	FPGA.setScanMode(1);
 }
 	
 //channel map
@@ -293,27 +224,22 @@ WORD InterfToPhyDACGainDecode(int val)
 
 void SetScanChannel(int num) //channel setter for AUTOSCAN mode
 {	
-	int genPhy = GenAnalogFPGA_channels[num][0]; 
 	int chPhy = InterfToPhyChDecode(num);
 	
 	DBG_SHOW_FUNC;
-	DEBUGMSG(TRUE, (TEXT("F_DLL: ch idx: %u TO-> genPhy: %u, chPhy: %u \r\n"), num, genPhy, chPhy));
+	DEBUGMSG(TRUE, (TEXT("F_DLL: ch idx: %u TO-> chPhy: %u \r\n"), num, chPhy));
 
-//	FPGA.setScanMode(0); //channel autoinc off	
-	
-	//FPGA.setGenSel(genPhy);
+	currentChannel = num; //globaly
+
 	FPGA.setAnalogChSwich(chPhy);	//BUG was HERE!!!
 
 	if(InMultiChMode_f) //
 	{
-		currentChannel = num; //globaly
-
 	SetChannelParams(chPhy, 0, 0xFFFF, Gain_tmp);//FIX:
 	
 	if(chPhy == 5){FPGA.setChCompression(chPhy, 12);} //test //для РС и ЗТМ 12 для остальных 40
 	else {FPGA.setChCompression(chPhy, 40);}
 
-//	FPGA.setScanMode(1);
 	DEBUGMSG(TRUE, (TEXT("----FIX: Default setCzone = 0xFFFF, setDACGain = %u, setSignalADCDelay = 0, setSignalCompress = 2 \r\n"), Gain_tmp));//TODO: rewrite dbg string
 	}
 }
@@ -355,26 +281,22 @@ void ToFpgaDllSend(int with_fpga, int funk, int val)
 								if(DebugOutActive) printf("FPGAinit_case_end\n");		
 								break;
 		
-		case F_SIGNAL_COMPRESS: FPGA.setSignalCompress(val);			break;
+		case F_SIGNAL_COMPRESS: {FPGA.setChCompression(InterfToPhyChDecode(currentChannel), val);} /*FPGA.setSignalCompress(val);*/			break;
 
 		case F_ADC_DELAY:		FPGA.setSignalADCDelay(val);			break;
-		case F_GAIN:			FPGA.setDACGain(InterfToPhyDACGainDecode(val)); //TODO: delete as obsolete	
-								Gain_tmp = val; //TODO: delete as obsolete
 
-								if(InMultiChMode_f){FPGA.setChDacGain(currentChannel, InterfToPhyDACGainDecode(val));} //In multi channel mode
-								break; //Усиление
+		case F_GAIN:			{Gain_tmp = val; //TODO: delete as obsolete
+								FPGA.setChDacGain(InterfToPhyChDecode(currentChannel), /*InterfToPhyDACGainDecode(val)*/ val);	
+								}break; //Усиление
 
 		case F_ZONE_START:	  	FPGA.setGateStart(0, val);				break; //
 		case F_ZONE_END:		FPGA.setGateEnd(0, val); 				break; //
 
 		case F_SYNCH_SOURCE:	FPGA.setSyncFreq(val);				break;
 
-		case F_GEN_SEL:			FPGA.setGenSel(val);				break;
 		case F_CH_SEL:	    	FPGA.setAnalogChSwich(val);			break; 
 		
-
 		case F_LCD_MODE:		FPGA.setLcdMode(val);				break;//0-switch to cpu; 1-black screen 
-		case F_A_PAINTER:		FPGA.setApainter(val);				break;//
 		
 		//case F_GET_TRACK_PARAMS:		FPGA.getTrackParams(val);break;//!!!!!!!
 
@@ -382,18 +304,8 @@ void ToFpgaDllSend(int with_fpga, int funk, int val)
 		case F_ASCAN_ON:		onAScan(val);				break;
 		case F_ASCAN_OFF:		offAScan(val);				break; 
 				
-		case F_BSCAN_START:		startBScan(val);				break;//start thread
-		case F_BSCAN_ON:		onBScan(val);					break;
-		case F_BSCAN_OFF:		offBScan(val);					break;
-
 		case F_A_FREEZE_ON:		AScan_not_freesed = 0; FPGA.setSyncSource(0); AScanFileInit(); AScanFileWrite(0);break;//СТОП-КАДР ВКЛ (A-scan)
 		case F_A_FREEZE_OFF:	AScan_not_freesed = 1; FPGA.setSyncSource(1); ReadDisplayAScan(); break;//СТОП-КАДР ВЫКЛ (A-scan)
-
-		case F_B_FREEZE_ON:		BScan_not_freesed = 0;
-								FPGA.systemReset();//restore init values 	FIX
-		break;//СТОП-КАДР ВКЛ (B-scan)
-
-		case F_B_FREEZE_OFF:	BScan_not_freesed = 1; break;//СТОП-КАДР ВЫКЛ (B-scan)
 
 		//signal
 		case F_DETECTOR_SET:	FPGA.setSignalDetector(val); break; //3 = Detector = pos+neg  
@@ -401,10 +313,7 @@ void ToFpgaDllSend(int with_fpga, int funk, int val)
 
 		case F_TGC_ON:		FPGA.setTgcState(1);			 break;//
 		case F_TGC_OFF:		FPGA.setTgcState(0);			 break;//
-/*
-		case F_FILTER_ON:	FPGA.setFilterEn(1);			 break;//
-		case F_FILTER_OFF:	FPGA.setFilterEn(0);			 break;//
-*/
+
 		case F_SIGNAL_TEST:	FPGA.setSignalPattern(val);		 break;//
 
 		case F_REGISTRATION_START:	while(0);			 break;//
@@ -446,8 +355,6 @@ void ToFpgaDllSend(int with_fpga, int funk, int val)
 							 FPGA.setHWGenPow(OFF);
 						 }
 						 break;	
-
-		case F_MULTI_CH_GAIN_SET: 	FPGA.setChDacGain(InterfToPhyChDecode(currentChannel), InterfToPhyDACGainDecode(val));	 break;//channel autoinc on/off for multi channel mode mode
 
 		default:				if(DebugOutActive) {printf("UNNOWN_FUNK %i\n", val);} 
 								DEBUGMSG(TRUE, (TEXT("UNNOWN_FUNK %u \r\n"),  val));
@@ -555,16 +462,10 @@ void FPGAinit(int n)
 
 	//--------------------Tests section start----------------------------------------
 		DBUS_TEST_result = FPGA_DBUS_TEST();
-		if(DBUS_TEST_result)
-		{
-			error++;
-		}
+		if(DBUS_TEST_result){error++;}
 	        
 		ABUS_TEST_result = FPGA_ABUS_TEST();
-		if(ABUS_TEST_result)
-		{
-			error++;
-		}
+		if(ABUS_TEST_result){error++;}
 	//--------------------Tests section end------------------------------------------
 
 		if(error > 0)
@@ -594,29 +495,11 @@ void FPGAinit(int n)
 		AcousticScheme_DefaultInit();
 		FPGA_Regs_deinit(); 
 
-		//++++++++++++++++++++++++++++++++++++++++
-		//------System start----------------------
-
 		FPGA.setCR(0xFF);//ADC_off
-//		FPGA.getCR(main_cr);//ADC_off
-		//main_cr = FPGA_Read(Main_CR);
-
 		FPGA.setCR(0x0A);//ADC_on and other perif on
-
-		//=========LCD_CONTROLLER_INIT==============
-		FPGA.setLcdMode(0);//0-switch to cpu; 1-black screen
-		//==========================================
-
-		System_init();
-		//++++++++++++++++++++++++++++++++++++++++
-		Ascan_init();
-		//TEST_A-SCAN////////////////
-		FPGA.setApainter(0);//off
-		////////////////////////////
-
+		FPGA.setLcdMode(0);//LCD_CONTROLLER_INIT 0-switch to cpu; 1-black screen
+		Sync_init();
 		Gen_init();
-		//now gen started
-
 		Acust_init(); 
 		Gates_init();
 
@@ -631,25 +514,15 @@ void FPGAinit(int n)
 		FPGA.setSignalADCDelay(1400); 
 		FPGA.setSignalCompress(0);//Compress //3 //>>IN_SET
 		FPGA.setSignalDetector(0);//Detector = pos+neg 
-		HardAScan_Start();
 
 		//PrintAcousticScheme(*activeScheme);
 
-		FPGA.setApainter(0);//FPGA A-scan drawing off
-
-		// сначала инициализировать значениями, затем разрешать прорисовку. Иначе весь экран может залиться одним цветом
 		FPGA.setCursorX(0, 100);
 		FPGA.setCursorY(0, 100);
 
 		FPGA.setCursorX(1, 200);
 		FPGA.setCursorY(1, 200);
 
-		FPGA.setApainter(0);//on
-
-		for (int i = 0; i<8; i++)
-		{
-			SetChannelParams(i, i*10, 50000, 600);
-		}
 		/*
 		//on CPU side
 		int track = 0, tmp_track = 0;

@@ -79,7 +79,6 @@ void systemReset();
 void setCursorX( int cursorIdx, UINT val);
 void setCursorY( int cursorIdx, UINT val);
 void setLcdMode(UINT val);
-void setApainter(UINT val);
 
 void setCR(UINT val);
 void getCR(USHORT& val);

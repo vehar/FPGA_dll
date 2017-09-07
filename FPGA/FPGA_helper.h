@@ -60,7 +60,7 @@ extern FPGACommunication FPGA;
 extern void KoeffArr_init(void);
 extern void AcousticScheme_DefaultInit(void);
 extern void FPGA_Regs_deinit(void);
-extern void System_init(void);
+extern void Sync_init(void);
 extern void Ascan_init(void);
 
 extern void Gen_init(void);

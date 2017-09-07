@@ -116,11 +116,6 @@ void FPGACommunication::setLcdMode(UINT val)
 	gmi->WriteWORD(LCD_CR ,val);//0-switch to cpu; 1-black screen
 }
 
-void FPGACommunication::setApainter(UINT val)
-{
-//	gmi->WriteWORD(A_Painter ,val);//1-FPGA A-scan drawing on! 
-}
-
 
 void FPGACommunication::setCR(UINT val)
 {

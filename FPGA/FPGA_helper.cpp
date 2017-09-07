@@ -53,34 +53,17 @@ FPGA.setAnalogChSwich(0);
 }
 
 
-void System_init (void) 
+void Sync_init(void) 
 {
-//////System_init/////////////////////////////////////////////////////
+//////Sync_init/////////////////////////////////////////////////////
 FPGA.MainSyncEn(0);//SyncCtrl_nENABLE - oFF
 FPGA.setSyncSource(SyncStop);
 FPGA.setSyncFreq(activeScheme->inqFreq);//1000 //>>IN_SET
-//FPGA.setSignalCompress(activeScheme->signal.compress);//1
 FPGA.setSyncSource(1);//SyncCtrl - on //SyncInt
-
 FPGA.MainSyncEn(1);//SyncCtrl_nENABLE - on
-//////System_init/////////////////////////////////////////////////////
+//////Sync_init/////////////////////////////////////////////////////
 }
 
-
-void Ascan_init (void)
-{
-	//Bit    07  06  05 04  03 02  01 00
-	//Data   R   R   R  G   G   G  B   B
-
-FPGA.setAScanColor(1, GREEN);//R+G //yellow //A_SCAN_BACKGROUND //N.U.
-FPGA.setAScanColor(2, DARK_RED);//G+B// aqua //-1 //FOR CURSORs COLOR TO!!!!!!!!!!
-FPGA.setAScanColor(3, BLUE);///E3 - blue  //-2
-FPGA.setAScanColor(4, AQUA);//Red //E0 //-4
-FPGA.setAScanColor(5, RED);//Green //-8
-FPGA.setAScanColor(6, YELLOW);//Blue //-16
-FPGA.setAScanColor(7, GREEN);//Blue //-32
-FPGA.setAScanColor(8, VIOLET);//R+G //yellow  //-64 B-scan!
-}
 
 void Gen_init (void) 
 {
@@ -103,8 +86,8 @@ FPGA.setSignalCompress(compress_val);//Compress //3 //>>IN_SET
 //===================================================================================================
 int AcoustAmplification = 310;
 
-FPGA.setTgcStartAddr(0);
-FPGA.setTgcData(AcoustAmplification, AcoustAmplification, LCD_WIDTH-1);
+//FPGA.setTgcStartAddr(0);
+//FPGA.setTgcData(AcoustAmplification, AcoustAmplification, LCD_WIDTH-1);
 FPGA.setAcoustContGainCode(AcoustAmplification-100);//FPGA_Write(_AcousticContactGain ,10); //>>IN_SET //усиление в зоне ak_zone (fpga)
 FPGA.setTgcState(1);//TgcEn - при 0 - пропадала генерация //FPGA_Write(_TGC_EN_MR ,1); //>>IN_SET	
 //===================================================================================================
@@ -121,24 +104,9 @@ FPGA.setFilterCoeffs(koef_array, 23);//signal becomes = 1024
 
 void Gates_init(void)
 {
-FPGA.setGateStart(0, 1000); 
-FPGA.setGateEnd(0, 4500);
-FPGA.setGateLevel(0, 100);// TODO: fix bug with max 500 in FPGA //ToAdcScale(activeScheme->gates[0].levelPercent)
-}
-
-//управление автономной отрисовкой А-скана на FPGA
-void HardAScan_Start(void)
-{
-	FPGA.setAScanEn(1+2+4);
-	FPGA.setSyncSource(1);//SyncCtrl - on //SyncInt
-	FPGA.setApainter(1);//on
-}
-
-void HardAScan_Stop(void)
-{
-	FPGA.setAScanEn(1+2+4); 
-	FPGA.setSyncSource(1);//SyncCtrl - on //SyncInt
-	FPGA.setApainter(0);//off
+	FPGA.setGateStart(0, 1000); 
+	FPGA.setGateEnd(0, 4500);
+	FPGA.setGateLevel(0, 100);// TODO: fix bug with max 500 in FPGA //ToAdcScale(activeScheme->gates[0].levelPercent)
 }
 
 
@@ -179,7 +147,6 @@ int FPGA_DBUS_TEST()
 	for(int i=0;i<15;i++)
 	{
 		FPGA_Write(DBUS_TEST_DR ,(unsigned short)1<<i);
-		//FPGA_Write(127,(unsigned short)~1<<i);
 		temp = FPGA_Read(DBUS_TEST_DR);
 		if(temp != 1<<i) Ok |= 1<<i;
 	}
@@ -335,6 +302,7 @@ CloseHandle(hFile);
 
 	return Speed;
 }
+
 //Test for Kirilov
 void FpgaCycleRegTest(DWORD reg) //SCAN_MODE_CR
 {
@@ -350,12 +318,12 @@ for(int t = 0; t < cycleAmount; t++)
 	{
 		FPGA_Write(reg ,i); 
 		printf("WR:%i \t", i);
-		readedVal = FPGA_Read(reg+2); 
+		readedVal = FPGA_Read(reg); 
 		printf("RD:%i \r\n", readedVal);
 		if(i != readedVal) 
 		{
 			result = 0;
-			//goto EXIT;
+			goto EXIT;
 		}
 		else
 		{
@@ -366,14 +334,8 @@ for(int t = 0; t < cycleAmount; t++)
 }
 EXIT:
 	//Message box Here
-	if(result)
-	{
-		MessageBox(NULL, TEXT("test"), TEXT("SUCSESS!"), MB_OK);
-	}
-	else
-	{
-		MessageBox(NULL, TEXT("test"), TEXT("FAIL!"), MB_OK);
-	}
+	if(result){	MessageBox(NULL, TEXT("test"), TEXT("SUCSESS!"), MB_OK); }
+	else{	MessageBox(NULL, TEXT("test"), TEXT("FAIL!"), MB_OK);	}
 
 	printf("RW_Test end!  \r\n");
 }
