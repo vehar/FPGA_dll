@@ -46,7 +46,6 @@ extern "C"
 FPGA_DLL_API void FPGAinit(int n); //obsolete
 
 FPGA_DLL_API void startAScan(int n); //obsolete
-FPGA_DLL_API void startBScan(int n); //obsolete
 
 FPGA_DLL_API void SettingsHndl (int n); //obsolete
 

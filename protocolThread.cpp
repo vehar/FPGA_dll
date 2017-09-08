@@ -1,6 +1,7 @@
 #include <windows.h>
 #include "winioctl.h"
 #include <ctime>
+#include <queue>
 
 #include "GpioDriver\gpio.h"
 #include "UniDriver\UniDriver.h"
@@ -13,7 +14,40 @@
 
 #include "FPGA\FPGA.h"
 
-protocolData* pData = NULL;
+#pragma pack(push, 1)
+struct RGBA {
+
+	float x;
+	float y;
+	float R;
+	float G;
+	float B;
+	float A;
+};
+#pragma pack(pop)
+
+/*
+#define BUFFERS        4
+#define CHANNELS		8
+#define POINTS        200
+struct PACKET {
+
+    int num;
+    unsigned char *packet[BUFFERS][CHANNELS]; 
+
+	PACKET() {
+
+		for(int i = 0; i < BUFFERS; i++)
+			for(int j = 0; j < CHANNELS; j++)
+				packet[i][j] = new unsigned char[POINTS];
+
+	}
+
+};
+std::queue<PACKET>* packets = NULL;
+*/
+
+//protocolData* pData = NULL;
 
 //
 struct OnBoardParams     
@@ -132,7 +166,7 @@ BOOL bufferTest(WORD* buffer, DWORD words, BOOL prevExists, WORD& prev) {
 
 
 // Start protocol thread
-DWORD startProtocolThread() {
+DWORD startProtocolThread(protocolData* pData) {
 
 	// Check if thread exists
 	if (protThread == NULL) {
@@ -180,7 +214,7 @@ void stopProtocolThread() {
 	if (protThread != NULL) {
 
 		// Stop thread execution
-		execStruct->threadExecuting = false;
+		execStruct->threadExecuting = FALSE;
 
 		// Wait for thread to stop
 		WaitForSingleObject(protThread, INFINITE);
@@ -200,13 +234,13 @@ DWORD WINAPI protocolThreadFunc(LPVOID lpParam) {
 
 	ExtBusCs1Init();
 
-	DWORD bufferSize	= 8 << 10;		// buff		8192
-	DWORD wordNum		= 8 << 4;		// words	128
-	DWORD cycleFreq		= 1;			// ms
+	DWORD bufferSize	= 778;//8 << 8;		// buff		8192
+	DWORD wordNum		= 778;//8 << 4;		// words	128
+	DWORD cycleFreq		= 100;			// ms
 
 	//FPGA_Write(SYSTEM_RESET_CR, 1);
-	FPGA_Write(FSYNC_DR, cycleFreq * 100);		// t = val * 100 [ms]
-	FPGA_Write(TEST_IRQ_CR, wordNum);			// num of words written in time from FSYNC_DR
+	//FPGA_Write(FSYNC_DR, cycleFreq * 100);		// t = val * 100 [ms]
+	//FPGA_Write(TEST_IRQ_CR, wordNum);			// num of words written in time from FSYNC_DR
 
 	// Get pointer to thread param
 	execInfo* exec = (execInfo*)lpParam;
@@ -219,8 +253,11 @@ DWORD WINAPI protocolThreadFunc(LPVOID lpParam) {
 
 	WORD* buffer = new WORD[bufferSize];
 
-	uniDrv.InitIRQ(65, bufferSize * 2, wordNum * 2, 50);
+	DWORD cnt = 0;
+	DWORD cnt2 = 0;
+	//uniDrv.InitIRQ(65, bufferSize * 2, wordNum * 2, 100);
 
+	/*
 	RWRegData_t	readAddr;
 	readAddr.baseAddr	= GPMC_CS1_BASE;
 	readAddr.offset		= 114 << 1;
@@ -242,7 +279,9 @@ DWORD WINAPI protocolThreadFunc(LPVOID lpParam) {
 		return -1;
 	
 	}
+	*/
 
+	/*
 	HINSTANCE lib = LoadLibrary(L"SPI_dll.dll");
 	if(!lib) {
 
@@ -272,6 +311,7 @@ DWORD WINAPI protocolThreadFunc(LPVOID lpParam) {
 		return -5;
 
 	}
+	*/
 
 	for (DWORD i = 0; i < wordNum; ++i) {
 	
@@ -279,8 +319,9 @@ DWORD WINAPI protocolThreadFunc(LPVOID lpParam) {
 	
 	}
 
-	SPIInit();
+	//SPIInit();
 
+	/*
 	RDMSDefectPacket		defectPacket;
 	RDMSVoltageTempPacket	vtPacket;
 
@@ -292,6 +333,7 @@ DWORD WINAPI protocolThreadFunc(LPVOID lpParam) {
 
 	DWORD readed = 85;
 	CHAR data[85];
+	*/
 
 	DWORD resultSize = 0;
 	WORD prv = 0;
@@ -321,6 +363,7 @@ DWORD WINAPI protocolThreadFunc(LPVOID lpParam) {
 		}
 		*/
 
+		/*
 		buffIO bf;
 		ZeroMemory(&bf, sizeof(buffIO));
 
@@ -409,14 +452,117 @@ DWORD WINAPI protocolThreadFunc(LPVOID lpParam) {
 		WriteFile(hFile, data, strlen(data), &resultSize, NULL);
 		*/
 
+		// Packet defects data
+		//uniDrv.ReadBufIRQ(&readAddr, (PBYTE)buffer, wordNum * 2);
+
+		uniDrv.ReadBuf(63, buffer, 778);
+		unsigned char* charBuff = (unsigned char*)buffer;
+
+		int max = charBuff[347];
+
+		for (int i = 347; i < 484; ++i) {
+		
+			if (charBuff[i] > max) {
+			
+				max = charBuff[i];
+			
+			}
+		
+		}
+
+		*((unsigned int*)hdr) = ((max * 1000 - 36300) | 0x80000000);// * 0.001f;
+
+		/*
+		PACKET tempPacket;
+		tempPacket.num = 4;
+		for (int i = 0; i < tempPacket.num; ++i) {
+		
+			for (DWORD j = 0; j < 8; ++j) {
+
+					
+				tempPacket.packet[i][j][0] = ((char*)buffer)[cnt + 6];
+				tempPacket.packet[i][j][1] = (char)255;
+
+				cnt += 16;
+				if (cnt > wordNum * 2) {
+				
+					cnt = 0;
+				
+				}
+
+			}
+
+		
+		}
+
+		((std::queue<PACKET>*)hdr)->push(tempPacket);
+		*/
+
+		/*
+		if (hdr != NULL) {
+
+			for (int i = 0; i < 32; ++i) {
+
+				float data = (float)((char*)buffer)[cnt + 6];
+
+				for (int j = 0; j < 272; ++j) {
+
+					((RGBA*)hdr)[cnt2 + 479 * j].x = cnt2;
+					((RGBA*)hdr)[cnt2 + 479 * j].y = j;
+
+					if (data == j) {
+
+						((RGBA*)hdr)[cnt2 + 479 * j].R = 0;
+						((RGBA*)hdr)[cnt2 + 479 * j].G = 1;
+						((RGBA*)hdr)[cnt2 + 479 * j].B = 0;
+						((RGBA*)hdr)[cnt2 + 479 * j].A = 1;
+
+					} else {
+
+						((RGBA*)hdr)[cnt2 + 479 * j].R = 0;
+						((RGBA*)hdr)[cnt2 + 479 * j].G = 0;
+						((RGBA*)hdr)[cnt2 + 479 * j].B = 0;
+						((RGBA*)hdr)[cnt2 + 479 * j].A = 1;
+
+					}
+
+				}
+
+				cnt += 16;
+				if (cnt > wordNum * 2) {
+
+					cnt = 0;
+
+				}
+
+				++cnt2;
+				if (cnt2 > 479) {
+
+					cnt2 = 0;
+
+				}
+
+			}
+
+		}
+		*/
+
+		//WriteFile(hFile, buffer, wordNum * 2, &resultSize, NULL);
+
+		if (*execFlag != TRUE) {
+
+			break;
+
+		}
+
 		Sleep(0);
 
 	}
 
-	FreeLibrary(lib);
+	//FreeLibrary(lib);
 
-	uniDrv.ReleaseIRQ();
-	CloseHandle(hFile);
+	//uniDrv.ReleaseIRQ();
+	//CloseHandle(hFile);
 
 	// We are done
 	return 0;

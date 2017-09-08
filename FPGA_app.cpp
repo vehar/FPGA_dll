@@ -55,8 +55,15 @@ DBG_SHOW_DATE_T(DBG_TARGET);
 DBG_SHOW_FUNC_T(DBG_TARGET);
 
 
-FpgaCycleRegTest(CONTROL_REG);
+//FpgaCycleRegTest(CONTROL_REG);
 
+while(1)
+{
+	for(int i = 0; i<=8; i++)
+	{
+		FPGA.setChCompression(i, i*10);
+	} 
+}
 //FpgaSpeedTest(iterations, wordNum, IrqPeriod, bufSize);
 //ToFpgaDllSend(with_fpga, F_FPGA_INIT, 0);
 

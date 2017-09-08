@@ -29,7 +29,7 @@ DBG_SHOW_FUNC;
 			 time.wMinute);
 
 // WinCE does not have GetCurrentDirectory
-// Microsoft - I'm lovin` it!
+// Microsoft - I'm lovin  it!
 // Para-pa-pa-pa
 #ifdef _WIN32_WCE
 	GetModuleFileName(NULL, filePath, 1023);// Get path to current app
@@ -39,7 +39,7 @@ DBG_SHOW_FUNC;
 	GetCurrentDirectory(1023, filePath);	// Get path to current app
 #endif	// _WIN32_WCE
 
-	wcscat(filePath, AScanFileName);// Add file name to current app`s path
+	wcscat(filePath, AScanFileName);// Add file name to current app s path
 	HANDLE hFile = CreateFile(filePath,			// Open log file
 							  GENERIC_WRITE,
 							  FILE_SHARE_WRITE,

@@ -18,37 +18,47 @@
 #define GEN_HW_EN_b    	(5) //old GEN_EN
 #define ASCAN_EN_b    	(6) //old ASCAN_EN_MR
 
-#define CONTROL_REG 1 //0-SYNC_nEN_CR 1-SYNC_CR 2-ADC_EN 3-DAC_EN 4-SCAN_MODE_CR
+#define CONTROL_REG (1) //0-SYNC_nEN_CR 1-SYNC_CR 2-ADC_EN 3-DAC_EN 4-SCAN_MODE_CR
 //----------------------------------------------------------------------------------
 
 
-#define SYSTEM_BASE_ADR 1										
-#define SYSTEM_RESET_CR				 (SYSTEM_BASE_ADR + 1)        //_FreqSync1Addr
-//-CONTROL_REG #define SCAN_MODE_CR 			(SYSTEM_BASE_ADR + 2)        //
-//-CONTROL_REG #define SYNC_nEN_CR	 			(SYSTEM_BASE_ADR + 3)        //_SyncCtrlAddr
-#define GRSQ_RUN					 (SYSTEM_BASE_ADR + 4)        //	_GRSQ_RUN //Generator-reciever run sequence configuration reg
-#define FSYNC_DR 					 (SYSTEM_BASE_ADR + 5)        //
-//CONTROL_REG #define SYNC_CR 					 (SYSTEM_BASE_ADR + 6)        //
-#define MAIN_CR 					 (SYSTEM_BASE_ADR + 7)        //
-#define LPM_CR 						 (SYSTEM_BASE_ADR + 8)        //control reg 0-adc Npwdn; 1- ...
-                                                                
-//GENERATOR                                                     
-#define GEN_BASE_ADR 10
-
-#define DAC_GAIN_CH1 (0x0A)
-#define DAC_GAIN_CH2 (0x0B)
-#define DAC_GAIN_CH3 (0x0C)
-#define DAC_GAIN_CH4 (0x0D)
-#define DAC_GAIN_CH5 (0x0E)
-#define DAC_GAIN_CH6 (0x0F)
-#define DAC_GAIN_CH7 (0x10)
-#define DAC_GAIN_CH8 (0x11)
-
-
-#define COMPRESS_DR_1_2		 (0x12)
-#define COMPRESS_DR_3_4		 (0x13)
-#define COMPRESS_DR_5_6		 (0x14)
-#define COMPRESS_DR_7_8		 (0x15)
+//SYSTEM
+#define SYSTEM_BASE_ADR 1
+#define CONTROL_REG_ADR				SYSTEM_BASE_ADR + 0	//
+#define SYSTEM_RESET_CR				SYSTEM_BASE_ADR + 1	//
+#define AN_CH_CSR						SYSTEM_BASE_ADR + 2 //	
+//#define ___________				SYSTEM_BASE_ADR + 3	//
+//#define ___________				SYSTEM_BASE_ADR + 4	//
+#define FSYNC_DR 						SYSTEM_BASE_ADR + 5	//
+//#define ___________				SYSTEM_BASE_ADR + 6	//
+//#define ___________				SYSTEM_BASE_ADR + 7	//
+//#define ___________				SYSTEM_BASE_ADR + 8	//
+//DAC                                                                                              
+#define  DAC_BASE_ADR 10
+#define  DAC_GAIN_DR_1				 DAC_BASE_ADR + 0		//
+#define  DAC_GAIN_DR_2				 DAC_BASE_ADR + 1		//	
+#define  DAC_GAIN_DR_3				 DAC_BASE_ADR + 2		// 
+#define  DAC_GAIN_DR_4				 DAC_BASE_ADR + 3		//
+#define  DAC_GAIN_DR_5				 DAC_BASE_ADR + 4		//
+#define  DAC_GAIN_DR_6				 DAC_BASE_ADR + 5		//
+#define  DAC_GAIN_DR_7				 DAC_BASE_ADR + 6		//
+#define  DAC_GAIN_DR_8				 DAC_BASE_ADR + 7		//
+///////////////////////////////////////////////////////
+#define  COMPRESS_BASE_ADR			 DAC_GAIN_DR_8 + 1
+#define  COMPRESS_DR_1_2				 COMPRESS_BASE_ADR + 0	//
+#define  COMPRESS_DR_3_4				 COMPRESS_BASE_ADR + 1	//
+#define  COMPRESS_DR_5_6				 COMPRESS_BASE_ADR + 2	//
+#define  COMPRESS_DR_7_8				 COMPRESS_BASE_ADR + 3	//
+///////////////////////////////////////////////////////
+#define  ADC_DELAY_BASE_ADR			 COMPRESS_DR_7_8 + 1
+#define  ADC_DELAY_DR_1				 ADC_DELAY_BASE_ADR + 0
+#define  ADC_DELAY_DR_2				 ADC_DELAY_BASE_ADR + 1
+#define  ADC_DELAY_DR_3				 ADC_DELAY_BASE_ADR + 2
+#define  ADC_DELAY_DR_4				 ADC_DELAY_BASE_ADR + 3
+#define  ADC_DELAY_DR_5				 ADC_DELAY_BASE_ADR + 4
+#define  ADC_DELAY_DR_6				 ADC_DELAY_BASE_ADR + 5
+#define  ADC_DELAY_DR_7				 ADC_DELAY_BASE_ADR + 6
+#define  ADC_DELAY_DR_8				 ADC_DELAY_BASE_ADR + 7
 
 /*
 #define GEN_DELAY_DR_1				 (GEN_BASE_ADR + 1)           //_GEN_DELAY_DR0_Adr //GenBuffAddr1
@@ -61,11 +71,10 @@
 		                                                        
 #define GEN_EN					 (GEN_BASE_ADR + 8)           //_GEN_EN_MR_Adr //GenCSAddr
 */		                                                        
-#define GEN_DURATION_DR_Adr			 (GEN_BASE_ADR + 9)           //_GEN_DURATION_DR_Adr //GenStartAddrWr
 
 //ANALOG                                                        
 #define ANALOG_BASE_ADR 20                                      
-#define INTEGR_COEF_DR				 (ANALOG_BASE_ADR + 1)        //
+//#define INTEGR_COEF_DR				 (ANALOG_BASE_ADR + 1)        //
 #define COMPRESS_DR					 (ANALOG_BASE_ADR + 2)        //
 #define DETECT_CR					 (ANALOG_BASE_ADR + 3)        //
 #define AN_CH_CSR					 (3) //(ANALOG_BASE_ADR + 4)        //	

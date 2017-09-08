@@ -94,6 +94,7 @@ void SettingsHndl (int n)
 	{
 	#ifdef WINCE
 
+		/*
 		int s_Сompress = 0;
 		int s_AdcDelay = 1300;
 		int s_Amplification = 700;
@@ -101,7 +102,7 @@ void SettingsHndl (int n)
 		int s_StrobeEnd  = 4500;
 		int s_StrobeLevel  = 400;
 
-		FPGA.setSignalCompress(s_Сompress);
+		//FPGA.setSignalCompress(s_Сompress);
 		FPGA.setSignalADCDelay(s_AdcDelay);
 
 		for(int i = 0; i< LCD_WIDTH-1; i++)
@@ -112,7 +113,7 @@ void SettingsHndl (int n)
 		FPGA.setGateStart(0, s_StrobeStart);
 		FPGA.setGateEnd(0, s_StrobeEnd);
 		//FPGA.setGateLevel(0, s_StrobeLevel);
-
+*/
 	#endif WINCE
 	}
 }
@@ -122,6 +123,7 @@ void startAScan(int n)
 {
 	if(DebugOutActive) printf("%s(%i)\n", __FUNCTION__ , n);
 	DBG_SHOW_FUNC;
+
 
 	if(n)
 	{
@@ -135,7 +137,7 @@ FPGA.setGenSel(GEN4); //3
 FPGA.setAnalogChSwich(CH4);//4
 
 FPGA.setSignalADCDelay(1300);
-FPGA.setSignalCompress(2);//Compress //3 //>>IN_SET
+//FPGA.setSignalCompress(2);//Compress //3 //>>IN_SET
 FPGA.setSignalDetector(1);//Detector = pos+neg 
 FPGA.setDACGain(654);
 
@@ -145,7 +147,7 @@ FPGA.setSyncSource(1);//SyncCtrl - on //SyncInt
 	}
 }
 
-int InMultiChMode_f = 0;
+int InMultiChMode_f = 0; 
 
 void onAScan(int n)
 {
@@ -269,6 +271,8 @@ void ToFpgaDllSend(int with_fpga, int funk, int val)
 	DBG_SHOW_FUNC;
 	DEBUGMSG(TRUE, (TEXT("		with_fpga = %u, funk = %u, val = %u \r\n"),  with_fpga, funk, val));//TODO: rewrite dbg string
 
+	//return;
+
 #ifdef WINCE
 	if((with_fpga) && (bus_ok))
 	{ 
@@ -309,7 +313,7 @@ void ToFpgaDllSend(int with_fpga, int funk, int val)
 
 		//signal
 		case F_DETECTOR_SET:	FPGA.setSignalDetector(val); break; //3 = Detector = pos+neg  
-		case F_INTEGRATOR_SET:	FPGA.setSignalIntegration(val); break;//Количество точек, по которым интегрируется сигнал = 2^ IntegratorKoef //0=off
+		//case F_INTEGRATOR_SET:	FPGA.setSignalIntegration(val); break;//Количество точек, по которым интегрируется сигнал = 2^ IntegratorKoef //0=off
 
 		case F_TGC_ON:		FPGA.setTgcState(1);			 break;//
 		case F_TGC_OFF:		FPGA.setTgcState(0);			 break;//
@@ -436,7 +440,7 @@ return; //временно отключил TODO:
 		break;
 		// IGOR
 		case F_START_PROTOCOL:
-			startProtocolThread();
+			startProtocolThread(buff.buff_prot_header);
 			break;
 		case F_STOP_PROTOCOL:
 			stopProtocolThread();
@@ -512,7 +516,7 @@ void FPGAinit(int n)
 		//+2000 = middle of screen rdm 22 - 42* поверхность катания
 		//+4500 = end
 		FPGA.setSignalADCDelay(1400); 
-		FPGA.setSignalCompress(0);//Compress //3 //>>IN_SET
+		//FPGA.setSignalCompress(0);//Compress //3 //>>IN_SET
 		FPGA.setSignalDetector(0);//Detector = pos+neg 
 
 		//PrintAcousticScheme(*activeScheme);

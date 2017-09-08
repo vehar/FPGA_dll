@@ -79,26 +79,26 @@ void Acust_init(void)
 
 FPGA.setScanMode(1); //channel autoinc on
 //резкое падение потребления!!! после этой записи
-FPGA.setSignalADCDelay(activeScheme->signal.adcDelayUs);//need test
-FPGA.setProbeDelay(activeScheme->probe.delayUs);//5-2000  //FPGA_Write(_ProbeDelay ,1);////>>IN_SET
-FPGA.setSignalCompress(compress_val);//Compress //3 //>>IN_SET
+//FPGA.setSignalADCDelay(activeScheme->signal.adcDelayUs);//need test
+//FPGA.setProbeDelay(activeScheme->probe.delayUs);//5-2000  //FPGA_Write(_ProbeDelay ,1);////>>IN_SET
+//FPGA.setSignalCompress(compress_val);//Compress //3 //>>IN_SET
 
 //===================================================================================================
 int AcoustAmplification = 310;
 
 //FPGA.setTgcStartAddr(0);
 //FPGA.setTgcData(AcoustAmplification, AcoustAmplification, LCD_WIDTH-1);
-FPGA.setAcoustContGainCode(AcoustAmplification-100);//FPGA_Write(_AcousticContactGain ,10); //>>IN_SET //усиление в зоне ak_zone (fpga)
-FPGA.setTgcState(1);//TgcEn - при 0 - пропадала генерация //FPGA_Write(_TGC_EN_MR ,1); //>>IN_SET	
+//FPGA.setAcoustContGainCode(AcoustAmplification-100);//FPGA_Write(_AcousticContactGain ,10); //>>IN_SET //усиление в зоне ak_zone (fpga)
+//FPGA.setTgcState(1);//TgcEn - при 0 - пропадала генерация //FPGA_Write(_TGC_EN_MR ,1); //>>IN_SET	
 //===================================================================================================
 
 FPGA.setAnalogChSwich(CH4);//FPGA_Write(_AN_CH_CSR ,0);//AN_CH_CSR //>>IN_SET
-
-/*!*/ FPGA.setFilterEn(0);//>>IN_SET
+/*
+FPGA.setFilterEn(0);//>>IN_SET
 FPGA.setFilterCompress(1);//>>IN_SET
 FPGA.resetFilterCoeffsAddr(); //>>IN_SET
-FPGA.setFilterCoeffs(koef_array, 23);//signal becomes = 1024
-/*!*/FPGA.setSignalIntegration(0);//Количество точек, по которым интегрируется сигнал = 2^ IntegratorKoef //0=off
+FPGA.setFilterCoeffs(koef_array, 23);//
+*/
 //////Analog init end/////////////////////////////////////////////////////////////////
 }
 

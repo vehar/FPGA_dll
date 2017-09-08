@@ -21,7 +21,7 @@ static execInfo* execStruct = NULL;
 static HANDLE protThread = NULL;
 
 // Start protocol thread
-DWORD startProtocolThread();
+DWORD startProtocolThread(protocolData*);
 // Stop protocol thread
 void stopProtocolThread();
 

@@ -87,12 +87,12 @@ void FPGACommunication::setAScanBuff(UINT val, UINT val2)
 
 void FPGACommunication::setFilterCompress( USHORT val)
 {
-	gmi->WriteWORD(FILT_COMPRES_DR, val);
+	//gmi->WriteWORD(FILT_COMPRES_DR, val);
 }
 
 void FPGACommunication::resetFilterCoeffsAddr()
 {
-	gmi->WriteWORD(FILT_COEFS_RST_CR, 1);
+	//gmi->WriteWORD(FILT_COEFS_RST_CR, 1);
 }
 
 void FPGACommunication::setScanMode(UINT val)
@@ -119,12 +119,12 @@ void FPGACommunication::setLcdMode(UINT val)
 
 void FPGACommunication::setCR(UINT val)
 {
-	gmi->WriteWORD(MAIN_CR ,val);
+	gmi->WriteWORD(CONTROL_REG_ADR ,val);
 }
 
 void FPGACommunication::getCR(USHORT& val)
 {
-	gmi->ReadWORD(MAIN_CR, val);
+	gmi->ReadWORD(CONTROL_REG_ADR, val);
 }
 
 void FPGACommunication::setCursorX( int cursorIdx, UINT val)
@@ -180,14 +180,14 @@ DBG_SHOW_FUNC_T("FPGAComm"); DEBUGMSG(TRUE, (TEXT("gain =%u \r\n"), gain));
 
 	switch(channel)
 	{
-		case 1: Reg = DAC_GAIN_CH1; break;
-		case 2: Reg = DAC_GAIN_CH2; break;
-		case 3: Reg = DAC_GAIN_CH3; break;
-		case 4: Reg = DAC_GAIN_CH4; break;
-		case 5: Reg = DAC_GAIN_CH5; break;
-		case 6: Reg = DAC_GAIN_CH6; break;
-		case 7: Reg = DAC_GAIN_CH7; break;
-		case 8: Reg = DAC_GAIN_CH8; break;
+		case 1: Reg = DAC_GAIN_DR_1; break;
+		case 2: Reg = DAC_GAIN_DR_2; break;
+		case 3: Reg = DAC_GAIN_DR_3; break;
+		case 4: Reg = DAC_GAIN_DR_4; break;
+		case 5: Reg = DAC_GAIN_DR_5; break;
+		case 6: Reg = DAC_GAIN_DR_6; break;
+		case 7: Reg = DAC_GAIN_DR_7; break;
+		case 8: Reg = DAC_GAIN_DR_8; break;
 		default : return;
 	}
 	gmi->WriteWORD(Reg ,gain);
@@ -217,18 +217,19 @@ void FPGACommunication::setChCompression(USHORT channel, WORD compress)
 	}
 	gmi->ReadWORD(Reg, RD_RegVal);
 
+	DBG_SHOW_FUNC_T("FPGAComm"); DEBUGMSG(TRUE, (TEXT("CH =%u compress =%u RD_RegVal =%u \r\n"), channel, compress, RD_RegVal));
 	if(Haif_f == LO_HALF)
 	{
-		RD_RegVal = RD_RegVal & 0xF0; //clean Low reg half 
-		WR_RegVal = RD_RegVal | (compress & 0x0F); //write masked value back to reg
+		RD_RegVal = RD_RegVal & 0xFF00; //clean Low reg half 
+		WR_RegVal = RD_RegVal | (compress & 0xFF); //write masked value back to reg
 	}
 	else if(Haif_f == HI_HALF)
 	{
-		RD_RegVal = RD_RegVal & 0x0F; //clean High reg half 
-		WR_RegVal = RD_RegVal | ((compress & 0x0F)<<8); //write masked value back to reg
+		RD_RegVal = RD_RegVal & 0x00FF; //clean High reg half 
+		WR_RegVal = RD_RegVal | ((compress & 0xFF)<<8); //write masked value back to reg
 	}
 	
-	DBG_SHOW_FUNC_T("FPGAComm"); DEBUGMSG(TRUE, (TEXT("CH =%u compress =%u RD_RegVal =%u WR_RegVal =%u \r\n"), channel, compress, RD_RegVal, WR_RegVal));
+	DBG_SHOW_FUNC_T("FPGAComm"); DEBUGMSG(TRUE, (TEXT("WR_RegVal =%u \r\n"), WR_RegVal));
 
 	gmi->WriteWORD(Reg ,WR_RegVal);
 }
@@ -246,7 +247,7 @@ void FPGACommunication::setADC(USHORT en)
 
 void FPGACommunication::setSignalCompress(USHORT val)
 {
-	gmi->WriteWORD(COMPRESS_DR, val);
+	//gmi->WriteWORD(COMPRESS_DR, val);
 }
 
 void FPGACommunication::setSignalDetector(USHORT val )
@@ -257,18 +258,18 @@ void FPGACommunication::setSignalDetector(USHORT val )
 
 void FPGACommunication::setSignalIntegration( USHORT val )
 {
-	gmi->WriteWORD(INTEGR_COEF_DR, val);
+	//gmi->WriteWORD(INTEGR_COEF_DR, val);
 }
 
 
 void FPGACommunication::getAC_SUM_DR( USHORT& val )
 {
-	gmi->ReadWORD(AC_SUM_DR, val);
+	//gmi->ReadWORD(AC_SUM_DR, val);
 }
 
 void FPGACommunication::setTgcState( USHORT val )
 {
-	gmi->WriteWORD(TGC_EN_MR, val);
+	//gmi->WriteWORD(TGC_EN_MR, val);
 }
 
 void FPGACommunication::setTgcData( DWORD* Buff, int size)//!

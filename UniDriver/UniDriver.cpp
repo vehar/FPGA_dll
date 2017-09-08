@@ -74,12 +74,20 @@ DWORD UniDriver::ReadWORD(USHORT addr, USHORT& val)
 	return result;
 }
 
-void UniDriver::WriteBuf(WORD Addr, USHORT* Buff, int size)
-{
+void UniDriver::WriteBuf(WORD Addr, USHORT* Buff, int size) {
 
 }
-void UniDriver::ReadBuf(WORD Addr, USHORT* Buff, int size)
-{
+
+void UniDriver::ReadBuf(WORD Addr, USHORT* Buff, int size) {
+
+	DWORD readed = 0;
+	RWRegData_t regData = {GPMC_CS1_BASE, 0, 0};
+	regData.offset = Addr * 2;
+	if (hDrv) {
+	
+		DeviceIoControl(hDrv, IOCTL_READBUF, (LPVOID)&regData, sizeof(RWRegData_t), (LPVOID)Buff, size, &readed, NULL);
+
+	}
 
 }
 
@@ -91,7 +99,11 @@ void UniDriver::InitIRQ(DWORD dwPin, DWORD bufSize, DWORD accessSize, DWORD dwWa
 	intData.bufSize		= bufSize; //0x1FF //800
 	intData.accessSize	= accessSize; //0xFF //100
 
-	DeviceIoControl(hDrv, IOCTL_INTINIT, (LPVOID)&intData, sizeof(DEVICE_INT_DATA), NULL, NULL, NULL, NULL);
+	if (hDrv) {
+
+		DeviceIoControl(hDrv, IOCTL_INTINIT, (LPVOID)&intData, sizeof(DEVICE_INT_DATA), NULL, NULL, NULL, NULL);
+
+	}
 
 }
 
