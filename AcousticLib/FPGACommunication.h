@@ -55,10 +55,12 @@ public:
 	UCHAR WriteBuf32(DWORD addr, DWORD addr1, DWORD *val, int size);
 	
 //========================================RDM11 V.H.=======================================
-void setADC(USHORT en);
-void setDAC(USHORT en);
+void setCR_ADCen(USHORT en);
+void setCR_DACen(USHORT en);
 void setChDacGain(USHORT channel, USHORT gain);
 void setChCompression(USHORT channel, USHORT compress);
+void setGenChAccordance(USHORT seqNum, USHORT channel, USHORT gen);
+
 void BitWR(WORD reg, char bit, char val);
 
 void setSignalPattern(UINT val);
@@ -83,8 +85,8 @@ void setLcdMode(UINT val);
 void setDrawStartTime(UINT val);
 void setDrawEndTime(UINT val);
 void setDrawCompress(UINT val);
-void setAdcDelay(USHORT reg, USHORT val);
-void setAdcDuration(USHORT channel, USHORT val);
+void setCZoneDelay(USHORT reg, USHORT val);
+void setCZoneEnd(USHORT channel, USHORT val);
 
 
 void setCR(UINT val);
@@ -122,15 +124,14 @@ UCHAR WriteBuf32(DWORD addr, DWORD addr1, UINT val, UINT val_1, int size);
 	void setFilterEn(USHORT val);
 	void setFilterCoeffs(USHORT* Buff, int size);
 
-	void setHWGenPow(USHORT val);
+	void setCR_HWGenPow(USHORT val);
     void setGenSel(USHORT val);
 
 	void setAcoustContGainCode(USHORT val);
-	void getAC_SUM_DR( USHORT& val); //acoustic contact
 
 	void setProbeDelay(USHORT val);
 	
-	void setDACGain(USHORT val);
+	void setCR_DACenGain(USHORT val);
 
 	void setTgcState(USHORT val);
 	void setTgcData(DWORD* Buff, int size);

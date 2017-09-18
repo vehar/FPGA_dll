@@ -7,8 +7,7 @@
 FPGACommunication::FPGACommunication()
 {
 	DBG_SHOW_FUNC;
-	//General Memory Interface init
-	gmi = new UniDriver();
+	gmi = new UniDriver();//General Memory Interface init
 	ExtBusCs1Init();
 }
 
@@ -124,14 +123,14 @@ void FPGACommunication::setCR(UINT val) //установка только единиц!!!
 	USHORT tmpReg = 0;
 	DBG_SHOW_FUNC_T("FPGAComm"); DEBUGMSG(TRUE, (TEXT("val %u \r\n"), val));
 
-	gmi->ReadWORD(CONTROL_REG_ADR, tmpReg);
+	gmi->ReadWORD(CONTROL_REG, tmpReg);
 	tmpReg |= val;
-	gmi->WriteWORD(CONTROL_REG_ADR ,val);
+	gmi->WriteWORD(CONTROL_REG ,val);
 }
 
 void FPGACommunication::getCR(USHORT& val)
 {
-	gmi->ReadWORD(CONTROL_REG_ADR, val);
+	gmi->ReadWORD(CONTROL_REG, val);
 }
 
 void FPGACommunication::setCursorX( int cursorIdx, UINT val)
@@ -165,7 +164,7 @@ void FPGACommunication::getTrackParams(char& Direction, int& Position, float& Sp
 }
 
 //=========================================================================================
-
+//A-scan drawing
 void FPGACommunication::setDrawStartTime(UINT val)
 {
 	gmi->WriteWORD(DRAW_STARTTIME_DR, val);
@@ -194,7 +193,7 @@ void FPGACommunication::setSyncSource(USHORT syncSource)
 	BitWR(CONTROL_REG, FMC_SYNC_SRC_b, syncSource);
 }
 
-void FPGACommunication::setAdcDelay(USHORT channel, USHORT val)
+void FPGACommunication::setCZoneDelay(USHORT channel, USHORT val)
 {
 	USHORT tmpReg = 0;
 	USHORT Reg = 0;
@@ -216,7 +215,7 @@ DBG_SHOW_FUNC_T("FPGAComm"); DEBUGMSG(TRUE, (TEXT("gain =%u \r\n"), val));
 	gmi->WriteWORD(Reg ,val);
 }
 
-void FPGACommunication::setAdcDuration(USHORT channel, USHORT val)
+void FPGACommunication::setCZoneEnd(USHORT channel, USHORT val)
 {
 	USHORT tmpReg = 0;
 	USHORT Reg = 0;
@@ -258,6 +257,32 @@ DBG_SHOW_FUNC_T("FPGAComm"); DEBUGMSG(TRUE, (TEXT("gain =%u \r\n"), gain));
 		default : return;
 	}
 	gmi->WriteWORD(Reg ,gain);
+}
+
+//Установка соответствия в последовательности запуска между запуком генератора и выбором аналогового канала для приёма
+void FPGACommunication::setGenChAccordance(USHORT seqNum, USHORT channel, USHORT gen)
+{
+	USHORT tmpReg = 0;
+	USHORT Reg = 0;
+	USHORT val = 0;
+
+DBG_SHOW_FUNC_T("FPGAComm"); DEBUGMSG(TRUE, (TEXT("seqNum =%u channel =%u gen =%u \r\n"), seqNum, channel, gen));
+
+	switch(seqNum)
+	{
+		case 1: Reg = GEN_CH_ACCORD_DR_1; break;
+		case 2: Reg = GEN_CH_ACCORD_DR_2; break;
+		case 3: Reg = GEN_CH_ACCORD_DR_3; break;
+		case 4: Reg = GEN_CH_ACCORD_DR_4; break;
+		case 5: Reg = GEN_CH_ACCORD_DR_5; break;
+		case 6: Reg = GEN_CH_ACCORD_DR_6; break;
+		case 7: Reg = GEN_CH_ACCORD_DR_7; break;
+		case 8: Reg = GEN_CH_ACCORD_DR_8; break;
+		default : return;
+	}
+	val = (gen<<8) | (channel<<0); //младшая половина регистра для канала, старшая - для генератора
+	DBG_SHOW_FUNC_T("FPGAComm"); DEBUGMSG(TRUE, (TEXT("Reg val =%u\r\n"), val));
+	gmi->WriteWORD(Reg ,val);
 }
 
 #define LO_HALF (0)
@@ -302,21 +327,16 @@ void FPGACommunication::setChCompression(USHORT channel, WORD compress)
 }
 
 
-void FPGACommunication::setDAC(USHORT en)
+void FPGACommunication::setCR_DACen(USHORT en)
 {
 	BitWR(CONTROL_REG, FMC_DAC_EN_b, en);
 }
 
-void FPGACommunication::setADC(USHORT en)
+void FPGACommunication::setCR_ADCen(USHORT en)
 {
 	BitWR(CONTROL_REG, FMC_ADC_EN_b, en);
 }
 
-
-void FPGACommunication::getAC_SUM_DR( USHORT& val )
-{
-	//gmi->ReadWORD(AC_SUM_DR, val);
-}
 
 void FPGACommunication::setTgcState( USHORT val )
 {
@@ -335,7 +355,7 @@ void FPGACommunication::setTgcData( USHORT val_1, USHORT val_2, int range)//! ус
 //	WriteBuf32(TGC_RAM_DR, DacData2, val_1, val_2, range);
 }
 
-void FPGACommunication::setDACGain( USHORT val )
+void FPGACommunication::setCR_DACenGain( USHORT val )
 {
 	gmi->WriteWORD(DAC_GAIN_DR, val);// TODO change reg
 }
@@ -351,7 +371,7 @@ void FPGACommunication::setAnalogChSwich(USHORT val )
 }
 
 //-------------------------------GENERATOR------------------------------------------
-void FPGACommunication::setHWGenPow(USHORT val ) //выбор ВЫХОДА активного генератора
+void FPGACommunication::setCR_HWGenPow(USHORT val ) //выбор ВЫХОДА активного генератора
 {
 	BitWR(CONTROL_REG, GEN_HW_EN_b, val);
 }

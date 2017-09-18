@@ -72,7 +72,7 @@
 	#define F_NO					0
 	#define F_YES					1
 	
-#define F_SOUND_ASD					27
+#define F_SOUND_ASD					27 
 	//F_OFF
 	//F_ON
 	
@@ -80,10 +80,10 @@
 	#define F_FALS					0
 	#define F_TRUE					1
 
-#define F_SIGNAL_COMPRESS			30
+#define F_SIGNAL_COMPRESS			30 
 #define F_ADC_DELAY					31
 
-#define F_GEN_SEL					32
+#define F_GEN_SEL					32 
 #define F_CH_SEL					33
 #define F_GAIN     					34
 #define F_FPGA_INIT 				35

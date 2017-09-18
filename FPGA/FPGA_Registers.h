@@ -9,7 +9,7 @@
 #define ON  (1)
 #define OFF (0)
 
-//SYSTEM
+//SYSTEM CONTROL_REG bits
 #define FMC_SYNC_nEN_b	(0)
 #define FMC_SYNC_SRC_b	(1)
 #define FMC_ADC_EN_b	(2)
@@ -18,21 +18,18 @@
 #define GEN_HW_EN_b    	(5) //old GEN_EN
 #define ASCAN_EN_b    	(6) //old ASCAN_EN_MR
 
-#define CONTROL_REG (1) //0-SYNC_nEN_CR 1-SYNC_CR 2-ADC_EN 3-DAC_EN 4-SCAN_MODE_CR
 //----------------------------------------------------------------------------------
-
-
 
 //SYSTEM
 #define SYSTEM_BASE_ADR 1
-#define CONTROL_REG_ADR				SYSTEM_BASE_ADR + 0	//
+#define CONTROL_REG					SYSTEM_BASE_ADR + 0	// //0-SYNC_nEN_CR 1-SYNC_CR 2-ADC_EN 3-DAC_EN 4-SCAN_MODE_CR
 #define SYSTEM_RESET_CR				SYSTEM_BASE_ADR + 1	//
 #define AN_CH_CSR					SYSTEM_BASE_ADR + 2 //	
 //#define ___________				SYSTEM_BASE_ADR + 3	//
 //#define ___________				SYSTEM_BASE_ADR + 4	//
 #define FSYNC_DR 					SYSTEM_BASE_ADR + 5	//
-#define DRAW_STARTTIME_DR				SYSTEM_BASE_ADR + 6 //
-#define DRAW_ENDTIME_DR			SYSTEM_BASE_ADR + 7 //
+#define DRAW_STARTTIME_DR			SYSTEM_BASE_ADR + 6 //
+#define DRAW_ENDTIME_DR				SYSTEM_BASE_ADR + 7 //
 #define DRAW_COMPRESS_DR			SYSTEM_BASE_ADR + 8 //
 
 //DAC                                                                                              
@@ -51,7 +48,9 @@
 #define  COMPRESS_DR_3_4				 COMPRESS_BASE_ADR + 1	//
 #define  COMPRESS_DR_5_6				 COMPRESS_BASE_ADR + 2	//
 #define  COMPRESS_DR_7_8				 COMPRESS_BASE_ADR + 3	//
+
 ///////////////////////////////////////////////////////
+//Control Zone Delay Channel n
 #define  ADC_DELAY_BASE_ADR			 COMPRESS_DR_7_8 + 1//  22
 #define  ADC_DELAY_DR_1				 ADC_DELAY_BASE_ADR + 0
 #define  ADC_DELAY_DR_2				 ADC_DELAY_BASE_ADR + 1
@@ -63,6 +62,7 @@
 #define  ADC_DELAY_DR_8				 ADC_DELAY_BASE_ADR + 7
 
 ///////////////////////////////////////////////////////
+//Control Zone Delay Duration n
 #define ADC_DURATION_BASE_ADR  ADC_DELAY_DR_8 + 1   // 30
 #define ADC_DURATION_DR_1   ADC_DURATION_BASE_ADR + 0
 #define ADC_DURATION_DR_2   ADC_DURATION_BASE_ADR + 1
@@ -72,7 +72,18 @@
 #define ADC_DURATION_DR_6   ADC_DURATION_BASE_ADR + 5
 #define ADC_DURATION_DR_7   ADC_DURATION_BASE_ADR + 6
 #define ADC_DURATION_DR_8   ADC_DURATION_BASE_ADR + 7
-		                                                        
+		    
+// TODO
+#define GEN_CH_ACCORD_BASE_ADR  0x40
+#define GEN_CH_ACCORD_DR_1   GEN_CH_ACCORD_BASE_ADR + 0
+#define GEN_CH_ACCORD_DR_2   GEN_CH_ACCORD_BASE_ADR + 1
+#define GEN_CH_ACCORD_DR_3   GEN_CH_ACCORD_BASE_ADR + 2
+#define GEN_CH_ACCORD_DR_4   GEN_CH_ACCORD_BASE_ADR + 3
+#define GEN_CH_ACCORD_DR_5   GEN_CH_ACCORD_BASE_ADR + 4
+#define GEN_CH_ACCORD_DR_6   GEN_CH_ACCORD_BASE_ADR + 5
+#define GEN_CH_ACCORD_DR_7   GEN_CH_ACCORD_BASE_ADR + 6
+#define GEN_CH_ACCORD_DR_8   GEN_CH_ACCORD_BASE_ADR + 7
+
 
 //ANALOG                                                        
 #define ANALOG_BASE_ADR 20                                      

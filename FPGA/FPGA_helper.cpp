@@ -65,11 +65,6 @@ FPGA.MainSyncEn(1);//SyncCtrl_nENABLE - on
 }
 
 
-void Gen_init (void) 
-{
-	FPGA.setHWGenPow(0);//disable gen
-}
-
 
 void Acust_init(void)
 {
