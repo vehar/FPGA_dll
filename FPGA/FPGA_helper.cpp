@@ -48,7 +48,7 @@ void FPGA_Regs_deinit(void)//дополнить деинитом буфферов
 {
 FPGA.systemReset();//restore another init values 
 
-FPGA.setAScanColor(0, 0);
+//FPGA.setAScanColor(0, 0);
 FPGA.setAnalogChSwich(0);
 }
 
@@ -76,7 +76,7 @@ FPGA.setScanMode(1); //channel autoinc on
 //FPGA.setProbeDelay(activeScheme->probe.delayUs);//5-2000  //FPGA_Write(_ProbeDelay ,1);////>>IN_SET
 
 //===================================================================================================
-int AcoustAmplification = 310;
+//int AcoustAmplification = 310;
 
 //FPGA.setTgcStartAddr(0);
 //FPGA.setTgcData(AcoustAmplification, AcoustAmplification, LCD_WIDTH-1);
@@ -84,7 +84,7 @@ int AcoustAmplification = 310;
 //FPGA.setTgcState(1);//TgcEn - при 0 - пропадала генерация //FPGA_Write(_TGC_EN_MR ,1); //>>IN_SET	
 //===================================================================================================
 
-FPGA.setAnalogChSwich(CH4);//FPGA_Write(_AN_CH_CSR ,0);//AN_CH_CSR //>>IN_SET
+FPGA.setAnalogChSwich(CH1);//FPGA_Write(_AN_CH_CSR ,0);//AN_CH_CSR //>>IN_SET
 /*
 FPGA.setFilterEn(0);//>>IN_SET
 FPGA.setFilterCompress(1);//>>IN_SET
@@ -94,13 +94,14 @@ FPGA.setFilterCoeffs(koef_array, 23);//
 //////Analog init end/////////////////////////////////////////////////////////////////
 }
 
+/*
 void Gates_init(void)
 {
 	FPGA.setGateStart(0, 1000); 
 	FPGA.setGateEnd(0, 4500);
 	FPGA.setGateLevel(0, 100);// TODO: fix bug with max 500 in FPGA //ToAdcScale(activeScheme->gates[0].levelPercent)
 }
-
+*/
 
 void KoeffArr_init(void)
 {

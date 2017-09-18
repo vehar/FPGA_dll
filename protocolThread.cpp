@@ -234,13 +234,15 @@ DWORD WINAPI protocolThreadFunc(LPVOID lpParam) {
 
 	ExtBusCs1Init();
 
-	DWORD bufferSize	= 778;//8 << 8;		// buff		8192
-	DWORD wordNum		= 778;//8 << 4;		// words	128
+	DWORD bufferSize	= 10000;//8 << 8;		// buff		8192
+	DWORD wordNum		= 500;//8 << 4;		// words	128
 	DWORD cycleFreq		= 100;			// ms
 
-	//FPGA_Write(SYSTEM_RESET_CR, 1);
 	//FPGA_Write(FSYNC_DR, cycleFreq * 100);		// t = val * 100 [ms]
 	//FPGA_Write(TEST_IRQ_CR, wordNum);			// num of words written in time from FSYNC_DR
+
+	//FPGA.setAScanBuffSize(wordNum); TODO
+	FPGA_Write(0x50, wordNum);
 
 	// Get pointer to thread param
 	execInfo* exec = (execInfo*)lpParam;
@@ -255,13 +257,14 @@ DWORD WINAPI protocolThreadFunc(LPVOID lpParam) {
 
 	DWORD cnt = 0;
 	DWORD cnt2 = 0;
-	//uniDrv.InitIRQ(65, bufferSize * 2, wordNum * 2, 100);
+	uniDrv.InitIRQ(65, bufferSize * 2, wordNum * 2, 100);
 
 	/*
 	RWRegData_t	readAddr;
 	readAddr.baseAddr	= GPMC_CS1_BASE;
 	readAddr.offset		= 114 << 1;
 	readAddr.value		= 0;
+	*/
 
 	HANDLE hFile = CreateFile(L"YAFFS_PART1\\Protocols\\file.txt",
 							  GENERIC_WRITE,
@@ -279,7 +282,6 @@ DWORD WINAPI protocolThreadFunc(LPVOID lpParam) {
 		return -1;
 	
 	}
-	*/
 
 	/*
 	HINSTANCE lib = LoadLibrary(L"SPI_dll.dll");
@@ -334,6 +336,11 @@ DWORD WINAPI protocolThreadFunc(LPVOID lpParam) {
 	DWORD readed = 85;
 	CHAR data[85];
 	*/
+
+	RWRegData_t	readAddr;
+	readAddr.baseAddr	= GPMC_CS1_BASE;
+	readAddr.offset		= 0x50 << 1;
+	readAddr.value		= 0;
 
 	DWORD resultSize = 0;
 	WORD prv = 0;
@@ -455,8 +462,12 @@ DWORD WINAPI protocolThreadFunc(LPVOID lpParam) {
 		// Packet defects data
 		//uniDrv.ReadBufIRQ(&readAddr, (PBYTE)buffer, wordNum * 2);
 
+		uniDrv.ReadBufIRQ(&readAddr, (PBYTE)buffer, wordNum * 2);
+	//	WriteFile(hFile, buffer, wordNum * 2, &resultSize, NULL);
+
+		/*
 		uniDrv.ReadBuf(63, buffer, 778);
-		unsigned char* charBuff = (unsigned char*)buffer;
+		char* charBuff = (char*)buffer;
 
 		int max = charBuff[347];
 
@@ -470,7 +481,8 @@ DWORD WINAPI protocolThreadFunc(LPVOID lpParam) {
 		
 		}
 
-		*((unsigned int*)hdr) = ((max * 1000 - 36300) | 0x80000000);// * 0.001f;
+		*((float*)hdr) = (max * 1000 - 36300) * 0.001f;
+		*/
 
 		/*
 		PACKET tempPacket;
@@ -555,14 +567,14 @@ DWORD WINAPI protocolThreadFunc(LPVOID lpParam) {
 
 		}
 
-		Sleep(0);
+		Sleep(500);
 
 	}
 
 	//FreeLibrary(lib);
 
-	//uniDrv.ReleaseIRQ();
-	//CloseHandle(hFile);
+	uniDrv.ReleaseIRQ();
+	CloseHandle(hFile);
 
 	// We are done
 	return 0;

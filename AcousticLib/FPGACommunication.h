@@ -50,7 +50,7 @@ class FPGACommunication
 public:
 	FPGACommunication();
 	~FPGACommunication();
-	UCHAR ReadDWORD(DWORD addr, DWORD addr1, DWORD &val);
+	UCHAR ReadDWORD(DWORD addr, DWORD addr1, DWORD &val); 
 	UCHAR WriteDWORD(DWORD addr, DWORD addr1, DWORD val);
 	UCHAR WriteBuf32(DWORD addr, DWORD addr1, DWORD *val, int size);
 	
@@ -69,18 +69,16 @@ void setAScanDrawMode(UINT val);
 void setAScanEn(UINT val);
 void setAScanWrCS(UINT val);
 void setAScanStartAddrWr(UINT val);
-void resetAScanRamCntRd();
+void setAScanBuffSize(UINT val);
+
 void setAScanColor(UINT color_addr, UINT color_val);
 void setGenStartAddrWr(UINT val);
-void setAScanBuff(UINT val, UINT val2);
 void setFilterCompress( USHORT val);
 void resetFilterCoeffsAddr();
 void setScanMode(UINT val); // b0: 1 -  автоинкремент счётчика каналов; 0 - номер выставляется вручную
 void setTgcStartAddr(UINT val);
 void systemReset();
-void setCursorX( int cursorIdx, UINT val);
-void setCursorY( int cursorIdx, UINT val);
-void setLcdMode(UINT val);
+
 
 void setDrawStartTime(UINT val);
 void setDrawEndTime(UINT val);
@@ -93,11 +91,7 @@ void setCR(UINT val);
 void getCR(USHORT& val);
 
 void getTrackParams(char& Direction, int& Position, float& Speed);
-/*
-void getTrackDirection(WORD& val);
-void getTrackPosition(WORD& val);
-void getTrackSpeed(WORD& val);
-*/
+
 void getAScanDrawMode(USHORT& val);
 
 void setTgcData( USHORT val_1, USHORT val_2, int range);//!
@@ -108,7 +102,6 @@ UCHAR WriteBuf32(DWORD addr, DWORD addr1, UINT val, UINT val_1, int size);
 
 
 	void getMajorVersion(USHORT& val);
-	void getSvnVersion(USHORT& val);
 
 	void setSyncFreq(UINT freqInSamples);
 	void setSyncSource(USHORT syncSource);
@@ -117,23 +110,20 @@ UCHAR WriteBuf32(DWORD addr, DWORD addr1, UINT val, UINT val_1, int size);
 	void resetReadRamCounter();
 	void getSignalData(USHORT* Buff, int size);
 
-	void setSignalDataLen(USHORT val);
-
 	void setAnalogChSwich(USHORT val);
 
 	void setFilterEn(USHORT val);
 	void setFilterCoeffs(USHORT* Buff, int size);
 
 	void setCR_HWGenPow(USHORT val);
-    void setGenSel(USHORT val);
 
 	void setAcoustContGainCode(USHORT val);
 
 	void setProbeDelay(USHORT val);
 	
-	void setCR_DACenGain(USHORT val);
+	void setDACGain(USHORT val);
 
-	void setTgcState(USHORT val);
+	//void setTgcState(USHORT val);
 	void setTgcData(DWORD* Buff, int size);
 	
 	void setGateStart(int gateIdx, UINT val);

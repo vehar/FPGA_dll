@@ -123,7 +123,7 @@ void draw_sine (int cnt = 20, int lim = 5)
 		{
 			int y1 = sin(x1)*3*cnt+100;
 
-			FPGA.setAScanBuff(y1+10+cnt/2, y1);
+			//FPGA.setAScanBuff(y1+10+cnt/2, y1);
 			_dellay();
 		}
 		cnt --;

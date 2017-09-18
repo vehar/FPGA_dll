@@ -151,7 +151,7 @@ void ReadDisplayAScan(void)
 
 	  adc_val = atoi(pch);
 
-	  FPGA.setAScanBuff(adc_val+20, VAL_MIRROR_X(adc_val+30));
+	  //FPGA.setAScanBuff(adc_val+20, VAL_MIRROR_X(adc_val+30));
 		/* value = AScanSmoothedArr[i];
 		 strncpy (token, AScanSmoothedArr+start, 3);
          _itoa(value, token, 10);

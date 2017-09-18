@@ -33,8 +33,15 @@ void AScanFileInit (void);//test Ascan wr file
 void FPGADeinit(void); //
 
 int DebugOutActive = 0; //if(DebugOutActive) printf
-int AScanShiftVal = 110; //сдвиг А-скана по OY
 int bus_ok = 1;
+
+#ifdef WINCE
+
+FPGACommunication FPGA;
+buffer CursorElevationBuff;
+int AScan_not_freesed = 1;
+
+#endif WINCE
 
 BOOL APIENTRY DllMain( HANDLE hModule, 
                        DWORD  ul_reason_for_call, 
@@ -73,21 +80,13 @@ BOOL APIENTRY DllMain( HANDLE hModule,
     return TRUE;
 }
 
-#ifdef WINCE
 
-FPGACommunication FPGA;
-DWORD WINAPI ThreadSoft_AScan(LPVOID lpParameter);
-
-int AScan_not_freesed = 1;
-
-buffer CursorElevationBuff;
-
-
-#endif WINCE
 
 
 void SettingsHndl (int n)
 {
+	return;
+
 	if(DebugOutActive) printf("%s(%i)\n", __FUNCTION__ , n);
 	DBG_SHOW_FUNC;
 	if(n)
@@ -106,7 +105,7 @@ void SettingsHndl (int n)
 
 		for(int i = 0; i< LCD_WIDTH-1; i++)
 		{
-			FPGA.setCR_DACenGain(s_Amplification);
+			FPGA.setDACGain(s_Amplification);
 		}
 
 		FPGA.setGateStart(0, s_StrobeStart);
@@ -117,28 +116,17 @@ void SettingsHndl (int n)
 	}
 }
 
-///bug here
+
 void startAScan(int n) 
 {
 	if(DebugOutActive) printf("%s(%i)\n", __FUNCTION__ , n);
 	DBG_SHOW_FUNC;
 
-
 	if(n)
 	{
 	#ifdef WINCE
 
-		DWORD dwThreadId = 0;
-		HANDLE hAScan = NULL;
-
-		//HardAScan_Start
-FPGA.setGenSel(GEN4); //3
-FPGA.setAnalogChSwich(CH4);//4
-
-FPGA.setSignalADCDelay(1300);
-FPGA.setCR_DACenGain(654);
-
-FPGA.setSyncSource(1);//SyncCtrl - on //SyncInt
+		FPGA.setSyncSource(1);//SyncCtrl - on //SyncInt
 
 	#endif WINCE
 	}
@@ -155,8 +143,6 @@ void onAScan(int n)
 	{
 	#ifdef WINCE
 		startAScan(1);// DELETE IT!
-
-		AScanShiftVal = 10; //сдвинули вниз экрана
 
 		FPGA.setScanMode(0); //Set manual ch control
 		FPGA.setAScanEn(1);//on
@@ -180,21 +166,26 @@ void offAScan(int n)
 	}
 }
 
+//device has 7 stages: 70>(1), 70<(2), 55>(3), 0(4), 55<(5), 42>(6), 42<(7)
 void SetupGenChAccordance(void)
 {
-	FPGA.setGenChAccordance(1,5,5);
-	FPGA.setGenChAccordance(2,5,5);
-	FPGA.setGenChAccordance(3,1,1);
-	FPGA.setGenChAccordance(4,2,2);
-	FPGA.setGenChAccordance(5,6,7);
-	FPGA.setGenChAccordance(6,4,4);
-	FPGA.setGenChAccordance(7,7,5);
-	FPGA.setGenChAccordance(8,3,3);
+	DBG_SHOW_FUNC;
+
+	FPGA.setGenChAccordance(1,7,6); //70>
+	FPGA.setGenChAccordance(2,6,7); //70<
+	FPGA.setGenChAccordance(3,4,4); //55>
+	FPGA.setGenChAccordance(4,5,5); //0
+	FPGA.setGenChAccordance(5,3,3); //55<
+	FPGA.setGenChAccordance(6,1,1); //42>
+	FPGA.setGenChAccordance(7,2,2); //42<
 }
+
 //=================================================================================================
 
 
 int Gain_tmp = 0;
+
+/*
 void SetChannelParams(WORD channel, WORD delay, WORD CZone, WORD Gain)
 {
 	FPGA_Write(ADC_DELAY_DR ,delay);
@@ -203,6 +194,7 @@ void SetChannelParams(WORD channel, WORD delay, WORD CZone, WORD Gain)
 
 	FPGA_Write(AN_CH_CSR ,channel);
 }
+*/
 	
 //channel GenAnalog map
 //									Generator, Analog reciever
@@ -219,8 +211,8 @@ enum RAIL_TYPE{P43, P50, S49, P65, UIC60, P75}Rail;
 
 typedef struct CZone_t
 {
-	char Delay;
-	char Duration;
+	WORD Delay;
+	WORD Duration;
 };
 
 //channel zone-rail type map
@@ -249,13 +241,13 @@ CZ.Duration = 54; ZoneRailFPGA_channels[ch][P65] = CZone;
 CZ.Duration = 52; ZoneRailFPGA_channels[ch][UIC60] = CZone;
 CZ.Duration = 58; ZoneRailFPGA_channels[ch][P75] = CZone;
 */
-ch = 1; 
+ch = 1; //
 ZoneRailFPGA_channels[ch-1][P65].Delay = 0;
-ZoneRailFPGA_channels[ch-1][P65].Duration = 54;
+ZoneRailFPGA_channels[ch-1][P65].Duration = 64;
 
 ch = 2; 
 ZoneRailFPGA_channels[ch-1][P65].Delay = 0;
-ZoneRailFPGA_channels[ch-1][P65].Duration = 54;
+ZoneRailFPGA_channels[ch-1][P65].Duration = 64;
 
 ch = 3; 
 ZoneRailFPGA_channels[ch-1][P65].Delay = 18;
@@ -298,47 +290,39 @@ WORD InterfToPhyDACGainDecode(int val)
 	return (val*10) + 380;
 }
 
+#define NS_25 (25)// nano seconds
+#define LCD_WIDTH (480) //pix
+
 void SetScanChannel(int num) //channel setter for AUTOSCAN mode
 {	
 	int chPhy = InterfToPhyChDecode(num);
+	int compression = 0;
 	CZone_t CZoneCH;
 
 	DBG_SHOW_FUNC;
 	DEBUGMSG(TRUE, (TEXT("F_DLL: ch idx: %u TO-> chPhy: %u \r\n"), num, chPhy));
 
+	CZoneCH = ZoneRailFPGA_channels[num][P65];
+	DEBUGMSG(TRUE, (TEXT("-----> CZoneCH.Delay: %u CZoneCH.Duration: %u \r\n"), CZoneCH.Delay, CZoneCH.Duration));
+
 	currentChannel = num; //globaly
 
+	if(chPhy == 5){	compression = 11;} //test //для РС и ЗТМ 12 для остальных 40
+	else { compression = 39; }
+
 	FPGA.setAnalogChSwich(chPhy);	//BUG was HERE!!!
+	FPGA.setDACGain(Gain_tmp);
 
-	CZoneCH = ZoneRailFPGA_channels[num][P65];
-	FPGA.setDrawStartTime(CZoneCH.Delay*25);
-	FPGA.setCZoneDelay(chPhy, CZoneCH.Delay*25);
+	FPGA.setAScanBuffSize((CZoneCH.Duration*1000)/(compression*NS_25)); //according to CZone lenght (different for all channels)
 
-	//if(InMultiChMode_f) //
-	{
-	//SetChannelParams(chPhy, 0, 0xFFFF, Gain_tmp);//FIX:
-	FPGA_Write(DAC_GAIN_DR ,Gain_tmp);
+	FPGA.setDrawStartTime(CZoneCH.Delay*NS_25);
+	FPGA.setDrawCompress(compression);
+	//FPGA.setDrawEndTime((CZoneCH.Delay + (compression+1)*LCD_WIDTH)*NS_25);
 
-	if(chPhy == 5)//test //для РС и ЗТМ 12 для остальных 40
-	{
-		FPGA.setChCompression(chPhy, 11);
+	FPGA.setCZoneDelay(chPhy, CZoneCH.Delay*1000/NS_25);
+	FPGA.setChCompression(chPhy, compression);
+	FPGA.setCZoneEnd(chPhy, (CZoneCH.Delay + CZoneCH.Duration)*1000/NS_25);
 
-		FPGA.setDrawCompress(11);
-		FPGA.setDrawEndTime((CZoneCH.Delay + (11+1)*480)*25);
-		FPGA.setCZoneEnd(chPhy, (CZoneCH.Delay + (11+1)*480)*25);
-		
-	} 
-	else 
-	{
-		FPGA.setChCompression(chPhy, 39);
-
-		FPGA.setDrawCompress(39);
-		FPGA.setDrawEndTime((CZoneCH.Delay + (39+1)*480)*25);
-		FPGA.setCZoneEnd(chPhy, (CZoneCH.Delay + (39+1)*480)*25);
-	}
-
-	DEBUGMSG(TRUE, (TEXT("----FIX: Default setCzone = 0xFFFF, setCR_DACenGain = %u, setSignalADCDelay = 0, setSignalCompress = 2 \r\n"), Gain_tmp));//TODO: rewrite dbg string
-	}
 }
 
 //////////////------DEBUG_TESTS-------------------
@@ -396,14 +380,12 @@ void ToFpgaDllSend(int with_fpga, int funk, int val)
 									FPGA.setChDacGain(InterfToPhyChDecode(currentChannel), /*InterfToPhyDACGainDecode(val)*/ val);	
 								}break; //Усиление
 
-		case F_ZONE_START:	  	FPGA.setGateStart(0, val);				break; //
-		case F_ZONE_END:		FPGA.setGateEnd(0, val); 				break; //
+		//case F_ZONE_START:	  	FPGA.setGateStart(0, val);				break; //
+		//case F_ZONE_END:		FPGA.setGateEnd(0, val); 				break; //
 
 		case F_SYNCH_SOURCE:	FPGA.setSyncFreq(val);				break;
 
 		case F_CH_SEL:	    	FPGA.setAnalogChSwich(val);			break; 
-		
-		case F_LCD_MODE:		FPGA.setLcdMode(val);				break;//0-switch to cpu; 1-black screen 
 		
 		//case F_GET_TRACK_PARAMS:		FPGA.getTrackParams(val);break;//!!!!!!!
 
@@ -418,8 +400,8 @@ void ToFpgaDllSend(int with_fpga, int funk, int val)
 		case F_DETECTOR_SET:	 while(0); break; //3 = Detector = pos+neg  
 		case F_INTEGRATOR_SET:	 while(0); break;//Количество точек, по которым интегрируется сигнал = 2^ IntegratorKoef //0=off
 
-		case F_TGC_ON:		FPGA.setTgcState(1);			 break;//
-		case F_TGC_OFF:		FPGA.setTgcState(0);			 break;//
+		//case F_TGC_ON:		FPGA.setTgcState(1);			 break;//
+		//case F_TGC_OFF:		FPGA.setTgcState(0);			 break;//
 
 		case F_SIGNAL_TEST:	FPGA.setSignalPattern(val);		 break;//
 
@@ -452,18 +434,17 @@ void ToFpgaDllSend(int with_fpga, int funk, int val)
 						 {
 							 InMultiChMode_f = 0;  
 
-							 //FPGA.setScanMode(1); FPGA.setAScanEn(ON);FPGA.setCR_HWGenPow(ON); 
-								FPGA.setCR((1<<FMC_SCAN_MODE_b) | (1<<ASCAN_EN_b) | (1<<GEN_HW_EN_b) | (1<<FMC_DAC_EN_b)/*patch*/ );
+							FPGA.setCR((1<<FMC_SCAN_MODE_b) | (1<<ASCAN_EN_b) | (1<<GEN_HW_EN_b) | (1<<FMC_DAC_EN_b)/*patch*/ );
 
-							 //установка параметров отрисовки А-скана
-						
-							// FPGA.setDrawEndTime(0x22);
+							startProtocolThread(NULL); //BUG
 						 }
 						 else 
 						 {
 							 FPGA.setScanMode(0); 
 							 FPGA.setAScanEn(0);//Ascan off 
 							 FPGA.setCR_HWGenPow(OFF);
+
+							 stopProtocolThread();
 						 }
 						 break;	
 
@@ -507,7 +488,7 @@ return; //временно отключил TODO:
 			}
 			if(IO == F_OUT) //в ответ на запрос от приложения
 			{
-				FPGA.getGateMeasureTFirst(0, tmp_elev);
+				//FPGA.getGateMeasureTFirst(0, tmp_elev);
 
 				tmp_ch = tmp_buff.buff_сurs.value; //For debug
 
@@ -608,18 +589,12 @@ void FPGAinit(int n)
 
 		FPGA.setCR(0xFF);//ADC_off
 		FPGA.setCR(0x0A);//ADC_on and other perif on
-		FPGA.setLcdMode(0);//LCD_CONTROLLER_INIT 0-switch to cpu; 1-black screen
 		Sync_init();
 
 		FPGA.setCR_HWGenPow(0);//disable gen
 		FPGA.setScanMode(1); //channel autoinc on
-		//Acust_init(); 
-		//Gates_init();
 
-		FPGA.setGenSel(GEN4); //3
-		FPGA.setAnalogChSwich(CH4);
-
-		//FPGA.setProbeDelay(activeScheme->probe.delayUs);//5-2000  //FPGA_Write(_ProbeDelay ,1);////>>IN_SET
+		//FPGA.setAnalogChSwich(CH4);
 
 		//1500 - start delay
 		//+2000 = middle of screen rdm 22 - 42* поверхность катания
@@ -629,8 +604,9 @@ void FPGAinit(int n)
 		//PrintAcousticScheme(*activeScheme);
 
 		FPGA.setCR_DACen(ON); 
+		CZoneArrInit();
 
-		//TODO SetupGenChAccordance();
+//		SetupGenChAccordance();
 
 		/*
 		//on CPU side

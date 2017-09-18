@@ -39,13 +39,24 @@ void FPGACommunication::BitWR(WORD reg, char bit, char val)
 	}
 }
 //========================================RDM11 V.H.=======================================
+void FPGACommunication::systemReset()
+{
+	DBG_SHOW_FUNC_T("F_DLL: "); 
+
+	gmi->WriteWORD(SYSTEM_RESET_CR ,1);
+}
+
 void FPGACommunication::setSignalPattern(UINT val)
 {
+     DBG_SHOW_FUNC_T("F_DLL: "); DEBUGMSG(TRUE, (TEXT("val %u \r\n"), val));
+
 	gmi->WriteWORD(SITEP_CR , val); 
 } 
 
 void FPGACommunication::MainSyncEn(UINT en)
 {
+	DBG_SHOW_FUNC_T("F_DLL: "); DEBUGMSG(TRUE, (TEXT("val %u \r\n"), en));
+
 	USHORT tmpReg = 0;
 
 	gmi->ReadWORD(CONTROL_REG, tmpReg);
@@ -64,65 +75,23 @@ void FPGACommunication::MainSyncEn(UINT en)
 
 void FPGACommunication::setAScanEn(UINT val)
 {
+	DBG_SHOW_FUNC_T("F_DLL: "); DEBUGMSG(TRUE, (TEXT("val %u \r\n"), val));
+
 	BitWR(CONTROL_REG, ASCAN_EN_b, val);
 }
 
-void FPGACommunication::setAScanWrCS(UINT val)
-{
-	gmi->WriteWORD(ASCAN_WR_CSR , val); 
-}
-
-/////////////////////////////////////////////////////////
-
-void FPGACommunication::setAScanColor(UINT color_addr, UINT color_val)
-{
-//	gmi->WriteWORD(AScanColor ,(color_addr<<8 | (color_val&0xFF)));
-}
-void FPGACommunication::setAScanBuff(UINT val, UINT val2)
-{
-//	gmi->WriteWORD(AScanBuffAddr1 , val); 
-//	gmi->WriteWORD(AScanBuffAddr2 , val2); 
-}
-
-void FPGACommunication::setFilterCompress( USHORT val)
-{
-	//gmi->WriteWORD(FILT_COMPRES_DR, val);
-}
-
-void FPGACommunication::resetFilterCoeffsAddr()
-{
-	//gmi->WriteWORD(FILT_COEFS_RST_CR, 1);
-}
-
-
 void FPGACommunication::setScanMode(UINT val)
 {
-	DBG_SHOW_FUNC_T("FPGAComm"); DEBUGMSG(TRUE, (TEXT("val %u \r\n"), val));
+	DBG_SHOW_FUNC_T("F_DLL: "); DEBUGMSG(TRUE, (TEXT("val %u \r\n"), val));
 
 	BitWR(CONTROL_REG, FMC_SCAN_MODE_b, val);
 }
 
-void FPGACommunication::setTgcStartAddr(UINT val)
-{
-	gmi->WriteWORD(TGC_RAM_START_AR ,val);
-}
-
-void FPGACommunication::systemReset()
-{
-	gmi->WriteWORD(SYSTEM_RESET_CR ,1);
-}
-
-void FPGACommunication::setLcdMode(UINT val)
-{
-	gmi->WriteWORD(LCD_CR ,val);//0-switch to cpu; 1-black screen
-}
-
-
 void FPGACommunication::setCR(UINT val) //установка только единиц!!!
 {
-	USHORT tmpReg = 0;
-	DBG_SHOW_FUNC_T("FPGAComm"); DEBUGMSG(TRUE, (TEXT("val %u \r\n"), val));
+	DBG_SHOW_FUNC_T("F_DLL: "); DEBUGMSG(TRUE, (TEXT("val %u \r\n"), val));
 
+	USHORT tmpReg = 0;
 	gmi->ReadWORD(CONTROL_REG, tmpReg);
 	tmpReg |= val;
 	gmi->WriteWORD(CONTROL_REG ,val);
@@ -131,23 +100,15 @@ void FPGACommunication::setCR(UINT val) //установка только единиц!!!
 void FPGACommunication::getCR(USHORT& val)
 {
 	gmi->ReadWORD(CONTROL_REG, val);
-}
 
-void FPGACommunication::setCursorX( int cursorIdx, UINT val)
-{
-	DWORD StartAddr = (cursorIdx ? CURSOR_X_DR_2 : CURSOR_X_DR_1);
-	gmi->WriteWORD(StartAddr ,val);	
-}
-
-void FPGACommunication::setCursorY( int cursorIdx, UINT val)
-{
-	DWORD StartAddr = (cursorIdx ? CURSOR_Y_DR_2 : CURSOR_Y_DR_1);
-	gmi->WriteWORD(StartAddr ,val);	
+	DBG_SHOW_FUNC_T("F_DLL: "); DEBUGMSG(TRUE, (TEXT("val %u \r\n"), val));
 }
 
 
 void FPGACommunication::getTrackParams(char& Direction, int& Position, float& Speed)
 {
+	DBG_SHOW_FUNC_T("F_DLL: "); 
+
 	USHORT time = 0;
 
 	//gmi->ReadWORD(TrackDirection, Direction);
@@ -167,38 +128,45 @@ void FPGACommunication::getTrackParams(char& Direction, int& Position, float& Sp
 //A-scan drawing
 void FPGACommunication::setDrawStartTime(UINT val)
 {
+	DBG_SHOW_FUNC_T("F_DLL: "); DEBUGMSG(TRUE, (TEXT("val %u \r\n"), val));
+
 	gmi->WriteWORD(DRAW_STARTTIME_DR, val);
 }
 
 void FPGACommunication::setDrawEndTime(UINT val)
 {
+	DBG_SHOW_FUNC_T("F_DLL: "); DEBUGMSG(TRUE, (TEXT("val %u \r\n"), val));
+
 	gmi->WriteWORD(DRAW_ENDTIME_DR, val);
 }
 
 void FPGACommunication::setDrawCompress(UINT val)
 {
+	DBG_SHOW_FUNC_T("F_DLL: "); DEBUGMSG(TRUE, (TEXT("val %u \r\n"), val));
+
 	gmi->WriteWORD(DRAW_COMPRESS_DR, val);
 }
 
-
-
 void FPGACommunication::setSyncFreq(UINT freqInSamples)
 {
-	//WriteDWORD(FSYNC_DR, FreqSync2Addr, freqInSamples);
+	DBG_SHOW_FUNC_T("F_DLL: "); DEBUGMSG(TRUE, (TEXT("val %u \r\n"), freqInSamples));
+
 	gmi->WriteWORD(FSYNC_DR, freqInSamples);
 }
 
 void FPGACommunication::setSyncSource(USHORT syncSource)
 {
+	DBG_SHOW_FUNC_T("F_DLL: "); DEBUGMSG(TRUE, (TEXT("val %u \r\n"), syncSource));
+
 	BitWR(CONTROL_REG, FMC_SYNC_SRC_b, syncSource);
 }
 
 void FPGACommunication::setCZoneDelay(USHORT channel, USHORT val)
 {
+	DBG_SHOW_FUNC_T("F_DLL: "); DEBUGMSG(TRUE, (TEXT("channel = %u val =%u \r\n"), channel, val));
+
 	USHORT tmpReg = 0;
 	USHORT Reg = 0;
-
-DBG_SHOW_FUNC_T("FPGAComm"); DEBUGMSG(TRUE, (TEXT("gain =%u \r\n"), val));
 
 	switch(channel)
 	{
@@ -217,10 +185,10 @@ DBG_SHOW_FUNC_T("FPGAComm"); DEBUGMSG(TRUE, (TEXT("gain =%u \r\n"), val));
 
 void FPGACommunication::setCZoneEnd(USHORT channel, USHORT val)
 {
+	DBG_SHOW_FUNC_T("F_DLL: "); DEBUGMSG(TRUE, (TEXT("channel = %u val =%u \r\n"), channel, val));
+
 	USHORT tmpReg = 0;
 	USHORT Reg = 0;
-
-DBG_SHOW_FUNC_T("FPGAComm"); DEBUGMSG(TRUE, (TEXT("gain =%u \r\n"), val));
 
 	switch(channel)
 	{
@@ -239,10 +207,10 @@ DBG_SHOW_FUNC_T("FPGAComm"); DEBUGMSG(TRUE, (TEXT("gain =%u \r\n"), val));
 
 void FPGACommunication::setChDacGain(USHORT channel, USHORT gain)
 {
+	DBG_SHOW_FUNC_T("F_DLL: "); DEBUGMSG(TRUE, (TEXT("channel = %u gain =%u \r\n"), channel, gain));
+	
 	USHORT tmpReg = 0;
 	USHORT Reg = 0;
-
-DBG_SHOW_FUNC_T("FPGAComm"); DEBUGMSG(TRUE, (TEXT("gain =%u \r\n"), gain));
 
 	switch(channel)
 	{
@@ -262,11 +230,11 @@ DBG_SHOW_FUNC_T("FPGAComm"); DEBUGMSG(TRUE, (TEXT("gain =%u \r\n"), gain));
 //Установка соответствия в последовательности запуска между запуком генератора и выбором аналогового канала для приёма
 void FPGACommunication::setGenChAccordance(USHORT seqNum, USHORT channel, USHORT gen)
 {
+	DBG_SHOW_FUNC_T("F_DLL: "); DEBUGMSG(TRUE, (TEXT("seqNum =%u channel =%u gen =%u \r"), seqNum, channel, gen));
+
 	USHORT tmpReg = 0;
 	USHORT Reg = 0;
 	USHORT val = 0;
-
-DBG_SHOW_FUNC_T("FPGAComm"); DEBUGMSG(TRUE, (TEXT("seqNum =%u channel =%u gen =%u \r\n"), seqNum, channel, gen));
 
 	switch(seqNum)
 	{
@@ -281,7 +249,7 @@ DBG_SHOW_FUNC_T("FPGAComm"); DEBUGMSG(TRUE, (TEXT("seqNum =%u channel =%u gen =%
 		default : return;
 	}
 	val = (gen<<8) | (channel<<0); //младшая половина регистра для канала, старшая - для генератора
-	DBG_SHOW_FUNC_T("FPGAComm"); DEBUGMSG(TRUE, (TEXT("Reg val =%u\r\n"), val));
+	DBG_SHOW_FUNC_T("F_DLL: "); DEBUGMSG(TRUE, (TEXT("Reg val =%u\r\n"), val));
 	gmi->WriteWORD(Reg ,val);
 }
 
@@ -290,6 +258,8 @@ DBG_SHOW_FUNC_T("FPGAComm"); DEBUGMSG(TRUE, (TEXT("seqNum =%u channel =%u gen =%
 
 void FPGACommunication::setChCompression(USHORT channel, WORD compress)
 {
+	DBG_SHOW_FUNC_T("F_DLL: "); DEBUGMSG(TRUE, (TEXT("channel = %u \r"), channel));
+
 	WORD RD_RegVal = 0;
 	WORD WR_RegVal = 0;
 	WORD Reg = 0;
@@ -309,7 +279,7 @@ void FPGACommunication::setChCompression(USHORT channel, WORD compress)
 	}
 	gmi->ReadWORD(Reg, RD_RegVal);
 
-	DBG_SHOW_FUNC_T("FPGAComm"); DEBUGMSG(TRUE, (TEXT("CH =%u compress =%u RD_RegVal =%u \r\n"), channel, compress, RD_RegVal));
+	DBG_SHOW_FUNC_T("F_DLL: "); DEBUGMSG(TRUE, (TEXT("CH =%u compress =%u RD_RegVal =%u \r\n"), channel, compress, RD_RegVal));
 	if(Haif_f == LO_HALF)
 	{
 		RD_RegVal = RD_RegVal & 0xFF00; //clean Low reg half 
@@ -321,7 +291,7 @@ void FPGACommunication::setChCompression(USHORT channel, WORD compress)
 		WR_RegVal = RD_RegVal | ((compress & 0xFF)<<8); //write masked value back to reg
 	}
 	
-	DBG_SHOW_FUNC_T("FPGAComm"); DEBUGMSG(TRUE, (TEXT("WR_RegVal =%u \r\n"), WR_RegVal));
+	DBG_SHOW_FUNC_T("F_DLL: "); DEBUGMSG(TRUE, (TEXT("WR_RegVal =%u \r\n"), WR_RegVal));
 
 	gmi->WriteWORD(Reg ,WR_RegVal);
 }
@@ -329,60 +299,71 @@ void FPGACommunication::setChCompression(USHORT channel, WORD compress)
 
 void FPGACommunication::setCR_DACen(USHORT en)
 {
+	DBG_SHOW_FUNC_T("F_DLL: "); DEBUGMSG(TRUE, (TEXT("val %u \r\n"), en));
+
 	BitWR(CONTROL_REG, FMC_DAC_EN_b, en);
 }
 
 void FPGACommunication::setCR_ADCen(USHORT en)
 {
+	DBG_SHOW_FUNC_T("F_DLL: "); DEBUGMSG(TRUE, (TEXT("val %u \r\n"), en));
+
 	BitWR(CONTROL_REG, FMC_ADC_EN_b, en);
 }
 
-
-void FPGACommunication::setTgcState( USHORT val )
+void FPGACommunication::setDACGain( USHORT val )
 {
-	//gmi->WriteWORD(TGC_EN_MR, val);
-}
+	DBG_SHOW_FUNC_T("F_DLL: "); DEBUGMSG(TRUE, (TEXT("val %u \r\n"), val));
 
-void FPGACommunication::setTgcData( DWORD* Buff, int size)//!
-{
-//	gmi->WriteWORD(TGC_RAM_START_AR, 0);
-//	WriteBuf32(TGC_RAM_DR, DacData2, Buff, size);
-}
-
-void FPGACommunication::setTgcData( USHORT val_1, USHORT val_2, int range)//! усиление или врч
-{
-//	gmi->WriteWORD(TGC_RAM_START_AR, 0);
-//	WriteBuf32(TGC_RAM_DR, DacData2, val_1, val_2, range);
-}
-
-void FPGACommunication::setCR_DACenGain( USHORT val )
-{
 	gmi->WriteWORD(DAC_GAIN_DR, val);// TODO change reg
 }
 
 void FPGACommunication::setAcoustContGainCode( USHORT val )
 {
+	DBG_SHOW_FUNC_T("F_DLL: "); DEBUGMSG(TRUE, (TEXT("val %u \r\n"), val));
+
 	gmi->WriteWORD(ACGAIN_DR_1, val);
 }
 
 void FPGACommunication::setAnalogChSwich(USHORT val )
 {
+	DBG_SHOW_FUNC_T("F_DLL: "); DEBUGMSG(TRUE, (TEXT("val %u \r\n"), val));
+
 	gmi->WriteWORD(AN_CH_CSR, val);
 }
 
 //-------------------------------GENERATOR------------------------------------------
 void FPGACommunication::setCR_HWGenPow(USHORT val ) //выбор ВЫХОДА активного генератора
 {
+	DBG_SHOW_FUNC_T("F_DLL: "); DEBUGMSG(TRUE, (TEXT("val %u \r\n"), val));
+
 	BitWR(CONTROL_REG, GEN_HW_EN_b, val);
 }
 
-
-void FPGACommunication::setGenSel(USHORT val ) //выбор ВЫХОДА активного генератора
+////
+void FPGACommunication::setSignalADCDelay(UINT val)
 {
-	//gmi->WriteWORD(GEN_EN, val);
+	DBG_SHOW_FUNC_T("UNUSED ! F_DLL: "); DEBUGMSG(TRUE, (TEXT("val %u \r\n"), val));
+
+	gmi->WriteWORD(ADC_DELAY_DR, val);
+}
+
+void FPGACommunication::setAScanWrCS(UINT val)
+{
+	DBG_SHOW_FUNC_T("UNUSED ! F_DLL: "); DEBUGMSG(TRUE, (TEXT("val %u \r\n"), val));
+
+	gmi->WriteWORD(ASCAN_WR_CSR , val); 
+}
+
+void FPGACommunication::setAScanBuffSize(UINT val)
+{
+	DBG_SHOW_FUNC_T("F_DLL: "); DEBUGMSG(TRUE, (TEXT("val %u \r\n"), val));
+
+	gmi->WriteWORD(ASCAN_BUFF_SIZE , val); 
 }
 
 //---------------------------------------------------------------------------------
+/*
 void FPGACommunication::setFilterEn( USHORT val )
 {
 	gmi->WriteWORD(FILT_EN_CR, val);
@@ -394,20 +375,16 @@ void FPGACommunication::setFilterCoeffs( USHORT* Buff, int size )
 	gmi->WriteBuf(FILT_COEFS_DR, Buff, size);
 }
 
-
-void FPGACommunication::setSignalADCDelay(UINT val)
+void FPGACommunication::setTgcStartAddr(UINT val)
 {
-	gmi->WriteWORD(ADC_DELAY_DR, val);
+	gmi->WriteWORD(TGC_RAM_START_AR ,val);
 }
 
 void FPGACommunication::getSignalData( USHORT *Buff, int size )
 {
-	ReadBuf(ADC_DATA_DR, Buff, size+1);
-}
+	DBG_SHOW_FUNC_T("F_DLL: "); DEBUGMSG(TRUE, (TEXT("val %u \r\n"), size));
 
-void FPGACommunication::setSignalDataLen( USHORT val )
-{
-//	gmi->WriteWORD(ReadBuffSize, val);
+	ReadBuf(ADC_DATA_DR, Buff, size+1);
 }
 
 void FPGACommunication::setProbeDelay( USHORT val )
@@ -419,12 +396,9 @@ void FPGACommunication::getMajorVersion( USHORT &val )
 {
 	gmi->ReadWORD(VERSION_DR, val);
 }
-
-void FPGACommunication::getSvnVersion(USHORT &val)
-{
-//	gmi->ReadWORD(SvnVersion, val);
-}
-
+*/
+/*
+///////////////////////////////////////////////////////////////////////////
 void FPGACommunication::setGateStart( int gateIdx, UINT val )
 {
  	DWORD StartAddr = (gateIdx ? Gate2Start_1 : Gate1Start_1);
@@ -460,6 +434,42 @@ void FPGACommunication::getGateMeasureTCros0( int gateIdx, DWORD &val )
 	DWORD StartAddr = (gateIdx ? Gate2T0_1 : Gate1T0_1);
 	ReadDWORD(StartAddr, StartAddr+1, val);
 }
+
+
+/////////////////////////////////////////////////////////
+
+void FPGACommunication::setAScanColor(UINT color_addr, UINT color_val)
+{
+//	gmi->WriteWORD(AScanColor ,(color_addr<<8 | (color_val&0xFF)));
+}
+
+void FPGACommunication::setFilterCompress( USHORT val)
+{
+	//gmi->WriteWORD(FILT_COMPRES_DR, val);
+}
+
+void FPGACommunication::resetFilterCoeffsAddr()
+{
+	//gmi->WriteWORD(FILT_COEFS_RST_CR, 1);
+}
+
+void FPGACommunication::setTgcState( USHORT val )
+{
+	//gmi->WriteWORD(TGC_EN_MR, val);
+}
+
+void FPGACommunication::setTgcData( DWORD* Buff, int size)//!
+{
+//	gmi->WriteWORD(TGC_RAM_START_AR, 0);
+//	WriteBuf32(TGC_RAM_DR, DacData2, Buff, size);
+}
+
+void FPGACommunication::setTgcData( USHORT val_1, USHORT val_2, int range)//! усиление или врч
+{
+//	gmi->WriteWORD(TGC_RAM_START_AR, 0);
+//	WriteBuf32(TGC_RAM_DR, DacData2, val_1, val_2, range);
+}
+*/
 
 UCHAR FPGACommunication::WriteBuf32(DWORD addr, DWORD addr1, DWORD *val, int size) //!
 {

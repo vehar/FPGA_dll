@@ -52,7 +52,7 @@ int _tmain(int argc, _TCHAR* argv[])
 {
 DEBUGMSG(TRUE,( TEXT("\r\n\r\n++++++++++++++++++++++++++++++++++++++++++++++++++++++\r\n")));
 DBG_SHOW_DATE_T(DBG_TARGET);
-DBG_SHOW_FUNC_T(DBG_TARGET);
+//DBG_SHOW_FUNC_T(DBG_TARGET);
 
 
 //FpgaCycleRegTest(CONTROL_REG);

@@ -84,6 +84,9 @@
 #define GEN_CH_ACCORD_DR_7   GEN_CH_ACCORD_BASE_ADR + 6
 #define GEN_CH_ACCORD_DR_8   GEN_CH_ACCORD_BASE_ADR + 7
 
+#define ASCAN_BUFF_SIZE   0x50
+#define ASCAN_BUFF		    0x50
+
 
 //ANALOG                                                        
 #define ANALOG_BASE_ADR 20                                      
