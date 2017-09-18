@@ -17,6 +17,8 @@ UniDriver::UniDriver()
 
 UniDriver::~UniDriver()
 {
+	DBG_SHOW_FUNC_T("F_DLL: ");
+
  if(hDrv)
  {
 	 CloseHandle(hDrv);
@@ -26,19 +28,27 @@ UniDriver::~UniDriver()
 
 HANDLE UniDriver::Open()
 { 
+	DBG_SHOW_FUNC_T("F_DLL: ");
+
   if(hDrv==NULL)
   {
 	hDrv = CreateFile(_T("Uni1:"),
 		GENERIC_READ | GENERIC_WRITE | GENERIC_EXECUTE,
-		0,	// Exclusive access*/
+		FILE_SHARE_READ | FILE_SHARE_WRITE,	// Exclusive access*/
 		NULL,	// No security attributes 
 		OPEN_EXISTING,	// Required
 		0,	// No overlapped I/O on CE
 		NULL);	// NULL for com devices		
   }
+   if(hDrv==NULL)
+   {
+		DEBUGMSG(TRUE,( TEXT("\r\n\r\nERROR CreateFile(_T(Uni1:) = NULL\r\n")));
+   }
+
   return hDrv;
 }
 
+//private
 DWORD UniDriver::ReadReg(RWRegData_t* readData)
 {
 	DWORD accepted = 0;
@@ -55,6 +65,8 @@ DWORD UniDriver::WriteReg(RWRegData_t* writeData)
 	return accepted;
 }
 
+
+//Public
 DWORD UniDriver::WriteWORD(USHORT addr, USHORT val)
 {
 	volatile u32 Offset = addr*2;
@@ -80,6 +92,8 @@ void UniDriver::WriteBuf(WORD Addr, USHORT* Buff, int size) {
 
 void UniDriver::ReadBuf(WORD Addr, USHORT* Buff, int size) {
 
+	DBG_SHOW_FUNC_T("F_DLL: ");
+
 	DWORD readed = 0;
 	RWRegData_t regData = {GPMC_CS1_BASE, 0, 0};
 	regData.offset = Addr * 2;
@@ -92,6 +106,8 @@ void UniDriver::ReadBuf(WORD Addr, USHORT* Buff, int size) {
 }
 
 void UniDriver::InitIRQ(DWORD dwPin, DWORD bufSize, DWORD accessSize, DWORD dwWait) {
+
+	DBG_SHOW_FUNC_T("F_DLL: ");
 
 	DEVICE_INT_DATA intData;
 	intData.dwPin		= dwPin;
@@ -108,6 +124,8 @@ void UniDriver::InitIRQ(DWORD dwPin, DWORD bufSize, DWORD accessSize, DWORD dwWa
 }
 
 DWORD UniDriver::ReadBufIRQ(RWRegData_t* readData, PBYTE buf, DWORD bufSize) {
+
+	DBG_SHOW_FUNC_T("F_DLL: ");
 
 	DWORD readed = 0;
 
@@ -138,6 +156,8 @@ DWORD UniDriver::ReadBufIRQ(RWRegData_t* readData, PBYTE buf, DWORD bufSize) {
 
 DWORD UniDriver::ReadIRQ(RWRegData_t* readData) {
 
+	DBG_SHOW_FUNC_T("F_DLL: ");
+
 	DWORD readed = 0;
 
 	if(hDrv) {
@@ -150,6 +170,8 @@ DWORD UniDriver::ReadIRQ(RWRegData_t* readData) {
 }
 
 void UniDriver::ReleaseIRQ() {
+
+	DBG_SHOW_FUNC_T("F_DLL: ");
 
 	DeviceIoControl(hDrv, IOCTL_INTDEINIT, NULL, NULL, NULL, NULL, NULL, NULL);
 

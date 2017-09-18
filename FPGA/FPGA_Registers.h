@@ -93,7 +93,6 @@
 //#define INTEGR_COEF_DR				 (ANALOG_BASE_ADR + 1)        //
 #define COMPRESS_DR					 (ANALOG_BASE_ADR + 2)        //
 #define DETECT_CR					 (ANALOG_BASE_ADR + 3)        //
-#define AN_CH_CSR					 (3) //(ANALOG_BASE_ADR + 4)        //	
 #define AC_SUM_DR					 (ANALOG_BASE_ADR + 5)        //R
 #define CH_SET_CR					 (ANALOG_BASE_ADR + 6)  //R
 #define DAC_GAIN_DR					 (ANALOG_BASE_ADR + 7)  // W - curent amplification

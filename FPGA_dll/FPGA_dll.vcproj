@@ -298,6 +298,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\FPGA\FPGA_helper.H"
+					>
+				</File>
+				<File
 					RelativePath="..\GpioDriver\GpioDriver.cpp"
 					>
 				</File>

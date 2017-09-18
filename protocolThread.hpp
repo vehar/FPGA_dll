@@ -28,5 +28,6 @@ void stopProtocolThread();
 // Protocol thread
 DWORD WINAPI protocolThreadFunc(LPVOID);
 
+extern	DWORD wordNum;
 
 #endif	// H_PROTOCOL_THREAD

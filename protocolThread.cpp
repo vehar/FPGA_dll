@@ -168,6 +168,7 @@ BOOL bufferTest(WORD* buffer, DWORD words, BOOL prevExists, WORD& prev) {
 // Start protocol thread
 DWORD startProtocolThread(protocolData* pData) {
 
+	DBG_SHOW_FUNC_T("F_PROTO: ");
 	// Check if thread exists
 	if (protThread == NULL) {
 
@@ -210,6 +211,8 @@ DWORD startProtocolThread(protocolData* pData) {
 // Stop protocol thread
 void stopProtocolThread() {
 
+	DBG_SHOW_FUNC_T("F_PROTO: "); 
+
 	// Check if thread exists
 	if (protThread != NULL) {
 
@@ -229,14 +232,18 @@ void stopProtocolThread() {
 
 }
 
+	DWORD bufferSize	= 10000;//8 << 8;		// buff		8192
+	DWORD wordNum		= 10;//8 << 4;		// words	128
+
 // Protocol thread
 DWORD WINAPI protocolThreadFunc(LPVOID lpParam) {
 
-	ExtBusCs1Init();
+	DBG_SHOW_FUNC_T("F_PROTO: ");
 
-	DWORD bufferSize	= 10000;//8 << 8;		// buff		8192
-	DWORD wordNum		= 500;//8 << 4;		// words	128
-	DWORD cycleFreq		= 100;			// ms
+	//ExtBusCs1Init();
+
+
+	//DWORD cycleFreq		= 100;			// ms
 
 	//FPGA_Write(FSYNC_DR, cycleFreq * 100);		// t = val * 100 [ms]
 	//FPGA_Write(TEST_IRQ_CR, wordNum);			// num of words written in time from FSYNC_DR
@@ -251,13 +258,18 @@ DWORD WINAPI protocolThreadFunc(LPVOID lpParam) {
 	// Pointer to header data
 	protocolData* hdr = exec->pHeader;
 
-	UniDriver uniDrv;
+	
+ /***/	UniDriver uniDrv;
+
+//
 
 	WORD* buffer = new WORD[bufferSize];
 
 	DWORD cnt = 0;
 	DWORD cnt2 = 0;
-	uniDrv.InitIRQ(65, bufferSize * 2, wordNum * 2, 100);
+
+	
+ /***/	uniDrv.InitIRQ(65, bufferSize * 2, wordNum * 2, 1000);
 
 	/*
 	RWRegData_t	readAddr;
@@ -278,7 +290,7 @@ DWORD WINAPI protocolThreadFunc(LPVOID lpParam) {
 	
 		printf("Unable to create file!");
 		Sleep(5000);
-		uniDrv.ReleaseIRQ();
+ /***/		uniDrv.ReleaseIRQ();
 		return -1;
 	
 	}
@@ -462,7 +474,9 @@ DWORD WINAPI protocolThreadFunc(LPVOID lpParam) {
 		// Packet defects data
 		//uniDrv.ReadBufIRQ(&readAddr, (PBYTE)buffer, wordNum * 2);
 
-		uniDrv.ReadBufIRQ(&readAddr, (PBYTE)buffer, wordNum * 2);
+//uniDrv.ReadBuf(0x50, buffer, wordNum * 2);
+
+ /***/		uniDrv.ReadBufIRQ(&readAddr, (PBYTE)buffer, wordNum * 2);
 	//	WriteFile(hFile, buffer, wordNum * 2, &resultSize, NULL);
 
 		/*
@@ -573,7 +587,7 @@ DWORD WINAPI protocolThreadFunc(LPVOID lpParam) {
 
 	//FreeLibrary(lib);
 
-	uniDrv.ReleaseIRQ();
+ /***/	uniDrv.ReleaseIRQ();
 	CloseHandle(hFile);
 
 	// We are done

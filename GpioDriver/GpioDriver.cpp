@@ -6,7 +6,7 @@
 #include "gpio.h"
 
 HANDLE GPIODriver::hGpio = INVALID_HANDLE_VALUE;
- DEVICE_CONTEXT_GPIO *pContext = NULL;
+DEVICE_CONTEXT_GPIO *pContext = NULL;
 
 GPIODriver::GPIODriver()
 {
@@ -35,7 +35,7 @@ GPIODriver::GPIODriver()
 
 GPIODriver::~GPIODriver()
 {
-    DEVICE_CONTEXT_GPIO *pContext = (DEVICE_CONTEXT_GPIO *)hGpio;
+    //DEVICE_CONTEXT_GPIO *pContext = (DEVICE_CONTEXT_GPIO *)hGpio;
     if (pContext != NULL)
     {
         CloseHandle(pContext->hDevice);

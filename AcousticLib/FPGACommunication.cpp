@@ -258,8 +258,6 @@ void FPGACommunication::setGenChAccordance(USHORT seqNum, USHORT channel, USHORT
 
 void FPGACommunication::setChCompression(USHORT channel, WORD compress)
 {
-	DBG_SHOW_FUNC_T("F_DLL: "); DEBUGMSG(TRUE, (TEXT("channel = %u \r"), channel));
-
 	WORD RD_RegVal = 0;
 	WORD WR_RegVal = 0;
 	WORD Reg = 0;
@@ -279,7 +277,7 @@ void FPGACommunication::setChCompression(USHORT channel, WORD compress)
 	}
 	gmi->ReadWORD(Reg, RD_RegVal);
 
-	DBG_SHOW_FUNC_T("F_DLL: "); DEBUGMSG(TRUE, (TEXT("CH =%u compress =%u RD_RegVal =%u \r\n"), channel, compress, RD_RegVal));
+	DBG_SHOW_FUNC_T("F_DLL: "); DEBUGMSG(TRUE, (TEXT("CH =%u compress =%u \n\tRD_RegVal =%u \r"), channel, compress, RD_RegVal));
 	if(Haif_f == LO_HALF)
 	{
 		RD_RegVal = RD_RegVal & 0xFF00; //clean Low reg half 
@@ -291,7 +289,7 @@ void FPGACommunication::setChCompression(USHORT channel, WORD compress)
 		WR_RegVal = RD_RegVal | ((compress & 0xFF)<<8); //write masked value back to reg
 	}
 	
-	DBG_SHOW_FUNC_T("F_DLL: "); DEBUGMSG(TRUE, (TEXT("WR_RegVal =%u \r\n"), WR_RegVal));
+	DEBUGMSG(TRUE, (TEXT("\tWR_RegVal =%u \r\n"), WR_RegVal));
 
 	gmi->WriteWORD(Reg ,WR_RegVal);
 }
@@ -332,7 +330,7 @@ void FPGACommunication::setAnalogChSwich(USHORT val )
 	gmi->WriteWORD(AN_CH_CSR, val);
 }
 
-//-------------------------------GENERATOR------------------------------------------
+ //------------------------------GENERATOR------------------------------------------
 void FPGACommunication::setCR_HWGenPow(USHORT val ) //выбор ВЫХОДА активного генератора
 {
 	DBG_SHOW_FUNC_T("F_DLL: "); DEBUGMSG(TRUE, (TEXT("val %u \r\n"), val));
@@ -362,7 +360,7 @@ void FPGACommunication::setAScanBuffSize(UINT val)
 	gmi->WriteWORD(ASCAN_BUFF_SIZE , val); 
 }
 
-//---------------------------------------------------------------------------------
+ //--------------------------------------------------------------------------------
 /*
 void FPGACommunication::setFilterEn( USHORT val )
 {

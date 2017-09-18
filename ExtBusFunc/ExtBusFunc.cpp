@@ -47,7 +47,7 @@ DWORD GetRegVal(int i)
 
 void ExtBusCs1Init(void) 
 { 
-	//----!!!!----Look from page 2202 in "AM/DM37x Multimedia Device Silicon Revision 1.x Version R -  Technical Reference Manual" for bit/reg description
+	 //---!!!!----Look from page 2202 in "AM/DM37x Multimedia Device Silicon Revision 1.x Version R -  Technical Reference Manual" for bit/reg description
 
 	//Example of GPMC settings from WinCE src
 	/*
@@ -67,7 +67,7 @@ void ExtBusCs1Init(void)
 		Line 3850: ; 1688 :     OUTREG32(&pGpmc->GPMC_CONFIG1_3, BSP_GPMC_CF_CONFIG1);
 	*/
 
-	DBG_SHOW_FUNC;
+	DBG_SHOW_FUNC_T("F_DLL: ");
 	
     RWRegData_t CS_params = {GPMC_BASE_ADDR, offsetof(GPMC_REGS_t, GPMC_CONFIGDATA[1].GPMC_CONFIG1), 0};
 	bus.ReadReg(&CS_params); //default 4096

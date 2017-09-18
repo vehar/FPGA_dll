@@ -25,15 +25,13 @@
 #include "FPGA_func_defs.h"
 #include "MathHelpers.h"
 #include "BScanHelper\BScanHelper.h"
-
+#include "FPGA\FPGA_helper.h"
 #endif
 
-void AScanFileWrite(LPCVOID lpParam); //test Ascan wr file
-void AScanFileInit (void);//test Ascan wr file
-void FPGADeinit(void); //
-
-int DebugOutActive = 0; //if(DebugOutActive) printf
 int bus_ok = 1;
+int DebugOutActive = 0; //if(DebugOutActive) printf
+
+void FPGADeinit(void); //
 
 #ifdef WINCE
 
@@ -81,59 +79,6 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 }
 
 
-
-
-void SettingsHndl (int n)
-{
-	return;
-
-	if(DebugOutActive) printf("%s(%i)\n", __FUNCTION__ , n);
-	DBG_SHOW_FUNC;
-	if(n)
-	{
-	#ifdef WINCE
-
-		/*
-		int s_Сompress = 0;
-		int s_AdcDelay = 1300;
-		int s_Amplification = 700;
-		int s_StrobeStart = 1000;
-		int s_StrobeEnd  = 4500;
-		int s_StrobeLevel  = 400;
-
-		FPGA.setSignalADCDelay(s_AdcDelay);
-
-		for(int i = 0; i< LCD_WIDTH-1; i++)
-		{
-			FPGA.setDACGain(s_Amplification);
-		}
-
-		FPGA.setGateStart(0, s_StrobeStart);
-		FPGA.setGateEnd(0, s_StrobeEnd);
-		//FPGA.setGateLevel(0, s_StrobeLevel);
-*/
-	#endif WINCE
-	}
-}
-
-
-void startAScan(int n) 
-{
-	if(DebugOutActive) printf("%s(%i)\n", __FUNCTION__ , n);
-	DBG_SHOW_FUNC;
-
-	if(n)
-	{
-	#ifdef WINCE
-
-		FPGA.setSyncSource(1);//SyncCtrl - on //SyncInt
-
-	#endif WINCE
-	}
-}
-
-int InMultiChMode_f = 0; 
-
 void onAScan(int n)
 {
 	if(DebugOutActive) printf("%s(%i)\n", __FUNCTION__ , n);
@@ -165,179 +110,6 @@ void offAScan(int n)
 	#endif WINCE
 	}
 }
-
-//device has 7 stages: 70>(1), 70<(2), 55>(3), 0(4), 55<(5), 42>(6), 42<(7)
-void SetupGenChAccordance(void)
-{
-	DBG_SHOW_FUNC;
-
-	FPGA.setGenChAccordance(1,7,6); //70>
-	FPGA.setGenChAccordance(2,6,7); //70<
-	FPGA.setGenChAccordance(3,4,4); //55>
-	FPGA.setGenChAccordance(4,5,5); //0
-	FPGA.setGenChAccordance(5,3,3); //55<
-	FPGA.setGenChAccordance(6,1,1); //42>
-	FPGA.setGenChAccordance(7,2,2); //42<
-}
-
-//=================================================================================================
-
-
-int Gain_tmp = 0;
-
-/*
-void SetChannelParams(WORD channel, WORD delay, WORD CZone, WORD Gain)
-{
-	FPGA_Write(ADC_DELAY_DR ,delay);
-	FPGA_Write(ADC_CZONEDUR_DR ,CZone);
-	FPGA_Write(DAC_GAIN_DR ,Gain);
-
-	FPGA_Write(AN_CH_CSR ,channel);
-}
-*/
-	
-//channel GenAnalog map
-//									Generator, Analog reciever
-static int GenAnalogFPGA_channels[8][2] = {{5, 5}, // RS-eho
-										   {5, 5}, // RS-ztm
-										   {1, 1}, // 42-forward
-										   {2, 2}, // 42-backward 
-										   {6, 7}, // 70-forward 4ch
-										   {4, 4}, // 55-right
-										   {7, 6}, // 70-backward
-										   {3, 3}  // 55-left
-													};
-enum RAIL_TYPE{P43, P50, S49, P65, UIC60, P75}Rail;
-
-typedef struct CZone_t
-{
-	WORD Delay;
-	WORD Duration;
-};
-
-//channel zone-rail type map
-//						 channel, RailType   P43	 P50     S49     P65    UIC60    P75
- CZone_t ZoneRailFPGA_channels[8][6]; /*=       {{0, 41},{0, 45},{0, 45},{0, 54},{0, 52},{0, 58}, // 1
-										   {0, 41},{0, 45},{0, 45},{0, 54},{0, 52},{0, 58}, // 2
-										   {18, 107},{18, 117},{18, 117},{18, 142},{18, 135},{18, 152}, // 3
-										   {18, 107},{18, 117},{18, 117},{18, 142},{18, 135},{18, 152}, // 4
-										   {5, 75},{5, 75},{5, 75},{5, 75},{5, 75},{5, 75}, // 5
-										   {15, 50},{15, 50},{15, 50},{15, 50},{15, 50},{15, 50}, // 6
-										   {5, 75},{5, 75},{5, 75},{5, 75},{5, 75},{5, 75}, // 7
-										   {15, 50},{15, 50},{15, 50},{15, 50},{15, 50},{15, 50}, // 8
-													};*/
-
-void CZoneArrInit(void)
-{
-CZone_t CZ;
-char ch;
-
-/*
-CZ.Delay = 0;
-CZ.Duration = 41; ZoneRailFPGA_channels[ch][P43] = CZone;
-CZ.Duration = 45; ZoneRailFPGA_channels[ch][P50] = CZone;
-CZ.Duration = 45; ZoneRailFPGA_channels[ch][S49] = CZone;
-CZ.Duration = 54; ZoneRailFPGA_channels[ch][P65] = CZone;
-CZ.Duration = 52; ZoneRailFPGA_channels[ch][UIC60] = CZone;
-CZ.Duration = 58; ZoneRailFPGA_channels[ch][P75] = CZone;
-*/
-ch = 1; //
-ZoneRailFPGA_channels[ch-1][P65].Delay = 0;
-ZoneRailFPGA_channels[ch-1][P65].Duration = 64;
-
-ch = 2; 
-ZoneRailFPGA_channels[ch-1][P65].Delay = 0;
-ZoneRailFPGA_channels[ch-1][P65].Duration = 64;
-
-ch = 3; 
-ZoneRailFPGA_channels[ch-1][P65].Delay = 18;
-ZoneRailFPGA_channels[ch-1][P65].Duration = 142;
-
-ch = 4; 
-ZoneRailFPGA_channels[ch-1][P65].Delay = 18;
-ZoneRailFPGA_channels[ch-1][P65].Duration = 142;
-
-ch = 5; 
-ZoneRailFPGA_channels[ch-1][P65].Delay = 5;
-ZoneRailFPGA_channels[ch-1][P65].Duration = 75;
-
-ch = 6; 
-ZoneRailFPGA_channels[ch-1][P65].Delay = 15;
-ZoneRailFPGA_channels[ch-1][P65].Duration = 50;
-
-ch = 7; 
-ZoneRailFPGA_channels[ch-1][P65].Delay = 5;
-ZoneRailFPGA_channels[ch-1][P65].Duration = 75;
-
-ch = 8; 
-ZoneRailFPGA_channels[ch-1][P65].Delay = 15;
-ZoneRailFPGA_channels[ch-1][P65].Duration = 50;
-}
-
-USHORT currentChannel = 0;
-
-WORD InterfToPhyChDecode(WORD ch)
-{
-	return GenAnalogFPGA_channels[ch][1];
-}
-
-WORD InterfToPhyDACGainDecode(int val)
-{
-	//10mv = 1dB
-	//10 DAC LSB = 1dB
-	//Gain phy range = [-34..+62]dB. BUT DAC bias val = +40mV
-	//so 34*10+40mV = 380
-	return (val*10) + 380;
-}
-
-#define NS_25 (25)// nano seconds
-#define LCD_WIDTH (480) //pix
-
-void SetScanChannel(int num) //channel setter for AUTOSCAN mode
-{	
-	int chPhy = InterfToPhyChDecode(num);
-	int compression = 0;
-	CZone_t CZoneCH;
-
-	DBG_SHOW_FUNC;
-	DEBUGMSG(TRUE, (TEXT("F_DLL: ch idx: %u TO-> chPhy: %u \r\n"), num, chPhy));
-
-	CZoneCH = ZoneRailFPGA_channels[num][P65];
-	DEBUGMSG(TRUE, (TEXT("-----> CZoneCH.Delay: %u CZoneCH.Duration: %u \r\n"), CZoneCH.Delay, CZoneCH.Duration));
-
-	currentChannel = num; //globaly
-
-	if(chPhy == 5){	compression = 11;} //test //для РС и ЗТМ 12 для остальных 40
-	else { compression = 39; }
-
-	FPGA.setAnalogChSwich(chPhy);	//BUG was HERE!!!
-	FPGA.setDACGain(Gain_tmp);
-
-	FPGA.setAScanBuffSize((CZoneCH.Duration*1000)/(compression*NS_25)); //according to CZone lenght (different for all channels)
-
-	FPGA.setDrawStartTime(CZoneCH.Delay*NS_25);
-	FPGA.setDrawCompress(compression);
-	//FPGA.setDrawEndTime((CZoneCH.Delay + (compression+1)*LCD_WIDTH)*NS_25);
-
-	FPGA.setCZoneDelay(chPhy, CZoneCH.Delay*1000/NS_25);
-	FPGA.setChCompression(chPhy, compression);
-	FPGA.setCZoneEnd(chPhy, (CZoneCH.Delay + CZoneCH.Duration)*1000/NS_25);
-
-}
-
-//////////////------DEBUG_TESTS-------------------
-void TestIRQ_En(void)
-{
-FPGA.setSyncSource(1);//SyncCtrl - on //SyncInt
-FPGA.MainSyncEn(1);//SyncCtrl_nENABLE - on
-}
-
-void TestIRQ_Dis(void)
-{
-FPGA.MainSyncEn(0);//SyncCtrl_nENABLE - oFF
-FPGA.setSyncSource(SyncStop);
-}
-//////////////------DEBUG_TESTS-------------------
 
 
 void ToFpgaDllSend(int with_fpga, int funk, int val)
@@ -376,7 +148,7 @@ void ToFpgaDllSend(int with_fpga, int funk, int val)
 								}break;
 
 		case F_GAIN:			{
-									Gain_tmp = val; //TODO: delete as obsolete
+									Gain_tmp = val; 
 									FPGA.setChDacGain(InterfToPhyChDecode(currentChannel), /*InterfToPhyDACGainDecode(val)*/ val);	
 								}break; //Усиление
 
@@ -393,13 +165,10 @@ void ToFpgaDllSend(int with_fpga, int funk, int val)
 		case F_ASCAN_ON:		onAScan(val);				break;
 		case F_ASCAN_OFF:		offAScan(val);				break; 
 				
-		case F_A_FREEZE_ON:		AScan_not_freesed = 0; FPGA.setSyncSource(0); AScanFileInit(); AScanFileWrite(0);break;//СТОП-КАДР ВКЛ (A-scan)
-		case F_A_FREEZE_OFF:	AScan_not_freesed = 1; FPGA.setSyncSource(1); ReadDisplayAScan(); break;//СТОП-КАДР ВЫКЛ (A-scan)
+		//case F_A_FREEZE_ON:		AScan_not_freesed = 0; FPGA.setSyncSource(0); AScanFileInit(); AScanFileWrite(0);break;//СТОП-КАДР ВКЛ (A-scan)
+		//case F_A_FREEZE_OFF:	AScan_not_freesed = 1; FPGA.setSyncSource(1); ReadDisplayAScan(); break;//СТОП-КАДР ВЫКЛ (A-scan)
 
 		//signal
-		case F_DETECTOR_SET:	 while(0); break; //3 = Detector = pos+neg  
-		case F_INTEGRATOR_SET:	 while(0); break;//Количество точек, по которым интегрируется сигнал = 2^ IntegratorKoef //0=off
-
 		//case F_TGC_ON:		FPGA.setTgcState(1);			 break;//
 		//case F_TGC_OFF:		FPGA.setTgcState(0);			 break;//
 
@@ -409,14 +178,14 @@ void ToFpgaDllSend(int with_fpga, int funk, int val)
 		case F_REGISTRATION_STOP:	while(0);			 break;//
 		case F_REGISTRATION_PAUSE:	while(0);			 break;//
 
-		case F_TEST_IRQ_EN:	 TestIRQ_En();		 break;//
-		case F_TEST_IRQ_DIS: TestIRQ_Dis();		 break;//
+		//case F_TEST_IRQ_EN:	 TestIRQ_En();		 break;//
+		//case F_TEST_IRQ_DIS: TestIRQ_Dis();		 break;//
 
 		case F_SCAN_CH_SET: SetScanChannel(val); break;//channel setter for AUTOSCAN (Multichannel) mode 
 
 		case F_MULTI_CH: if(val == ON) // при заходе и выходе с формы многоканального
 						 {
-							 InMultiChMode_f = 1; 
+							 InMultiChMode_f = 1;  
 							 FPGA.setScanMode(1); 
 							 FPGA.setAScanEn(1);//Ascan on
 							 FPGA.setCR_HWGenPow(ON);
@@ -432,7 +201,7 @@ void ToFpgaDllSend(int with_fpga, int funk, int val)
 
 		case F_SINGLE_CH: if(val == ON) // при заходе и выходе с формы ОДНОканального
 						 {
-							 InMultiChMode_f = 0;  
+							 InMultiChMode_f = 0;   
 
 							FPGA.setCR((1<<FMC_SCAN_MODE_b) | (1<<ASCAN_EN_b) | (1<<GEN_HW_EN_b) | (1<<FMC_DAC_EN_b)/*patch*/ );
 
@@ -536,132 +305,3 @@ return; //временно отключил TODO:
 		//
 		}
 }
-
-void FPGAinit(int n)
-{
-	if(DebugOutActive) printf("%s(%i)\n", __FUNCTION__ , n);
-	if(n)
-	{
-#ifdef WINCE
-
-		DBG_SHOW_FUNC;
-		KoeffArr_init();
-		FPGA_BUS_Init(); //DM bus timings
-
-#ifdef FPGA_BUS_TESTS
-
-		DEBUGMSG(TRUE, (TEXT("		F_DLL: Testing FPGA busses....\r\n")));
-
-	//--------------------Tests section start----------------------------------------
-		DBUS_TEST_result = FPGA_DBUS_TEST();
-		if(DBUS_TEST_result){error++;}
-	        
-		ABUS_TEST_result = FPGA_ABUS_TEST();
-		if(ABUS_TEST_result){error++;}
-	//--------------------Tests section end------------------------------------------
-
-		if(error > 0)
-		{
-			//while(0) 
-			{
-				bus_ok = 0;
-				//if(DebugOutActive) printf("FPGA_BUS_ERROR \r\n Initialising cancelled! \r\n");
-				DEBUGMSG(TRUE, (TEXT("\r\n\r\n")));
-				DEBUGMSG(TRUE, (TEXT("		F_DLL: ERROR\r\n")));
-				DEBUGMSG(TRUE, (TEXT("		DBUS_TEST_result = %u \r\n"), DBUS_TEST_result));
-				DEBUGMSG(TRUE, (TEXT("		ABUS_TEST_result = %u \r\n"), ABUS_TEST_result));
-				DEBUGMSG(TRUE, (TEXT("   !!!!!!FPGA INIT CANCELLED!!!!!!\r\n")));
-				DEBUGMSG(TRUE, (TEXT("\r\n\r\n")));
-				Sleep(15000);
-				return;
-			}
-		} 
-		else
-		{
-			DEBUGMSG(TRUE, (TEXT("		F_DLL: A_bus & D_bus is OK\r\n")));
-		}
-#endif// FPGA_BUS_TESTS
-
-		FPGA.systemReset();//restore init values 	
-
-		AcousticScheme_DefaultInit();
-		FPGA_Regs_deinit(); 
-
-		FPGA.setCR(0xFF);//ADC_off
-		FPGA.setCR(0x0A);//ADC_on and other perif on
-		Sync_init();
-
-		FPGA.setCR_HWGenPow(0);//disable gen
-		FPGA.setScanMode(1); //channel autoinc on
-
-		//FPGA.setAnalogChSwich(CH4);
-
-		//1500 - start delay
-		//+2000 = middle of screen rdm 22 - 42* поверхность катания
-		//+4500 = end
-		FPGA.setSignalADCDelay(1400); 
-
-		//PrintAcousticScheme(*activeScheme);
-
-		FPGA.setCR_DACen(ON); 
-		CZoneArrInit();
-
-//		SetupGenChAccordance();
-
-		/*
-		//on CPU side
-		int track = 0, tmp_track = 0;
-		float time, speed;
-		while(1)
-		{
-			Sleep(100);
-			track = FPGA_Read(Track_position);
-
-			time = FPGA_Read(Track_speed);
-			if((time>0) && (tmp_track != track))
-			{
-				time /= 2;
-				speed = 1/time;
-				speed *= 1000; 
-				if(DebugOutActive) printf("speed = %f m\s track = %i \n", speed, track);
-
-				tmp_track = FPGA_Read(Track_position);
-			}
-		}
-		//*/
-
-		//gen 4 фонит с бпеп 2
-		//ген 3 канал 3 не виден датчик
-		//ген 6 канал 6 не виден датчик
-		//ген 7 канал 7 не виден датчик
-
-		//2-2 РС 1 пластина 
-		//1-2 /2-1 РС - обе пластины
-		//4-4 42 hand 
-
-//////////////////////////////////////////////////////////////////
-/*
-		 WCHAR MainExePath[255];
-		 LPCTSTR DstFolderPath = {L"\\Program Files\\Interface"};
-
-		 LPCTSTR MainExeName = {L"FpgaInit.exe"};
-		 //Make path to start main app
-			wcscpy(MainExePath, DstFolderPath);
-			wcscat(MainExePath, L"\\");
-			wcscat(MainExePath, MainExeName);
-		 STARTUPINFO cif;
-		 ZeroMemory(&cif,sizeof(STARTUPINFO));
-		 DEBUGMSG(TRUE,( TEXT("Starting FPGA init app\r\n")));
-		 PROCESS_INFORMATION pi;
-		 CreateProcess(MainExePath,NULL,NULL,NULL,FALSE,NULL,NULL,NULL,&cif,&pi);
-//*/
-	#endif WINCE
-	}
-}
-
-void FPGADeinit (void) //выключение fpga и всей связаной периферии
-{
-	FPGA.setScanMode(0); //channel autoinc off
-	FPGA.setCR_HWGenPow(0); 
-    FPGA.setAnalogChSwich(0);
-} 

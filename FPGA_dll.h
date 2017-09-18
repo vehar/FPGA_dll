@@ -18,13 +18,6 @@
 #ifdef APPLICATION
 extern "C"
 {
- void FPGAinit(int n); //obsolete
-
- void startAScan(int n); //obsolete
- void startBScan(int n); //obsolete
-
- void SettingsHndl (int n); //obsolete
-
  void onAScan(int n); //obsolete
  void offAScan(int n); //obsolete
 
@@ -42,13 +35,6 @@ extern "C"
 
 extern "C"
 {
-
-FPGA_DLL_API void FPGAinit(int n); //obsolete
-
-FPGA_DLL_API void startAScan(int n); //obsolete
-
-FPGA_DLL_API void SettingsHndl (int n); //obsolete
-
 FPGA_DLL_API void onAScan(int n); //obsolete
 FPGA_DLL_API void offAScan(int n); //obsolete
 

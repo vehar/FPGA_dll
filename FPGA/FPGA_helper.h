@@ -15,6 +15,9 @@
 //#include "CustThread/CustThread.h" 
 //#include "Controls/CustControls.h"
 
+extern int DebugOutActive;
+
+
 //TODO: dock it!!!!
  //RDM11
 #define FPGA_ADC_SIGNAL_MAX_VAL 512 // TODO: fix bug with max 500 in FPGA
@@ -79,5 +82,18 @@ extern void FpgaCycleRegTest(DWORD reg);//Test for Kirilov
 extern USHORT ToAdcScale (USHORT persent);
 extern USHORT ToLcdScaleY (USHORT persent);
 extern USHORT ToLcdScaleX (USHORT val);
+
+
+extern USHORT currentChannel;
+extern int Gain_tmp;
+extern int InMultiChMode_f;
+
+extern WORD InterfToPhyChDecode(WORD ch);
+extern void SetScanChannel(int num);
+extern void CZoneArrInit(void);
+extern void startAScan(int n);
+extern void FPGAinit(int n);
+
+
 
 #endif FPGA_HELPER

@@ -185,17 +185,7 @@ void FPGA_Write_Buf_signed(DWORD Addr, short *Buf, unsigned short Nr)
 //TODO
 }
 
-void FPGA_Write (DWORD Addr, unsigned short Value, DWORD Count) 
-{
-	/*
-	bool IsError = false;
-	volatile u32 Offset = Addr*2;
-	if(Count == 1){SetCs1Value(Value, Offset);}
-		//gmi.WriteReg(GPMC_CS1_BASE,(void *)&Offset,Offset,0,Value,IsError);
-	else{SetCs1Value(Value, Offset);} //?_?
-//		WriteReg(PXA_EXTCS0_BASE,(void *)&Offset,Offset,Count,Value,IsError);
-*/
-}
+
 
 
 

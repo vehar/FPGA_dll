@@ -50,7 +50,6 @@ public:
    void ReadBuf(WORD Addr, USHORT* Buff, int size);
 
 	static void		InitIRQ(DWORD dwPin, DWORD bufSize, DWORD accessSize, DWORD dwWait);
-	//static DWORD	ReadBufIRQ(RWRegData_t* readData, PBYTE buf, DWORD bufSize);
 	static DWORD	ReadBufIRQ(RWRegData_t* readData, PBYTE buf, DWORD bufSize);
 	static DWORD	ReadIRQ(RWRegData_t* readData);
 	static void		ReleaseIRQ();
