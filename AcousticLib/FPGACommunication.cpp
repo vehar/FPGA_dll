@@ -95,12 +95,14 @@ void FPGACommunication::resetFilterCoeffsAddr()
 	//gmi->WriteWORD(FILT_COEFS_RST_CR, 1);
 }
 
+
 void FPGACommunication::setScanMode(UINT val)
 {
 	DBG_SHOW_FUNC_T("FPGAComm"); DEBUGMSG(TRUE, (TEXT("val %u \r\n"), val));
 
 	BitWR(CONTROL_REG, FMC_SCAN_MODE_b, val);
 }
+
 void FPGACommunication::setTgcStartAddr(UINT val)
 {
 	gmi->WriteWORD(TGC_RAM_START_AR ,val);
@@ -117,8 +119,13 @@ void FPGACommunication::setLcdMode(UINT val)
 }
 
 
-void FPGACommunication::setCR(UINT val)
+void FPGACommunication::setCR(UINT val) //установка только единиц!!!
 {
+	USHORT tmpReg = 0;
+	DBG_SHOW_FUNC_T("FPGAComm"); DEBUGMSG(TRUE, (TEXT("val %u \r\n"), val));
+
+	gmi->ReadWORD(CONTROL_REG_ADR, tmpReg);
+	tmpReg |= val;
 	gmi->WriteWORD(CONTROL_REG_ADR ,val);
 }
 
@@ -159,6 +166,22 @@ void FPGACommunication::getTrackParams(char& Direction, int& Position, float& Sp
 
 //=========================================================================================
 
+void FPGACommunication::setDrawStartTime(UINT val)
+{
+	gmi->WriteWORD(DRAW_STARTTIME_DR, val);
+}
+
+void FPGACommunication::setDrawEndTime(UINT val)
+{
+	gmi->WriteWORD(DRAW_ENDTIME_DR, val);
+}
+
+void FPGACommunication::setDrawCompress(UINT val)
+{
+	gmi->WriteWORD(DRAW_COMPRESS_DR, val);
+}
+
+
 
 void FPGACommunication::setSyncFreq(UINT freqInSamples)
 {
@@ -169,6 +192,50 @@ void FPGACommunication::setSyncFreq(UINT freqInSamples)
 void FPGACommunication::setSyncSource(USHORT syncSource)
 {
 	BitWR(CONTROL_REG, FMC_SYNC_SRC_b, syncSource);
+}
+
+void FPGACommunication::setAdcDelay(USHORT channel, USHORT val)
+{
+	USHORT tmpReg = 0;
+	USHORT Reg = 0;
+
+DBG_SHOW_FUNC_T("FPGAComm"); DEBUGMSG(TRUE, (TEXT("gain =%u \r\n"), val));
+
+	switch(channel)
+	{
+		case 1: Reg = ADC_DELAY_DR_1; break;
+		case 2: Reg = ADC_DELAY_DR_2; break;
+		case 3: Reg = ADC_DELAY_DR_3; break;
+		case 4: Reg = ADC_DELAY_DR_4; break;
+		case 5: Reg = ADC_DELAY_DR_5; break;
+		case 6: Reg = ADC_DELAY_DR_6; break;
+		case 7: Reg = ADC_DELAY_DR_7; break;
+		case 8: Reg = ADC_DELAY_DR_8; break;
+		default : return;
+	}
+	gmi->WriteWORD(Reg ,val);
+}
+
+void FPGACommunication::setAdcDuration(USHORT channel, USHORT val)
+{
+	USHORT tmpReg = 0;
+	USHORT Reg = 0;
+
+DBG_SHOW_FUNC_T("FPGAComm"); DEBUGMSG(TRUE, (TEXT("gain =%u \r\n"), val));
+
+	switch(channel)
+	{
+		case 1: Reg = ADC_DURATION_DR_1; break;
+		case 2: Reg = ADC_DURATION_DR_2; break;
+		case 3: Reg = ADC_DURATION_DR_3; break;
+		case 4: Reg = ADC_DURATION_DR_4; break;
+		case 5: Reg = ADC_DURATION_DR_5; break;
+		case 6: Reg = ADC_DURATION_DR_6; break;
+		case 7: Reg = ADC_DURATION_DR_7; break;
+		case 8: Reg = ADC_DURATION_DR_8; break;
+		default : return;
+	}
+	gmi->WriteWORD(Reg ,val);
 }
 
 void FPGACommunication::setChDacGain(USHORT channel, USHORT gain)
@@ -243,22 +310,6 @@ void FPGACommunication::setDAC(USHORT en)
 void FPGACommunication::setADC(USHORT en)
 {
 	BitWR(CONTROL_REG, FMC_ADC_EN_b, en);
-}
-
-void FPGACommunication::setSignalCompress(USHORT val)
-{
-	//gmi->WriteWORD(COMPRESS_DR, val);
-}
-
-void FPGACommunication::setSignalDetector(USHORT val )
-{
-	gmi->WriteWORD(DETECT_CR, val);
-}
-
-
-void FPGACommunication::setSignalIntegration( USHORT val )
-{
-	//gmi->WriteWORD(INTEGR_COEF_DR, val);
 }
 
 

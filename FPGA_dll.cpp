@@ -102,7 +102,6 @@ void SettingsHndl (int n)
 		int s_StrobeEnd  = 4500;
 		int s_StrobeLevel  = 400;
 
-		//FPGA.setSignalCompress(s_Сompress);
 		FPGA.setSignalADCDelay(s_AdcDelay);
 
 		for(int i = 0; i< LCD_WIDTH-1; i++)
@@ -137,8 +136,6 @@ FPGA.setGenSel(GEN4); //3
 FPGA.setAnalogChSwich(CH4);//4
 
 FPGA.setSignalADCDelay(1300);
-//FPGA.setSignalCompress(2);//Compress //3 //>>IN_SET
-FPGA.setSignalDetector(1);//Detector = pos+neg 
 FPGA.setDACGain(654);
 
 FPGA.setSyncSource(1);//SyncCtrl - on //SyncInt
@@ -285,9 +282,16 @@ void ToFpgaDllSend(int with_fpga, int funk, int val)
 								if(DebugOutActive) printf("FPGAinit_case_end\n");		
 								break;
 		
-		case F_SIGNAL_COMPRESS: {FPGA.setChCompression(InterfToPhyChDecode(currentChannel), val);} /*FPGA.setSignalCompress(val);*/			break;
+		case F_SIGNAL_COMPRESS: {
+									FPGA.setDrawCompress(val); //для ОДНОканального
+									FPGA.setChCompression(InterfToPhyChDecode(currentChannel), val);
+								} 		
+								break;
 
-		case F_ADC_DELAY:		FPGA.setSignalADCDelay(val);			break;
+		case F_ADC_DELAY:		{
+									//FPGA.setSignalADCDelay(val);	
+									FPGA.setDrawStartTime(val); //для ОДНОканального
+								}break;
 
 		case F_GAIN:			{Gain_tmp = val; //TODO: delete as obsolete
 								FPGA.setChDacGain(InterfToPhyChDecode(currentChannel), /*InterfToPhyDACGainDecode(val)*/ val);	
@@ -312,7 +316,7 @@ void ToFpgaDllSend(int with_fpga, int funk, int val)
 		case F_A_FREEZE_OFF:	AScan_not_freesed = 1; FPGA.setSyncSource(1); ReadDisplayAScan(); break;//СТОП-КАДР ВЫКЛ (A-scan)
 
 		//signal
-		case F_DETECTOR_SET:	FPGA.setSignalDetector(val); break; //3 = Detector = pos+neg  
+		case F_DETECTOR_SET:	 break; //3 = Detector = pos+neg  
 		//case F_INTEGRATOR_SET:	FPGA.setSignalIntegration(val); break;//Количество точек, по которым интегрируется сигнал = 2^ IntegratorKoef //0=off
 
 		case F_TGC_ON:		FPGA.setTgcState(1);			 break;//
@@ -348,9 +352,16 @@ void ToFpgaDllSend(int with_fpga, int funk, int val)
 		case F_SINGLE_CH: if(val == ON) // при заходе и выходе с формы ОДНОканального
 						 {
 							 InMultiChMode_f = 0; 
-							 FPGA.setScanMode(1); 
-							 FPGA.setAScanEn(1);//Ascan on
-							 FPGA.setHWGenPow(ON); 
+
+							 //FPGA.setScanMode(1); 
+							 //FPGA.setAScanEn(1);//Ascan on
+							 //FPGA.setHWGenPow(ON); 
+								FPGA.setCR((1<<FMC_SCAN_MODE_b) | (1<<ASCAN_EN_b) | (1<<GEN_HW_EN_b));
+
+							 //установка параметров отрисовки А-скана
+							 FPGA.setDrawStartTime(0x11);
+							 FPGA.setDrawEndTime(0x22);
+							 FPGA.setDrawCompress(0x33);
 						 }
 						 else 
 						 {
@@ -516,8 +527,6 @@ void FPGAinit(int n)
 		//+2000 = middle of screen rdm 22 - 42* поверхность катания
 		//+4500 = end
 		FPGA.setSignalADCDelay(1400); 
-		//FPGA.setSignalCompress(0);//Compress //3 //>>IN_SET
-		FPGA.setSignalDetector(0);//Detector = pos+neg 
 
 		//PrintAcousticScheme(*activeScheme);
 

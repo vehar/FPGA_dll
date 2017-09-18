@@ -75,13 +75,10 @@ void Acust_init(void)
 {
 //////ANALOG_init start///////////////////////////////////////////////////////////
 
-/*!*/ FPGA.setSignalDetector(1);//Detector = off
-
 FPGA.setScanMode(1); //channel autoinc on
 //резкое падение потребления!!! после этой записи
 //FPGA.setSignalADCDelay(activeScheme->signal.adcDelayUs);//need test
 //FPGA.setProbeDelay(activeScheme->probe.delayUs);//5-2000  //FPGA_Write(_ProbeDelay ,1);////>>IN_SET
-//FPGA.setSignalCompress(compress_val);//Compress //3 //>>IN_SET
 
 //===================================================================================================
 int AcoustAmplification = 310;

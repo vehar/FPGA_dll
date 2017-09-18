@@ -80,6 +80,13 @@ void setCursorX( int cursorIdx, UINT val);
 void setCursorY( int cursorIdx, UINT val);
 void setLcdMode(UINT val);
 
+void setDrawStartTime(UINT val);
+void setDrawEndTime(UINT val);
+void setDrawCompress(UINT val);
+void setAdcDelay(USHORT reg, USHORT val);
+void setAdcDuration(USHORT channel, USHORT val);
+
+
 void setCR(UINT val);
 void getCR(USHORT& val);
 
@@ -109,25 +116,20 @@ UCHAR WriteBuf32(DWORD addr, DWORD addr1, UINT val, UINT val_1, int size);
 	void getSignalData(USHORT* Buff, int size);
 
 	void setSignalDataLen(USHORT val);
-	void setSignalCompress(USHORT val);
-	void setSignalDetector(USHORT val);
+
 	void setAnalogChSwich(USHORT val);
-	void setSignalIntegration(USHORT val);
-	void setAttenuator(USHORT val);
 
 	void setFilterEn(USHORT val);
 	void setFilterCoeffs(USHORT* Buff, int size);
 
 	void setHWGenPow(USHORT val);
-        void setGenSel(USHORT val);
+    void setGenSel(USHORT val);
 
-	
 	void setAcoustContGainCode(USHORT val);
 	void getAC_SUM_DR( USHORT& val); //acoustic contact
 
 	void setProbeDelay(USHORT val);
 	
-	void setDACCh(USHORT val);
 	void setDACGain(USHORT val);
 
 	void setTgcState(USHORT val);
@@ -141,7 +143,7 @@ UCHAR WriteBuf32(DWORD addr, DWORD addr1, UINT val, UINT val_1, int size);
 	void getGateMeasureTCros0( int gateIdx, DWORD &val);
 	
 };
-
+ 
 #endif WINCE
 
 #endif FPGACOMMUNICATION_H

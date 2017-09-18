@@ -22,17 +22,19 @@
 //----------------------------------------------------------------------------------
 
 
+
 //SYSTEM
 #define SYSTEM_BASE_ADR 1
 #define CONTROL_REG_ADR				SYSTEM_BASE_ADR + 0	//
 #define SYSTEM_RESET_CR				SYSTEM_BASE_ADR + 1	//
-#define AN_CH_CSR						SYSTEM_BASE_ADR + 2 //	
+#define AN_CH_CSR					SYSTEM_BASE_ADR + 2 //	
 //#define ___________				SYSTEM_BASE_ADR + 3	//
 //#define ___________				SYSTEM_BASE_ADR + 4	//
-#define FSYNC_DR 						SYSTEM_BASE_ADR + 5	//
-//#define ___________				SYSTEM_BASE_ADR + 6	//
-//#define ___________				SYSTEM_BASE_ADR + 7	//
-//#define ___________				SYSTEM_BASE_ADR + 8	//
+#define FSYNC_DR 					SYSTEM_BASE_ADR + 5	//
+#define DRAW_STARTTIME_DR				SYSTEM_BASE_ADR + 6 //
+#define DRAW_ENDTIME_DR			SYSTEM_BASE_ADR + 7 //
+#define DRAW_COMPRESS_DR			SYSTEM_BASE_ADR + 8 //
+
 //DAC                                                                                              
 #define  DAC_BASE_ADR 10
 #define  DAC_GAIN_DR_1				 DAC_BASE_ADR + 0		//
@@ -50,7 +52,7 @@
 #define  COMPRESS_DR_5_6				 COMPRESS_BASE_ADR + 2	//
 #define  COMPRESS_DR_7_8				 COMPRESS_BASE_ADR + 3	//
 ///////////////////////////////////////////////////////
-#define  ADC_DELAY_BASE_ADR			 COMPRESS_DR_7_8 + 1
+#define  ADC_DELAY_BASE_ADR			 COMPRESS_DR_7_8 + 1//  22
 #define  ADC_DELAY_DR_1				 ADC_DELAY_BASE_ADR + 0
 #define  ADC_DELAY_DR_2				 ADC_DELAY_BASE_ADR + 1
 #define  ADC_DELAY_DR_3				 ADC_DELAY_BASE_ADR + 2
@@ -60,17 +62,17 @@
 #define  ADC_DELAY_DR_7				 ADC_DELAY_BASE_ADR + 6
 #define  ADC_DELAY_DR_8				 ADC_DELAY_BASE_ADR + 7
 
-/*
-#define GEN_DELAY_DR_1				 (GEN_BASE_ADR + 1)           //_GEN_DELAY_DR0_Adr //GenBuffAddr1
-#define GEN_DELAY_DR_2				 (GEN_BASE_ADR + 2)           //	
-#define GEN_DELAY_DR_3				 (GEN_BASE_ADR + 3)           // 
-#define GEN_DELAY_DR_4				 (GEN_BASE_ADR + 4)           //
-#define GEN_DELAY_DR_5				 (GEN_BASE_ADR + 5)           //
-#define GEN_DELAY_DR_6				 (GEN_BASE_ADR + 6)           //
-#define GEN_DELAY_DR_7				 (GEN_BASE_ADR + 7)           //
+///////////////////////////////////////////////////////
+#define ADC_DURATION_BASE_ADR  ADC_DELAY_DR_8 + 1   // 30
+#define ADC_DURATION_DR_1   ADC_DURATION_BASE_ADR + 0
+#define ADC_DURATION_DR_2   ADC_DURATION_BASE_ADR + 1
+#define ADC_DURATION_DR_3   ADC_DURATION_BASE_ADR + 2
+#define ADC_DURATION_DR_4   ADC_DURATION_BASE_ADR + 3
+#define ADC_DURATION_DR_5   ADC_DURATION_BASE_ADR + 4
+#define ADC_DURATION_DR_6   ADC_DURATION_BASE_ADR + 5
+#define ADC_DURATION_DR_7   ADC_DURATION_BASE_ADR + 6
+#define ADC_DURATION_DR_8   ADC_DURATION_BASE_ADR + 7
 		                                                        
-#define GEN_EN					 (GEN_BASE_ADR + 8)           //_GEN_EN_MR_Adr //GenCSAddr
-*/		                                                        
 
 //ANALOG                                                        
 #define ANALOG_BASE_ADR 20                                      
